@@ -19,22 +19,24 @@ except socket.error as socket_error:
 print('Socket bind to ' + str(HOST) + ':' + str(PORT) + ' sucessful')
  
 s.listen(10)
-print('Socket now listening')
-
-#wait to accept a connection - blocking call
-conn, addr = s.accept()
-print('Connected with ' + addr[0] + ':' + str(addr[1]))
- 
-#now keep talking with the client
 while 1:
-    data = conn.recv(1024)
-    reply = 'OK...' + str(data)
-    if not data: 
-        break
-    print("Received: " + str(data))
-    conn.sendall(reply.encode())
-    print("Sent reply: \"" + reply + "\"")
- 
-conn.close()
+    print('Socket now listening')
+
+    #wait to accept a connection - blocking call
+    conn, addr = s.accept()
+    print('Connected with ' + addr[0] + ':' + str(addr[1]))
+     
+    #now keep talking with the client
+    while 1:
+        data = conn.recv(1024)
+        reply = 'OK...' + str(data)
+        if not data: 
+            break
+        print("Received: " + str(data))
+        conn.sendall(reply.encode())
+        print("Sent reply: \"" + reply + "\"")
+     
+    conn.close()
+    
 s.close()
 print('Socket closed')
