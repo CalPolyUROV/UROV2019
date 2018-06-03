@@ -9,3 +9,5 @@ https://www.binarytides.com/python-socket-programming-tutorial/
   * eth0: 192.168.10.11
     
 A reboot may be required for ip adresses to take effect
+
+https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md
