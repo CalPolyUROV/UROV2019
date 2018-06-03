@@ -1,20 +1,27 @@
 import socket
 import sys
+from time import sleep
  
-HOST = ''   # Symbolic name meaning all available interfaces
+HOST = '192.168.10.10'   # Symbolic name meaning all available interfaces
 PORT = 5000 # Arbitrary non-privileged port
 
-# create socket, use ipv4 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
-print('Socket created')
- 
-try:
-    s.bind((HOST, PORT))
-except socket.error as socket_error:
-    print('Bind failed. Error Code: '.format(socket_error))
-    s.close()
-    sys.exit()
+
+bound = False
+while not bound:
+    # create socket, use ipv4 
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
+    print('Socket created')
+    try:
+        s.bind((HOST, PORT))
+    except socket.error as socket_error:
+        bound = False
+        print('Bind failed. Error Code: '.format(socket_error))
+        s.close()
+        sleep(1)
+        continue
+        #sys.exit()
+    bound = True  
      
 print('Socket bind to ' + str(HOST) + ':' + str(PORT) + ' sucessful')
  
