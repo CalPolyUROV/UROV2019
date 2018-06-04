@@ -2,9 +2,20 @@ Sockets Test:
 - retry when failing to connect
 - send arbitrary data/make our sockets test file into library
 
-Pi/Arduino Serial:
-send motor control and recieve confimation
+Robot Pi:
+- implement boot script
+- send motor control and recieve confimation
+- serial connection to Arduino
+- parse commands from sockets
+
+Arduino:
+- serial connection to Pi
+- parse serial commands
+- PWM control of thrusters
 
 Topside UI:
-import legacy code
-use sockets
+- implement path value
+- implement boot script
+- import legacy code
+- use sockets
+
