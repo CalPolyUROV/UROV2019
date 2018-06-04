@@ -1,7 +1,6 @@
 Sockets Test:
-retry when failing to bind
-ethernet IP network
-send arbitrary data/make our sockets test file into library
+- retry when failing to connect
+- send arbitrary data/make our sockets test file into library
 
 Pi/Arduino Serial:
 send motor control and recieve confimation
