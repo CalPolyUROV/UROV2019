@@ -19,3 +19,11 @@ Topside UI:
 - import legacy code
 - use sockets
 
+Data to display in UI and send over comms
+- heartbeat / is connection allive		1 byte
+- arduino hearbeat / serial is works?	1 byte
+- thruster X, Y, Z, R 					4 x -400 to 400
+- camera switching 						3 bit number
+- camera rotation servo 				180 degrees
+- mission tool on/off					speed?
+- button presses						
