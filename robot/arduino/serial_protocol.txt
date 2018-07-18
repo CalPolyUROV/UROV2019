@@ -1,0 +1,10 @@
+Serial Protocol
+
+Communication between Raspberry Pi inside the robot and the Arduino compatible
+MCU inside the robot. The combination of these devices have been selected 
+because the Pi excels at robust sockets communication and the Arduino provides 
+extensive PWM control capacity. PWM control using the Pi is not feasible due to 
+timers that interrupt in order to create PWM signals.
+
+Data to be moved:
+6 thruster values ranging from -400 to 400
