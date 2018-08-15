@@ -28,7 +28,7 @@ Internal Coms Draft v0.1
 |            |                                            |
 +---------------------------------------------------------+
 
-  Arduino / Teensy  Recei^e pipeline
+  Arduino / Teensy  Receive pipeline
 +------------------------------------+
 
  +---------------+    +------------+    +-------------+
