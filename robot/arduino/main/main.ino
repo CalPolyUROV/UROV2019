@@ -17,6 +17,8 @@
 */
 
 SERIAL_CLASS *coms_serial;
+DEBUG_SERIAL_CLASS *debug_serial;
+
 // TODO: add debug serial port and utilize
 // HardwareSerial *debug_serial;
 
@@ -29,6 +31,9 @@ void setup() {
   while (!coms_serial) {
     ;
   }
+
+  debug_serial = &Serial; // This is USB serial
+  //debug_serial.begin(DEBUG_BAUD);
 
   establishContact();  // send a byte to establish contact until receiver responds
 }
@@ -50,6 +55,7 @@ int establishContact() {
   struct packet p;
   if (get_packet(&p, -1)) {
     //error from get_packet()
+    debug_packet(p);
   }
   if (p.cmd == EST_CON_CMD &&
       p.value1 == 0 &&
@@ -78,6 +84,21 @@ int get_packet(struct packet* p, byte prev_seqnum) {
     return 1;
   }
   return 0;
+}
+
+void debug_packet(struct packet p) {
+  if (DEBUG) {
+    debug_serial->print("cmd: ");
+    debug_serial->println(p.cmd);
+    debug_serial->print("value1: ");
+    debug_serial->println(p.value1);
+    debug_serial->print("value2: ");
+    debug_serial->println(p.value2);
+    debug_serial->print("seq_num: ");
+    debug_serial->println(extract_seqnum(&p));
+    debug_serial->print("seq_num: ");
+    debug_serial->println(extract_chksum(&p));
+  }
 }
 
 // Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble

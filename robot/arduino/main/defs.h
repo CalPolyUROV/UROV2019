@@ -36,3 +36,8 @@ struct packet {
   byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
 
+#define TRUE 1
+#define FALSE 0
+
+
+
