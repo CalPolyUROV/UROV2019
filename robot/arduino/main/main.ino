@@ -22,15 +22,13 @@ DEBUG_SERIAL_CLASS *debug_serial;
 // TODO: add debug serial port and utilize
 // HardwareSerial *debug_serial;
 
-byte recv_byte = 0;         // incoming serial byte
+byte seq_num = 0;         // incoming serial byte
+
 
 void setup() {
 
   coms_serial = &Serial; // This is USB serial
   coms_serial->begin(COMS_BAUD);
-  while (!coms_serial) {
-    ;
-  }
 
   debug_serial = &Serial; // This is USB serial
   //debug_serial.begin(DEBUG_BAUD);
@@ -39,39 +37,41 @@ void setup() {
 }
 
 void loop() {
-  // if we get a valid byte, read analog ins:
-  if (coms_serial->available() > 0) {
-    // get incoming byte:
-    recv_byte = coms_serial->read();
-    // read first analog input, divide by 4 to make the range 0-255:
-    //firstSensor = analogRead(A0) / 4;
-    // delay 10ms to let the ADC recover:
-    delay(10);
-
+  struct packet p;
+  if (get_packet(&p, seq_num)) {
+    //error from get_packet()
+    debug_packet(p);
   }
+  debug_packet(p);
+  //handle_packet(p);
+  delay(10);
 }
 
 int establishContact() {
   struct packet p;
-  if (get_packet(&p, -1)) {
+  if (get_packet(&p, seq_num)) {
     //error from get_packet()
     debug_packet(p);
   }
   if (p.cmd == EST_CON_CMD &&
       p.value1 == 0 &&
       p.value2 == 0 &&
-      extract_seqnum(&p) == 0){
-        return 0;
-      }
-      return 1;
+      extract_seqnum(&p) == 0) {
+    return 0;
+  }
+  return 1;
 }
 
 int get_packet(struct packet* p, byte prev_seqnum) {
+
+  while (coms_serial->available() < PACKET_LENGTH) {
+    ;
+  }
   p->cmd = coms_serial->read();
   p->value1 = coms_serial->read();
   p->value2 = coms_serial->read();
   p->seqnum_chksum = coms_serial->read();
-  
+
   if (extract_chksum(p) != calc_chksum(p)) {
     // checksum failed
     // debug print result
