@@ -5,10 +5,6 @@
   sends three sensor values whenever it gets a byte in."
 
 */
-// settings
-// TODO: move to settings.h
-#define SERIAL_SELECTION USB_SERIAL
-#define COMS_BAUD 9600
 
 // defs
 // TODO: move to defs.h
@@ -34,6 +30,7 @@ struct packet {
   byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
 
+#include "settings.h"
 usb_serial_class *coms_serial;
 // TODO: add debug serial port and utilize
 // HardwareSerial *debug_serial;
