@@ -8,23 +8,23 @@
 
 #include "settings.h"
 #include "defs.h"
-usb_serial_class *coms_serial;
+
+/* The Teensy and Arduino use a different class for serial.
+   If Arduino, Serial is a HardwareSerial
+   If Teensy, Serial is a usb_serial_class
+   This is done so the sepcific serial port is selectable.
+    https://electronics.stackexchange.com/questions/58386/how-can-i-detect-which-arduino-board-or-which-controller-in-software
+*/
+
+SERIAL_CLASS *coms_serial;
 // TODO: add debug serial port and utilize
 // HardwareSerial *debug_serial;
 
 byte recv_byte = 0;         // incoming serial byte
 
 void setup() {
-  /*switch (SERIAL_SELECTION) {
-    case USB_SERIAL:
-      coms_serial = &Serial;
-      break;
-    case SERIAL_2:
-      coms_serial = &Serial2;
-      break;
-  }
-  */
-  coms_serial = &Serial;
+
+  coms_serial = &Serial; // This is USB serial
   coms_serial->begin(COMS_BAUD);
   while (!coms_serial) {
     ;

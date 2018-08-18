@@ -1,5 +1,7 @@
 // settings
 
-#define SERIAL_SELECTION USB_SERIAL
+#define TEENSY
+// TEENSY or MEGA
+
 #define COMS_BAUD 9600
 
