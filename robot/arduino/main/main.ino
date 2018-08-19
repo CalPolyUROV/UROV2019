@@ -25,7 +25,6 @@ DEBUG_SERIAL_CLASS *debug_serial;
 
 byte seq_num = 0;         // incoming serial byte
 
-
 void setup() {
 
   coms_serial = &Serial; // This is USB serial
@@ -44,8 +43,21 @@ void loop() {
     debug_packet(p);
   }
   debug_packet(p);
-  //handle_packet(p);
+  handle_packet(p);
   delay(10);
+}
+
+void handle_packet(struct packet p) {
+  switch (p.cmd) {
+    case EST_CON_CMD:
+      break;
+    case SET_MOT_CMD:
+      break;
+    case RD_SENS_CMD:
+      break;
+    default:
+      break;
+  }
 }
 
 int establishContact() {
@@ -91,12 +103,16 @@ void debug_packet(struct packet p) {
   if (DEBUG) {
     debug_serial->print("cmd: ");
     debug_serial->println(p.cmd);
+    
     debug_serial->print("value1: ");
     debug_serial->println(p.value1);
+    
     debug_serial->print("value2: ");
     debug_serial->println(p.value2);
+    
     debug_serial->print("seq_num: ");
     debug_serial->println(extract_seqnum(p.seqnum_chksum));
+    
     debug_serial->print("seq_num: ");
     debug_serial->println(extract_chksum(p.seqnum_chksum));
   }
