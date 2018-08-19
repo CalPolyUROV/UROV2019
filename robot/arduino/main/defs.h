@@ -30,15 +30,6 @@
 #define SET_MOT_CMD 0x20
 #define RD_SENS_CMD 0x40
 
-#define PACKET_LENGTH 4 
-// use for checking to see if buffer contains a packet
-
-struct packet {
-  byte cmd;
-  byte value1, value2;
-  byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
-};
-
 #define TRUE 1
 #define FALSE 0
 

@@ -8,6 +8,7 @@
 
 #include "settings.h"
 #include "defs.h"
+#include "packet.h"
 
 /* The Teensy and Arduino use a different class for serial.
    If Arduino, Serial is a HardwareSerial
@@ -99,24 +100,5 @@ void debug_packet(struct packet p) {
     debug_serial->print("seq_num: ");
     debug_serial->println(extract_chksum(p.seqnum_chksum));
   }
-}
-
-// Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
-byte extract_chksum(byte b) {
-  return b & CHKSUM_MASK;
-}
-
-// Bitshift the seqnum_chksum byte right 4 times to leave just the seqnum nibble
-byte extract_seqnum(byte b) {
-  return b >> 4;
-}
-
-// calculate the checksum value for a packet
-byte calc_chksum(struct packet* p) {
-  return (p->cmd +
-          (p->value1 * 3) +
-          (p->value2 * 5) +
-          (extract_seqnum(p->seqnum_chksum) * 7))
-         & CHKSUM_MASK;
 }
 
