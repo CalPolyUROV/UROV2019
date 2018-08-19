@@ -56,7 +56,7 @@ int establishContact() {
   if (p.cmd == EST_CON_CMD &&
       p.value1 == 0 &&
       p.value2 == 0 &&
-      extract_seqnum(&p) == 0) {
+      extract_seqnum(p.seqnum_chksum) == 0) {
     return 0;
   }
   return 1;
@@ -72,13 +72,13 @@ int get_packet(struct packet* p, byte prev_seqnum) {
   p->value2 = coms_serial->read();
   p->seqnum_chksum = coms_serial->read();
 
-  if (extract_chksum(p) != calc_chksum(p)) {
+  if (extract_chksum(p->seqnum_chksum) != calc_chksum(p)) {
     // checksum failed
     // debug print result
     return 1;
   }
-  if (!((extract_seqnum(p) == prev_seqnum + 1) |
-        ((prev_seqnum == MAX_SEQNUM) && (extract_seqnum == FIRST_SEQNUM)))) {
+  if (!((extract_seqnum(p->seqnum_chksum) == prev_seqnum + 1) |
+        ((prev_seqnum == MAX_SEQNUM) && (extract_seqnum(p->seqnum_chksum) == FIRST_SEQNUM)))) {
     // incorrect seqnum
     // debug print result
     return 1;
@@ -95,24 +95,28 @@ void debug_packet(struct packet p) {
     debug_serial->print("value2: ");
     debug_serial->println(p.value2);
     debug_serial->print("seq_num: ");
-    debug_serial->println(extract_seqnum(&p));
+    debug_serial->println(extract_seqnum(p.seqnum_chksum));
     debug_serial->print("seq_num: ");
-    debug_serial->println(extract_chksum(&p));
+    debug_serial->println(extract_chksum(p.seqnum_chksum));
   }
 }
 
 // Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
-byte extract_chksum(struct packet* p) {
-  return p->seqnum_chksum & CHKSUM_MASK;
+byte extract_chksum(byte b) {
+  return b & CHKSUM_MASK;
 }
 
 // Bitshift the seqnum_chksum byte right 4 times to leave just the seqnum nibble
-byte extract_seqnum(struct packet* p) {
-  return p->seqnum_chksum >> 4;
+byte extract_seqnum(byte b) {
+  return b >> 4;
 }
 
 // calculate the checksum value for a packet
 byte calc_chksum(struct packet* p) {
-  return (p->cmd + (p->value1 * 3) + (p->value2 * 5) + (extract_seqnum(p) * 7)) & CHKSUM_MASK;
+  return (p->cmd +
+          (p->value1 * 3) +
+          (p->value2 * 5) +
+          (extract_seqnum(p->seqnum_chksum) * 7))
+         & CHKSUM_MASK;
 }
 
