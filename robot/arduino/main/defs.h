@@ -1,4 +1,5 @@
-// defs
+#ifndef DEFS_H
+#define DEFS_H
 
 // Select hardware
 #ifdef MEGA
@@ -33,5 +34,5 @@
 #define TRUE 1
 #define FALSE 0
 
-
+#endif
 

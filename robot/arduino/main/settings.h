@@ -1,4 +1,5 @@
-// settings
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
 #define DEBUG TRUE
 
@@ -7,3 +8,5 @@
 
 #define COMS_BAUD 9600
 #define DEBUG_BAUD 9600
+
+#endif
