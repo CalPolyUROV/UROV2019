@@ -32,13 +32,18 @@ byte extract_seqnum(byte b) {
   return b >> 4;
 }
 
-// calculate the checksum value for a packet
-byte calc_chksum(struct packet* p) {
-  return (p->cmd +
-          (p->value1 * 3) +
-          (p->value2 * 5) +
-          (extract_seqnum(p->seqnum_chksum) * 7))
-         & CHKSUM_MASK;
+// calculate the checksum for values being put into a packet
+byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum) {
+  return ((cmd +
+           (value1 * 3) +
+           (value2 * 5) +
+           (seqnum * 7))
+          % B1111)
+          & CHKSUM_MASK;
+}
+
+byte recalc_chksum(struct packet *p){
+  return calc_chksum(p->cmd, p->value1, p->value2, p->seqnum_chksum >> 4);
 }
 
 #endif
