@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define DEBUG TRUE
+#define DEBUG true
 
 #define TEENSY
 // TEENSY or MEGA

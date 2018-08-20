@@ -30,9 +30,5 @@
 #define EST_CON_CMD 0x00
 #define SET_MOT_CMD 0x20
 #define RD_SENS_CMD 0x40
-
-#define TRUE 1
-#define FALSE 0
-
 #endif
 
