@@ -23,6 +23,10 @@
   allowing 4 packets to wait in the 64 byte UART buffer
 */
 
+// Magic packet contents to validate est_con packet (arbitrary)
+#define EST_CON_VAL1 B10100101
+#define EST_CON_VAL2 B01011010
+
 #define CHKSUM_MASK B00001111 // lower nibble
 
 #define MAX_SEQNUM B00001111  //upper bound of seqnum, inclusive

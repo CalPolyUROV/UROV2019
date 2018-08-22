@@ -30,7 +30,7 @@ void setup() {
 
 
   seq_num = 0; // TODO: Use FIRST_SEQNUM
-  establishContact();  // send a byte to establish contact until receiver responds
+  //establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
@@ -47,8 +47,13 @@ void handle_packet(packet p, byte expect_seqnum_nibble) {
   struct packet response;
   switch (p.cmd) {
     case EST_CON_CMD:
-      // TODO: bring in previous motor code from 2018
-      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
+      if ((p.value1 == EST_CON_VAL1) &
+          (p.value2 == EST_CON_VAL2) &
+          (extract_seqnum(p.seqnum_chksum) == FIRST_SEQNUM)) {
+        create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
+      }
+      // Establish connection packet was not valid
+      create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
     case SET_MOT_CMD:
       // TODO: bring in previous motor code from 2018
@@ -57,14 +62,19 @@ void handle_packet(packet p, byte expect_seqnum_nibble) {
     case RD_SENS_CMD:
       break;
     default:
-      create_packet(&response, INV_CMD_ACK, p.value1, p.cmd, expect_seqnum_nibble);
+      create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
   }
   send_packet(coms_serial, response);
 }
 
+// function for prepping a response to an invalid packet, for when you want to say "NOPE"
+void create_inv_packet(packet *response, packet p, byte seqnum_nibble) {
+  create_packet(response, INV_CMD_ACK, p.value1, p.cmd, seqnum_nibble);
+}
+
 // TODO: remove this? handle_packet() can handle this, just migrate seqnum checking
-int establishContact() {
+/* int establishContact() {
   struct packet p;
   if (get_packet(&p, FIRST_SEQNUM)) {
     //error from get_packet()
@@ -78,6 +88,7 @@ int establishContact() {
   }
   return 1;
 }
+*/
 
 
 // Deserialize a packet object to the given pointer. Returns 0 on sucess and >0 on failure.

@@ -7,7 +7,7 @@ void wait_for_packet(SERIAL_CLASS *serial) {
 }
 
 // Take values for a packet and place at a pointer, add checksum
-void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble) {
+void create_packet(packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble) {
   p->cmd = cmd;
   p->value1 = value1;
   p->value2 = value2;
