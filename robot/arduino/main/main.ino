@@ -23,7 +23,7 @@ DEBUG_SERIAL_CLASS *debug_serial;
 // TODO: add debug serial port and utilize
 // HardwareSerial *debug_serial;
 
-byte seq_num = 0;         // incoming serial byte
+int seq_num;         // incoming serial byte
 
 void setup() {
 
@@ -33,21 +33,23 @@ void setup() {
   debug_serial = &Serial; // This is USB serial
   //debug_serial.begin(DEBUG_BAUD);
 
+
+  seq_num = 0;
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
   struct packet p;
-  if (get_packet(&p, seq_num)) {
+  if (get_packet(&p, seq_num++)) {
     //error from get_packet()
     debug_packet(p);
   }
   debug_packet(p);
-  handle_packet(p);
+  handle_packet(p, seq_num++);
   delay(10);
 }
 
-void handle_packet(struct packet p) {
+void handle_packet(packet p, byte expect_seqnum_nibble) {
   switch (p.cmd) {
     case EST_CON_CMD:
       break;
