@@ -86,7 +86,7 @@ void send_packet(packet p) {
 
 // Deserialize a packet object to the given pointer. Returns 0 on sucess and 1 on failure.
 // Blocks until serial buffer contains an entire packet worth of bytes.
-int get_packet(struct packet *p, byte expect_seqnum_nibble) {
+int get_packet(packet *p, byte expect_seqnum_nibble) {
   wait_for_packet(coms_serial);
   byte cmd_byte = coms_serial->read();
   byte value1_byte = coms_serial->read();
@@ -108,7 +108,7 @@ int get_packet(struct packet *p, byte expect_seqnum_nibble) {
   return 0;
 }
 
-void debug_packet(struct packet p) {
+void debug_packet(packet p) {
   if (DEBUG) {
     debug_serial->print("cmd: ");
     debug_serial->println(p.cmd);
