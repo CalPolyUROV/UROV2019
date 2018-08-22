@@ -1,6 +1,8 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#include "settings.h"
+
 // Select hardware
 #ifdef MEGA
 //Mega 2560 specific code
