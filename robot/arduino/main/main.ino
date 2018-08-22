@@ -62,7 +62,7 @@ void handle_packet(struct packet p) {
 
 int establishContact() {
   struct packet p;
-  if (get_packet(&p, seq_num)) {
+  if (get_packet(&p, FIRST_SEQNUM)) {
     //error from get_packet()
     debug_packet(p);
   }
@@ -75,7 +75,7 @@ int establishContact() {
   return 1;
 }
 
-int get_packet(struct packet* p, byte prev_seqnum) {
+int get_packet(struct packet *p, byte expect_seqnum_nibble) {
 
   while (coms_serial->available() < PACKET_LENGTH) {
     ;
@@ -86,12 +86,12 @@ int get_packet(struct packet* p, byte prev_seqnum) {
   p->seqnum_chksum = coms_serial->read();
 
   if (extract_chksum(p->seqnum_chksum) != calc_chksum(p)) {
+  if (extract_chksum(seqnum_chksum_byte) != extract_chksum(p->seqnum_chksum)) {
     // checksum failed
     // debug print result
     return 1;
   }
-  if (!((extract_seqnum(p->seqnum_chksum) == prev_seqnum + 1) |
-        ((prev_seqnum == MAX_SEQNUM) && (extract_seqnum(p->seqnum_chksum) == FIRST_SEQNUM)))) {
+  if (extract_seqnum(p->seqnum_chksum) != expect_seqnum_nibble) {
     // incorrect seqnum
     // debug print result
     return 1;
