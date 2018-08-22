@@ -1,6 +1,8 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include <arduino.h>
+
 #include "defs.h"
 
 //LUT
@@ -22,28 +24,10 @@ struct packet {
   byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
 
-// Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
-byte extract_chksum(byte b) {
-  return b & CHKSUM_MASK;
-}
 
-// Bitshift the seqnum_chksum byte right 4 times to leave just the seqnum nibble
-byte extract_seqnum(byte b) {
-  return b >> 4;
-}
-
-// calculate the checksum for values being put into a packet
-byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum) {
-  return ((cmd +
-           (value1 * 3) +
-           (value2 * 5) +
-           (seqnum * 7))
-          % B1111)
-          & CHKSUM_MASK;
-}
-
-byte recalc_chksum(struct packet *p){
-  return calc_chksum(p->cmd, p->value1, p->value2, p->seqnum_chksum >> 4);
-}
+void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble);
+byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum_nibble);
+byte extract_chksum(byte seqnum_chksum);
+byte extract_seqnum(byte b);
 
 #endif
