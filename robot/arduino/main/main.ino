@@ -75,17 +75,18 @@ int establishContact() {
   return 1;
 }
 
+// Deserialize a packet object to the given pointer. Returns 0 on sucess and 1 on failure.
+// Blocks until serial buffer contains an entire packet worth of bytes.
 int get_packet(struct packet *p, byte expect_seqnum_nibble) {
 
-  while (coms_serial->available() < PACKET_LENGTH) {
-    ;
-  }
-  p->cmd = coms_serial->read();
-  p->value1 = coms_serial->read();
-  p->value2 = coms_serial->read();
-  p->seqnum_chksum = coms_serial->read();
+  while (coms_serial->available() < PACKET_LENGTH) {}
+  byte cmd_byte = coms_serial->read();
+  byte value1_byte = coms_serial->read();
+  byte value2_byte = coms_serial->read();
+  byte seqnum_chksum_byte = coms_serial->read();
+  create_packet(p, cmd_byte, value1_byte, value2_byte, extract_seqnum(seqnum_chksum_byte));
 
-  if (extract_chksum(p->seqnum_chksum) != calc_chksum(p)) {
+  // check for correct check sum
   if (extract_chksum(seqnum_chksum_byte) != extract_chksum(p->seqnum_chksum)) {
     // checksum failed
     // debug print result
