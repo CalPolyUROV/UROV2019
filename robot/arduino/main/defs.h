@@ -29,9 +29,5 @@
 // TODO: handle debug serial selection. Debug channel is hardcoded mirror of coms for now
 #define DEBUG_SERIAL_CLASS SERIAL_CLASS
 
-#define CHKSUM_MASK B00001111 // lower nibble
-// #define MAX_SEQNUM B00001111 not used atm
-#define FIRST_SEQNUM B00000000 // initial sequence number
-
 #endif
 

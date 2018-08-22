@@ -23,6 +23,11 @@
   allowing 4 packets to wait in the 64 byte UART buffer
 */
 
+#define CHKSUM_MASK B00001111 // lower nibble
+
+#define MAX_SEQNUM B00001111  //upper bound of seqnum, inclusive
+#define FIRST_SEQNUM B00000000 // initial sequence number
+
 struct packet {
   byte cmd; // the action to be executed on the Arduino/Teensy
   byte value1, value2; // Data for the action ie which motor PWM timing
