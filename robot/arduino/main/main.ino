@@ -50,14 +50,23 @@ void loop() {
 }
 
 void handle_packet(packet p, byte expect_seqnum_nibble) {
+  struct packet response;
   switch (p.cmd) {
     case EST_CON_CMD:
+      // TODO: bring in previous motor code from 2018
+      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
+      send_packet(p);
       break;
     case SET_MOT_CMD:
+      // TODO: bring in previous motor code from 2018
+      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
+      send_packet(p);
       break;
     case RD_SENS_CMD:
       break;
     default:
+      create_packet(&response, INV_CMD_ACK, p.value1, p.cmd, expect_seqnum_nibble);
+      send_packet(p);
       break;
   }
 }
