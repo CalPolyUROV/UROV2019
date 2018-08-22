@@ -25,7 +25,7 @@ void setup() {
   coms_serial = &Serial; // This is USB serial
   coms_serial->begin(COMS_BAUD);
 
-  debug_serial = &Serial; // This is USB serial
+  debug_serial = coms_serial; // This is USB serial
   //debug_serial.begin(DEBUG_BAUD); // Doesn't need to be initialized again
 
 
