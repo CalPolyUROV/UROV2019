@@ -9,10 +9,12 @@
 // lookup table for indexes of commands
 // byte cmd_lut[255] = {EST_CMD, SET_MOT_CMD, READ...}
 // currently using switch statement and bodge LUT
-#define EST_CON_CMD 0x00 // establish connection (command)
-#define SET_MOT_CMD 0x20 // set motor (command)
-#define MOT_SET_CMD 0x21 // motor has been set (reponse)
+#define EST_CON_CMD 0x00 // establish connection (call)
+#define EST_CON_ACK 0x01 // respond to new connection
+#define SET_MOT_CMD 0x20 // set motor (call)
+#define SET_MOT_ACK 0x21 // motor has been set (reponse)
 #define RD_SENS_CMD 0x40
+#define INV_CMD_ACK 0xFF // Invalid command, value2 of response contains cmd
 
 
 #define PACKET_LENGTH 4
