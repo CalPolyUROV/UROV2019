@@ -1,9 +1,12 @@
 #include "packet.h"
 
-void wait_for_packet(SERIAL_CLASS *serial){
+// Wait for the UART buffer to be filled with a whole packet.
+// This is a blocking operation (i think)
+void wait_for_packet(SERIAL_CLASS *serial) {
   while (serial->available() < PACKET_LENGTH) {}
 }
 
+// Take values for a packet and place at a pointer, add checksum
 void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble) {
   p->cmd = cmd;
   p->value1 = value1;
@@ -31,6 +34,9 @@ byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum_nibble) {
          & CHKSUM_MASK;
 }
 
-byte recalc_chksum(struct packet *p) {
+/* not used right now
+
+  byte recalc_chksum(struct packet *p) {
   return calc_chksum(p->cmd, p->value1, p->value2, p->seqnum_chksum >> 4);
-}
+  }
+*/

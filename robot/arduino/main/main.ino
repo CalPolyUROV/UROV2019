@@ -10,20 +10,15 @@
 #include "defs.h"
 #include "packet.h"
 
-/* The Teensy and Arduino use a different class for serial.
-   If Arduino, Serial is a HardwareSerial
-   If Teensy, Serial is a usb_serial_class
-   This is done so the sepcific serial port is selectable.
-    https://electronics.stackexchange.com/questions/58386/how-can-i-detect-which-arduino-board-or-which-controller-in-software
-*/
 
-SERIAL_CLASS *coms_serial;
-DEBUG_SERIAL_CLASS *debug_serial;
+SERIAL_CLASS *coms_serial; // Main UART coms to on-robot Raspberry Pi
+DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
+// Note that these serial objects are pointers so they can be passed around and reassigned easily
 
-// TODO: add debug serial port and utilize
+// TODO: add debug serial port and utilize it
 // HardwareSerial *debug_serial;
 
-int seq_num;         // incoming serial byte
+int seq_num; // Sequence number keeps track of packet order
 
 void setup() {
 
@@ -31,10 +26,10 @@ void setup() {
   coms_serial->begin(COMS_BAUD);
 
   debug_serial = &Serial; // This is USB serial
-  //debug_serial.begin(DEBUG_BAUD);
+  //debug_serial.begin(DEBUG_BAUD); // Doesn't need to be initialized again
 
 
-  seq_num = 0;
+  seq_num = 0; // TODO: Use FIRST_SEQNUM
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
@@ -71,6 +66,7 @@ void handle_packet(packet p, byte expect_seqnum_nibble) {
   }
 }
 
+// TODO: remove this? handle_packet() can handle this, just migrate seqnum checking
 int establishContact() {
   struct packet p;
   if (get_packet(&p, FIRST_SEQNUM)) {
@@ -93,7 +89,7 @@ void send_packet(packet p) {
   coms_serial->write(p.seqnum_chksum);
 }
 
-// Deserialize a packet object to the given pointer. Returns 0 on sucess and 1 on failure.
+// Deserialize a packet object to the given pointer. Returns 0 on sucess and >0 on failure.
 // Blocks until serial buffer contains an entire packet worth of bytes.
 int get_packet(packet *p, byte expect_seqnum_nibble) {
   wait_for_packet(coms_serial);
@@ -109,11 +105,13 @@ int get_packet(packet *p, byte expect_seqnum_nibble) {
     // debug print result
     return 1;
   }
+  // Check squence number after checksum because seqnum of mangled packet is useless
   if (extract_seqnum(p->seqnum_chksum) != expect_seqnum_nibble) {
     // incorrect seqnum
     // debug print result
-    return 1;
+    return 2;
   }
+  // Success
   return 0;
 }
 
