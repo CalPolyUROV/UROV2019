@@ -14,6 +14,14 @@ void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte se
   p->seqnum_chksum = (seqnum_nibble << 4) +  calc_chksum(cmd, value1, value2, seqnum_nibble);
 }
 
+// Send the packet over a serial interface
+void send_packet(SERIAL_CLASS *serial, packet p) {
+  serial->write(p.cmd);
+  serial->write(p.value1);
+  serial->write(p.value2);
+  serial->write(p.seqnum_chksum);
+}
+
 // Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
 byte extract_chksum(byte seqnum_chksum) {
   return seqnum_chksum & CHKSUM_MASK;

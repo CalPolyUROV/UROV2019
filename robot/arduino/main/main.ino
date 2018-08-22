@@ -50,20 +50,18 @@ void handle_packet(packet p, byte expect_seqnum_nibble) {
     case EST_CON_CMD:
       // TODO: bring in previous motor code from 2018
       create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
-      send_packet(p);
       break;
     case SET_MOT_CMD:
       // TODO: bring in previous motor code from 2018
       create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
-      send_packet(p);
       break;
     case RD_SENS_CMD:
       break;
     default:
       create_packet(&response, INV_CMD_ACK, p.value1, p.cmd, expect_seqnum_nibble);
-      send_packet(p);
       break;
   }
+  send_packet(coms_serial, response);
 }
 
 // TODO: remove this? handle_packet() can handle this, just migrate seqnum checking
@@ -82,12 +80,6 @@ int establishContact() {
   return 1;
 }
 
-void send_packet(packet p) {
-  coms_serial->write(p.cmd);
-  coms_serial->write(p.value1);
-  coms_serial->write(p.value2);
-  coms_serial->write(p.seqnum_chksum);
-}
 
 // Deserialize a packet object to the given pointer. Returns 0 on sucess and >0 on failure.
 // Blocks until serial buffer contains an entire packet worth of bytes.
