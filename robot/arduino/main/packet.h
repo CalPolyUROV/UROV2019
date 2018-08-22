@@ -16,7 +16,10 @@
 
 
 #define PACKET_LENGTH 4
-// use for checking to see if buffer contains a packet
+/* use for checking to see if buffer contains a packet.
+*In the future, packet size could maybe grow to 8 bytes,
+*allowing 4 packets to wait in the 64 byte UART buffer
+*/
 
 struct packet {
   byte cmd;
