@@ -37,9 +37,8 @@ void loop() {
   struct packet p;
   if (get_packet(&p, seq_num++)) {
     //error from get_packet()
-    debug_packet(p);
   }
-  debug_packet(p);
+  debug_packet(debug_serial, p);
   handle_packet(p, seq_num++);
   delay(10);
 }
@@ -69,7 +68,7 @@ int establishContact() {
   struct packet p;
   if (get_packet(&p, FIRST_SEQNUM)) {
     //error from get_packet()
-    debug_packet(p);
+    debug_packet(debug_serial, p);
   }
   if (p.cmd == EST_CON_CMD &&
       p.value1 == 0 &&
@@ -107,22 +106,23 @@ int get_packet(packet *p, byte expect_seqnum_nibble) {
   return 0;
 }
 
-void debug_packet(packet p) {
+
+void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
   if (DEBUG) {
-    debug_serial->print("cmd: ");
-    debug_serial->println(p.cmd);
+    serial->print("cmd: ");
+    serial->println(p.cmd);
 
-    debug_serial->print("value1: ");
-    debug_serial->println(p.value1);
+    serial->print("value1: ");
+    serial->println(p.value1);
 
-    debug_serial->print("value2: ");
-    debug_serial->println(p.value2);
+    serial->print("value2: ");
+    serial->println(p.value2);
 
-    debug_serial->print("seq_num: ");
-    debug_serial->println(extract_seqnum(p.seqnum_chksum));
+    serial->print("seq_num: ");
+    serial->println(extract_seqnum(p.seqnum_chksum));
 
-    debug_serial->print("seq_num: ");
-    debug_serial->println(extract_chksum(p.seqnum_chksum));
+    serial->print("seq_num: ");
+    serial->println(extract_chksum(p.seqnum_chksum));
   }
 }
 
