@@ -27,7 +27,7 @@ struct packet {
   byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
 
-
+void wait_for_packet(SERIAL_CLASS *serial);
 void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble);
 byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum_nibble);
 byte extract_chksum(byte seqnum_chksum);

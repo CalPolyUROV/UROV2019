@@ -1,5 +1,9 @@
 #include "packet.h"
 
+void wait_for_packet(SERIAL_CLASS *serial){
+  while (serial->available() < PACKET_LENGTH) {}
+}
+
 void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble) {
   p->cmd = cmd;
   p->value1 = value1;
