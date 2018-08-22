@@ -75,6 +75,13 @@ int establishContact() {
   return 1;
 }
 
+void send_packet(packet p) {
+  coms_serial->write(p.cmd);
+  coms_serial->write(p.value1);
+  coms_serial->write(p.value2);
+  coms_serial->write(p.seqnum_chksum);
+}
+
 // Deserialize a packet object to the given pointer. Returns 0 on sucess and 1 on failure.
 // Blocks until serial buffer contains an entire packet worth of bytes.
 int get_packet(struct packet *p, byte expect_seqnum_nibble) {
