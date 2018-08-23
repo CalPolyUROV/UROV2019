@@ -18,7 +18,10 @@ DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
 // TODO: add debug serial port and utilize it
 // HardwareSerial *debug_serial;
 
-int seq_num; // Sequence number keeps track of packet order
+// Sequence number keeps track of packet order
+// Do not directly access or modify the global sequence number
+// Always use the inc_seqnum() and get_seqnum_nibble() functions
+uint8_t seqnum;
 
 void setup() {
 
@@ -28,16 +31,16 @@ void setup() {
   debug_serial = coms_serial; // This is USB serial
   //debug_serial.begin(DEBUG_BAUD); // Doesn't need to be initialized again
 
-
-  seq_num = 0; // TODO: Use FIRST_SEQNUM
+  seqnum = 0; // TODO: Use FIRST_SEQNUM
   //establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
   struct packet p;
-  if (get_packet(&p, seq_num++)) {
+  if (get_packet(&p, get_seqnum_nibble())) {
     //error from get_packet()
   }
+  inc_seqnum();
   debug_packet(debug_serial, p);
   handle_packet(p, seq_num++);
   delay(10);
@@ -117,6 +120,22 @@ int get_packet(packet *p, byte expect_seqnum_nibble) {
   return 0;
 }
 
+// Increment the global sequence number
+void inc_seqnum() {
+  switch (seqnum) {
+    case MAX_SEQNUM:
+      seqnum = FIRST_SEQNUM;
+      break;
+    default:
+      seqnum++;
+      break;
+  }
+}
+
+// Getter for global sequence number
+byte get_seqnum_nibble() {
+  return seqnum & LOWER_NIBBLE_MASK;
+}
 
 void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
   if (DEBUG) {
