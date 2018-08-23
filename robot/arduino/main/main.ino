@@ -81,26 +81,9 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
 
 // function for prepping a response to an invalid packet, for when you want to say "NOPE"
 void create_inv_packet(packet *response, packet p, byte seqnum_nibble) {
+  //debug_packet(p);
   create_packet(response, INV_CMD_ACK, p.value1, p.cmd, seqnum_nibble);
 }
-
-// TODO: remove this? handle_packet() can handle this, just migrate seqnum checking
-/* int establishContact() {
-  struct packet p;
-  if (get_packet(&p, FIRST_SEQNUM)) {
-    //error from get_packet()
-    debug_packet(debug_serial, p);
-  }
-  if (p.cmd == EST_CON_CMD &&
-      p.value1 == 0 &&
-      p.value2 == 0 &&
-      extract_seqnum(p.seqnum_chksum) == 0) {
-    return 0;
-  }
-  return 1;
-}
-*/
-
 
 // Deserialize a packet object to the given pointer. Returns 0 on sucess and >0 on failure.
 // Blocks until serial buffer contains an entire packet worth of bytes.
@@ -145,6 +128,8 @@ byte get_seqnum_nibble() {
   return seqnum & LOWER_NIBBLE_MASK;
 }
 
+// Spit out the CONTENTS of a packet on the debug serial interface
+// Note that this includes nice formatting
 void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
   if (DEBUG) {
     serial->print("cmd: ");
