@@ -148,4 +148,3 @@ void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
     serial->println(extract_chksum(p.seqnum_chksum));
   }
 }
-
