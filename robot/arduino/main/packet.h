@@ -27,7 +27,7 @@
 #define EST_CON_VAL1 B10100101
 #define EST_CON_VAL2 B01011010
 
-#define CHKSUM_MASK B00001111 // lower nibble
+#define CHKSUM_MASK LOWER_NIBBLE_MASK
 
 #define MAX_SEQNUM B00001111  //upper bound of seqnum, inclusive
 #define FIRST_SEQNUM B00000000 // initial sequence number

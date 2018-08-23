@@ -29,5 +29,7 @@
 // TODO: handle debug serial selection. Debug channel is hardcoded mirror of coms for now
 #define DEBUG_SERIAL_CLASS SERIAL_CLASS
 
+#define LOWER_NIBBLE_MASK B00001111
+
 #endif
 
