@@ -42,11 +42,16 @@ void loop() {
   }
   inc_seqnum();
   debug_packet(debug_serial, p);
-  handle_packet(p, seq_num++);
+  if (handle_packet(p, get_seqnum_nibble())) {
+    // error from handle_packet()
+  }
+  inc_seqnum();
   delay(10);
 }
 
-void handle_packet(packet p, byte expect_seqnum_nibble) {
+// Executes the actions for a given packet and sends response packet
+// Returns 0 on success and >0 on failure
+int handle_packet(packet p, byte expect_seqnum_nibble) {
   struct packet response;
   switch (p.cmd) {
     case EST_CON_CMD:
@@ -68,7 +73,10 @@ void handle_packet(packet p, byte expect_seqnum_nibble) {
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
   }
-  send_packet(coms_serial, response);
+  if(send_packet(coms_serial, response)){
+    return 1;
+  }
+  return 0;
 }
 
 // function for prepping a response to an invalid packet, for when you want to say "NOPE"
