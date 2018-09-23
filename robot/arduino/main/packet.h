@@ -40,7 +40,7 @@ struct packet {
 
 void wait_for_packet(SERIAL_CLASS *serial);
 void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble);
-void send_packet(SERIAL_CLASS *serial, packet p);
+int send_packet(SERIAL_CLASS *serial, packet p);
 byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum_nibble);
 byte extract_chksum(byte seqnum_chksum);
 byte extract_seqnum(byte b);

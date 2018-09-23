@@ -1,14 +1,11 @@
 /*
-  Based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
-  "This program sends an ASCII A (byte of value 65) on startup and repeats that
-  until it gets some data in. Then it waits for a byte in the serial port, and
-  sends three sensor values whenever it gets a byte in."
-
+  Originally based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
 */
 
 #include "settings.h"
 #include "defs.h"
 #include "packet.h"
+#include "blink.h"
 
 
 SERIAL_CLASS *coms_serial; // Main UART coms to on-robot Raspberry Pi
@@ -29,15 +26,18 @@ void setup() {
   coms_serial->begin(COMS_BAUD);
 
   debug_serial = coms_serial; // This is USB serial
-  //debug_serial.begin(DEBUG_BAUD); // Doesn't need to be initialized again
+  //debug_serial.begin(DEBUG_BAUD);
+  blink_setup();
+  blink_std();
 
   seqnum = 0; // TODO: Use FIRST_SEQNUM
   //establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
-  struct packet p;
+  packet p;
   if (get_packet(&p, get_seqnum_nibble())) {
+
     //error from get_packet()
   }
   inc_seqnum();
@@ -46,7 +46,7 @@ void loop() {
     // error from handle_packet()
   }
   inc_seqnum();
-  delay(10);
+  blink_delay(100);
 }
 
 // Executes the actions for a given packet and sends response packet
@@ -73,7 +73,7 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
   }
-  if(send_packet(coms_serial, response)){
+  if (send_packet(coms_serial, response)) {
     return 1;
   }
   return 0;
@@ -97,6 +97,7 @@ int get_packet(packet *p, byte expect_seqnum_nibble) {
 
   // check for correct check sum
   if (extract_chksum(seqnum_chksum_byte) != extract_chksum(p->seqnum_chksum)) {
+    blink_delay(100);
     // checksum failed
     // debug print result
     return 1;
@@ -134,16 +135,12 @@ void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
   if (DEBUG) {
     serial->print("cmd: ");
     serial->println(p.cmd);
-
     serial->print("value1: ");
     serial->println(p.value1);
-
     serial->print("value2: ");
     serial->println(p.value2);
-
     serial->print("seq_num: ");
     serial->println(extract_seqnum(p.seqnum_chksum));
-
     serial->print("seq_num: ");
     serial->println(extract_chksum(p.seqnum_chksum));
   }
