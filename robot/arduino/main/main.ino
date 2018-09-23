@@ -7,6 +7,7 @@
 
 #include "settings.h"
 #include "packet.h"
+#include "blink.h"
 
 /* The Teensy and Arduino use a different class for serial.
    If Arduino, Serial is a HardwareSerial
@@ -30,7 +31,9 @@ void setup() {
 
   debug_serial = &Serial; // This is USB serial
   //debug_serial.begin(DEBUG_BAUD);
-
+  blink_setup();
+  blink_std();
+  
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
@@ -42,7 +45,7 @@ void loop() {
   }
   debug_packet(p);
   //handle_packet(p);
-  delay(10);
+  blink_delay(100);
 }
 
 int establishContact() {
@@ -69,7 +72,7 @@ int get_packet(struct packet* p, byte prev_seqnum) {
   p->value1 = coms_serial->read();
   p->value2 = coms_serial->read();
   p->seqnum_chksum = coms_serial->read();
-
+  blink_delay(100);
   if (extract_chksum(p->seqnum_chksum) != calc_chksum(p)) {
     // checksum failed
     // debug print result
