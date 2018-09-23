@@ -93,11 +93,12 @@ int get_packet(packet *p, byte expect_seqnum_nibble) {
   byte value1_byte = coms_serial->read();
   byte value2_byte = coms_serial->read();
   byte seqnum_chksum_byte = coms_serial->read();
+  blink_delay(100);
   create_packet(p, cmd_byte, value1_byte, value2_byte, extract_seqnum(seqnum_chksum_byte));
 
   // check for correct check sum
   if (extract_chksum(seqnum_chksum_byte) != extract_chksum(p->seqnum_chksum)) {
-    blink_delay(100);
+
     // checksum failed
     // debug print result
     return 1;
