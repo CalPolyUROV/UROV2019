@@ -1,8 +1,5 @@
 /*
-  Based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
-  "This program sends an ASCII A (byte of value 65) on startup and repeats that
-  until it gets some data in. Then it waits for a byte in the serial port, and
-  sends three sensor values whenever it gets a byte in."
+  Originally based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
 */
 
 #include "settings.h"
@@ -33,7 +30,7 @@ void setup() {
   //debug_serial.begin(DEBUG_BAUD);
   blink_setup();
   blink_std();
-  
+
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
