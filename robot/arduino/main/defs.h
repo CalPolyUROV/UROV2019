@@ -1,4 +1,14 @@
-// defs
+#ifndef DEFS_H
+#define DEFS_H
+
+#include "settings.h"
+
+/* The Teensy and Arduino use a different class for serial.
+   If Arduino, Serial is a HardwareSerial
+   If Teensy, Serial is a usb_serial_class
+   This is done so the sepcific serial port is selectable.
+    https://electronics.stackexchange.com/questions/58386/how-can-i-detect-which-arduino-board-or-which-controller-in-software
+*/
 
 // Select hardware
 #ifdef MEGA
@@ -6,9 +16,9 @@
 #warning "Arduino selected"
 #define SERIAL_CLASS HardwareSerial
 
-#elif defined(TEENSY)
-// Teensy specific
+#elif defined(TEENSY) // Teensy specific
 #warning "Teensy Selected"
+// On Teensy, the USB port is usb_serial_class and GPIO serial is HardwareSerial (i think)
 #define SERIAL_CLASS usb_serial_class
 
 #else
@@ -16,22 +26,10 @@
 #error "Unsupported hardware"
 #endif
 
+// TODO: handle debug serial selection. Debug channel is hardcoded mirror of coms for now
 #define DEBUG_SERIAL_CLASS SERIAL_CLASS
 
-#define CHKSUM_MASK B00001111
-#define MAX_SEQNUM B00001111
-#define FIRST_SEQNUM B00000000
+#define LOWER_NIBBLE_MASK B00001111
 
-//LUT
-// lookup table for indexes of commands
-// byte cmd_lut[255] = {EST_CMD, SET_MOT_CMD, READ...}
-// currently using switch statement and bodge LUT
-#define EST_CON_CMD 0x00
-#define SET_MOT_CMD 0x20
-#define RD_SENS_CMD 0x40
-
-#define TRUE 1
-#define FALSE 0
-
-
+#endif
 
