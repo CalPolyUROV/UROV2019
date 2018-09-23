@@ -11,22 +11,6 @@ struct packet {
   byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
 
-
-void debug_packet(struct packet p) {
-  if (DEBUG) {
-    debug_serial->print("cmd: ");
-    debug_serial->println(p.cmd);
-    debug_serial->print("value1: ");
-    debug_serial->println(p.value1);
-    debug_serial->print("value2: ");
-    debug_serial->println(p.value2);
-    debug_serial->print("seq_num: ");
-    debug_serial->println(extract_seqnum(p.seqnum_chksum));
-    debug_serial->print("seq_num: ");
-    debug_serial->println(extract_chksum(p.seqnum_chksum));
-  }
-}
-
 // Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
 byte extract_chksum(byte b) {
   return b & CHKSUM_MASK;

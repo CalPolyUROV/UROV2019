@@ -3,11 +3,10 @@
   "This program sends an ASCII A (byte of value 65) on startup and repeats that
   until it gets some data in. Then it waits for a byte in the serial port, and
   sends three sensor values whenever it gets a byte in."
-
 */
 
 #include "settings.h"
-#include "defs.h"
+#include "packet.h"
 
 /* The Teensy and Arduino use a different class for serial.
    If Arduino, Serial is a HardwareSerial
@@ -24,7 +23,6 @@ DEBUG_SERIAL_CLASS *debug_serial;
 
 byte seq_num = 0;         // incoming serial byte
 
-
 void setup() {
 
   coms_serial = &Serial; // This is USB serial
@@ -37,7 +35,7 @@ void setup() {
 }
 
 void loop() {
-  struct packet p;
+  packet p;
   if (get_packet(&p, seq_num)) {
     //error from get_packet()
     debug_packet(p);
@@ -86,3 +84,17 @@ int get_packet(struct packet* p, byte prev_seqnum) {
   return 0;
 }
 
+void debug_packet(struct packet p) {
+  if (DEBUG) {
+    debug_serial->print("cmd: ");
+    debug_serial->println(p.cmd);
+    debug_serial->print("value1: ");
+    debug_serial->println(p.value1);
+    debug_serial->print("value2: ");
+    debug_serial->println(p.value2);
+    debug_serial->print("seq_num: ");
+    debug_serial->println(extract_seqnum(p.seqnum_chksum));
+    debug_serial->print("seq_num: ");
+    debug_serial->println(extract_chksum(p.seqnum_chksum));
+  }
+}
