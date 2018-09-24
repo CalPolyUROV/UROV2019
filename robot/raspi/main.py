@@ -23,6 +23,7 @@ usb_serial.establish_contact()
 print("sent initial packet")
 
 while(True):
-    received = (usb_serial.serial_connection.read()).decode("utf-8")
+    received = usb_serial.get_packet()
     if(received != ""):		
-    	print(received)
+    	#print("Received: {}".format(received))
+        print(received, end="")
