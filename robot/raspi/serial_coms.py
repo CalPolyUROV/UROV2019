@@ -8,7 +8,7 @@ class Packet:
         return (cmd +
                 (value1 * 3) +
                 (value2 * 5) +
-                (seqnum_chksum * 7)) % B1111 & CHKSUM_MASK
+                (seqnum * 7)) & CHKSUM_MASK
 
     def __init__(self, cmd, value1, value2, seqnum):
         self.cmd = cmd

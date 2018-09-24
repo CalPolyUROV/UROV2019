@@ -35,11 +35,10 @@ byte extract_seqnum(byte b) {
 
 // calculate the checksum for values being put into a packet
 byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum_nibble) {
-  return ((cmd +
-           (value1 * 3) +
-           (value2 * 5) +
-           (seqnum_nibble * 7))
-          % B1111)
+  return (cmd +
+          (value1 * 3) +
+          (value2 * 5) +
+          (seqnum_nibble * 7))
          & CHKSUM_MASK;
 }
 
