@@ -36,7 +36,7 @@ void loop() {
     //error from get_packet()
   }
   inc_seqnum();
-  debug_packet(debug_serial, p);
+  //debug_packet(debug_serial, p);
   if (handle_packet(p, get_seqnum_nibble())) {
     // error from handle_packet()
   }
@@ -54,6 +54,7 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
           (p.value2 == EST_CON_VAL2) &
           (extract_seqnum(p.seqnum_chksum) == FIRST_SEQNUM)) {
         create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
+        break;
       }
       // Establish connection packet was not valid
       create_inv_packet(&response, p, expect_seqnum_nibble);
