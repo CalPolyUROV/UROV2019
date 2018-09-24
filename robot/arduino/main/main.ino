@@ -7,13 +7,9 @@
 #include "packet.h"
 #include "blink.h"
 
-
 SERIAL_CLASS *coms_serial; // Main UART coms to on-robot Raspberry Pi
 DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
 // Note that these serial objects are pointers so they can be passed around and reassigned easily
-
-// TODO: add debug serial port and utilize it
-// HardwareSerial *debug_serial;
 
 // Sequence number keeps track of packet order
 // Do not directly access or modify the global sequence number
@@ -37,7 +33,6 @@ void setup() {
 void loop() {
   packet p;
   if (get_packet(&p, get_seqnum_nibble())) {
-
     //error from get_packet()
   }
   inc_seqnum();
