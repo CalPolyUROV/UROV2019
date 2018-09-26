@@ -1,10 +1,11 @@
+# TODO: Find the origin of this code and give credit
+
 import glob
 import sys
 import serial
 from sys import platform
 
-#finds all serial ports and returns a list containing them
-
+# Finds all serial ports and returns a list containing them
 #@retval: a list containg all the serial ports
 def serial_ports():
     """ Lists serial port names
@@ -34,23 +35,27 @@ def serial_ports():
             pass
     return result
 
-#finds a port in a list to use and returns it
-
+#Finds a port in a list to use and returns it
 #@retval: a serial port
 def find_port(ports):
-
     if platform == "linux" or platform == "linux2":
+        print("Linux detected")
         for p in ports:
             return '/dev/ttyS0'		
             if "USB" in p:
                 return p
 
     elif platform == "darwin":
+        print("Darwin detected")
         return ports[0]
+
     elif platform == "win32":
+        print("Windows detected")
         p = ""
         for p in ports:
             pass
-
-        return p            
+        return p
+    # TODO: Actually return None if a port can't be found. The caller relies on this. 
+    else:
+        return None         
         

@@ -32,4 +32,3 @@
 #define LOWER_NIBBLE_MASK B00001111
 
 #endif
-
