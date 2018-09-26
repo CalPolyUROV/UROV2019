@@ -1,19 +1,26 @@
 import serial
 
+# Serial Baudrate, encoding scheme
 SERIAL_BAUD = 9600
 ENCODING = 'ascii'
 
+# Bitmask for extracting checksums from seqnum_chksum
+# Do not use directly, implement a checksum verification method
 CHKSUM_MASK = 0x0F
 
+# Initial value for sequence number
 FIRST_SEQNUM = 0
 
-EST_CON_CMD = 0x00
-EST_CON_ACK = 0x01
+# List of codes for each command
+# we need to find a way to export this list and keep it synchronized
+EST_CON_CMD = 0x00 # cmd of initial packet
+EST_CON_ACK = 0x01 # cmd for response to initial packet
 SET_MOT_CMD = 0x20 # set motor (call)
 SET_MOT_ACK = 0x21 # motor has been set (reponse)
-RD_SENS_CMD = 0x40
+RD_SENS_CMD = 0x40 # request read sensor value
 INV_CMD_ACK = 0xFF # Invalid command, value2 of response contains cmd
 
+# Magic numbers to verify correct initial packet and response
 EST_CON_VAL1 = 0b10100101
 EST_CON_VAL2 = 0b01011010
 
@@ -86,7 +93,9 @@ class SerialConnection:
 
     # Send the inital packet and wait for the correct response
     def establish_contact(self):
+        # Send initial packet
         self.send_packet(Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM))
+        # Receive response
         p = self.get_packet()
         if(p.cmd == EST_CON_ACK): 
             # good
