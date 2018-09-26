@@ -6,6 +6,7 @@ ENCODING = 'ascii'
 
 # Bitmask for extracting checksums from seqnum_chksum
 # Do not use directly, implement a checksum verification method
+# TODO: verify checksums, probably in get_packet()
 CHKSUM_MASK = 0x0F
 
 # Initial value for sequence number
@@ -13,6 +14,9 @@ FIRST_SEQNUM = 0
 
 # List of codes for each command
 # we need to find a way to export this list and keep it synchronized
+# TODO: Move list to external file (maybe .txt or .csv), 
+#       write script to place in Arduino source and python source
+#       will not be needed on topside Pi, only on robot
 EST_CON_CMD = 0x00 # cmd of initial packet
 EST_CON_ACK = 0x01 # cmd for response to initial packet
 SET_MOT_CMD = 0x20 # set motor (call)
@@ -97,6 +101,8 @@ class SerialConnection:
         self.send_packet(Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM))
         # Receive response
         p = self.get_packet()
+        # TODO: Verify correctness of initial packet response from Arduino/Teensy
+        #       Check arduino source to ensure order of response values, they might get flipped
         if(p.cmd == EST_CON_ACK): 
             # good
             return

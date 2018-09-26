@@ -23,6 +23,7 @@ while (port == None):
     port = serial_finder.find_port(ports)
     if(port == None):
         print("No port found, trying again.")
+        # TODO: Stop trying after a set number of attempts a la sys.exit(1)
 print("Using port: {}".format(port))
 
 # Create the serial connection object with the specified port    
@@ -34,6 +35,8 @@ print("Sent initial packet")
 
 # loop()
 while(True):
+    # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
+    # TODO: Write logic choosing a command to send (maybe use a queue)
     # send_packet()
     # Recieve a packet fromt eh Arduino/Teensy
     ack_packet = usb_serial.get_packet()

@@ -1,3 +1,5 @@
+# TODO: Find the origin of this code and give credit
+
 import glob
 import sys
 import serial
@@ -53,6 +55,7 @@ def find_port(ports):
         for p in ports:
             pass
         return p
+    # TODO: Actually return None if a port can't be found. The caller relies on this. 
     else:
         return None         
         
