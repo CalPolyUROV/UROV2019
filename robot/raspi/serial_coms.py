@@ -76,7 +76,7 @@ class SerialConnection:
         self.serial_connection.write(p.seqnum_chksum)
 
     # Read in a packet from serial
-    def get_packet(self) -> Packet:
+    def get_packet(self) -> Packet or None:
         _cmd = self.serial_connection.read(size=1)
         _val1 = self.serial_connection.read(size=1)
         _val2 = self.serial_connection.read(size=1)
@@ -87,8 +87,7 @@ class SerialConnection:
     # Send the inital packet and wait for the correct response
     def establish_contact(self):
         self.send_packet(Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM))
-        p = get_packet()
-        if(p.cmd == EST_CON_ACK):
+        p = self.get_packet()
         if(p.cmd == EST_CON_ACK): 
             # good
             return
