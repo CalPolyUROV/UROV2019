@@ -1,20 +1,23 @@
 #python3
 
-import sys
+# import sys
 
 import serial
 
 import serial_finder
 from serial_coms import SerialConnection
 
-ports = serial_finder.serial_ports()
-print("Found ports:")
-for p in ports:
-    print("{}".format(p))
-port = serial_finder.find_port(ports)
-if(port == None):
-    print("No port found.")
-    sys.exit(-1)
+port = None
+while (port == None):
+    # Get a list of all serial ports
+    ports = serial_finder.serial_ports()
+    print("Found ports:")
+    for p in ports:
+        print("{}".format(p))
+    # Select the port
+    port = serial_finder.find_port(ports)
+    if(port == None):
+        print("No port found, trying again.")
 print("Using port: {}".format(port))
     
 usb_serial = SerialConnection(port)
