@@ -20,10 +20,14 @@ print("Using port: {}".format(port))
 usb_serial = SerialConnection(port)
 
 usb_serial.establish_contact()
-print("sent initial packet")
+print("Sent initial packet")
 
+# loop()
 while(True):
-    received = usb_serial.get_packet()
-    if(received != ""):		
-    	#print("Received: {}".format(received))
-        print(received, end="")
+    # send_packet()
+    ack_packet = usb_serial.get_packet()
+    if(ack_packet == None):
+        print("Received an invalid packet")
+    else:
+        print(ack_packet)
+
