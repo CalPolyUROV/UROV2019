@@ -19,11 +19,6 @@ EST_CON_VAL2 = 0b01011010
 
 class Packet:
 
-    def calc_chksum(self, cmd, val1, val2, seqnum):
-        return (cmd +
-                (val1 * 3) +
-                (val2 * 5) +
-                (seqnum * 7)) & CHKSUM_MASK
 
     # Internal cosntructor
     def __init__(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
@@ -33,19 +28,33 @@ class Packet:
         self.seqnum_chksum = seqnum_chksum
 
     # Constructor for building packets to send (chksum is created)
-    def make_packet(self, self, cmd: bytes, val1: bytes, val2: bytes, seqnum: bytes)
-        return Packet(cmd, val1, val2, (seqnum << 4) + self.calc_chksum(cmd, value1, value2, seqnum))
+    def make_packet(self, cmd: bytes, val1: bytes, val2: bytes, seqnum: bytes):
+        return Packet(cmd, val1, val2, (seqnum << 4) + self.calc_chksum(cmd, val1, val2, seqnum))
 
     # Constructor for building packets that have been received, untrusted checksums
-    def read_packet(self, cmd: bytes, value1: bytes, value2: bytes, seqnum_chksum: bytes) -> Packet
-        if(calc_chksum(cmd, val1, val2, extract_seqnum(seqnum_chksum)) == extract_chksum(seqnum_chksum)):
-            return Packet() 
+    def read_packet(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
+        if(self.calc_chksum(cmd, val1, val2, self.extract_seqnum(seqnum_chksum)) == self.extract_chksum(seqnum_chksum)):
+            return Packet(cmd, val1, val2, seqnum_chksum) 
+
+    def extract_seqnum(self, seqnum_chksum: bytes) -> bytes:
+        return seqnum_chksum >> 4
+
+    def extract_chksum(self, seqnum_chksum: bytes) -> bytes:
+        return seqnum_chksum & CHKSUM_MASK
+
+    def calc_chksum(self, cmd, val1, val2, seqnum) -> bytes:
+        return (cmd +
+                (val1 * 3) +
+                (val2 * 5) +
+                (seqnum * 7)) & CHKSUM_MASK
+        # idk, it has primes
+        # TODO: Make this better, but it must match on this and the Arduino/Teensy. (Maybe CRC32?)
 
     def __repr__(self):
         return """cmd: {}\n
         val1: {}\n
         val2: {}\n
-        chksum_seqnum: {}""".format(self.cmd, self.value1, self.value2, self.seq)
+        chksum_seqnum: {}""".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
 
 class SerialConnection:
 
@@ -80,6 +89,9 @@ class SerialConnection:
         self.send_packet(Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM))
         p = get_packet()
         if(p.cmd == EST_CON_ACK):
+        if(p.cmd == EST_CON_ACK): 
             # good
+            return
         else:
-            # bad
+            # bad 
+            pass
