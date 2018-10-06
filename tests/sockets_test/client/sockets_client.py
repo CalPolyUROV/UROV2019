@@ -45,7 +45,8 @@ while 1:
      
     print('Message send successfully')
      
-    #Now receive data
+    # Now receive data
+    # BLocking call?
     reply = s.recv(4096)
      
     print(reply)
