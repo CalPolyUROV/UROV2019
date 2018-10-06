@@ -30,7 +30,7 @@ byte extract_chksum(byte seqnum_chksum) {
 
 // Bitshift the seqnum_chksum byte right 4 times to leave just the seqnum nibble
 byte extract_seqnum(byte b) {
-  return b >> 4;
+  return b >> 4; // is this wrong?
 }
 
 // calculate the checksum for values being put into a packet

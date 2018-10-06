@@ -55,13 +55,13 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
           (extract_seqnum(p.seqnum_chksum) == FIRST_SEQNUM)) {
         create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
         break;
-      }
+        }
       // Establish connection packet was not valid
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
     case SET_MOT_CMD:
       // TODO: bring in previous motor code from 2018
-      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
+      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble); // This is the wrong response
       break;
     case RD_SENS_CMD:
       break;
@@ -69,7 +69,7 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
   }
-  if (send_packet(coms_serial, response)) {
+  if (send_packet(coms_serial, response)) { // TODO: just return send_packet()
     return 1;
   }
   return 0;
