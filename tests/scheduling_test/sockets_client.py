@@ -1,5 +1,5 @@
-#Socket client example in python
- 
+# Socket client class for use on robot
+
 import socket   #for sockets
 import sys  #for exit
 # from time import sleep
@@ -9,26 +9,23 @@ class SocketsClient:
     def __init__(self, remote_ip='192.168.0.101', remote_port=5000):
         self.remote_ip = remote_ip # Has defaut value
         self.remote_port = remote_port # Has default value
-        self.s = self.initialize_socket() # Start the socket 
-
-    def initialize_socket(self):
+        
         #create an INET, STREAMing socket
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error:
             print('Failed to create socket')
             sys.exit() # Bail out
             
         print('Socket Created')
-                    
-        return s
 
-    def send_data(self, message_str: str):
-        #Connect to remote server
+        #Connect to remote server  
         self.s.connect((self.remote_ip , self.remote_port))
-        
         print('Socket Connected to ' + self.remote_ip + ':' + str(self.remote_port))
 
+
+    def send_data(self, message_str: str):
+       
         message_enc = message_str.encode()
 
         while 1:
