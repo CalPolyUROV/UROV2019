@@ -19,3 +19,16 @@ class Schedule:
     # take the next task off the queue 
     def get_next_task(self):
         return self.task_list.pop(0)
+
+class Task:
+    def __init__(self, task_type: TaskType, priority: TaskPriority, val_list: list):
+        self.task_type = task_type
+        self.priority = priority
+        self.val_list = val_list
+
+    def execute_task(self):
+        if (self.task_type == TaskType.debug_str):
+            print(self.val_list)
+        else:
+            print("Unable to handle TaskType: {}".format(self.task_type))
+    
