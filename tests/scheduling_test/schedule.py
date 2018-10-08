@@ -7,6 +7,7 @@ from sockets_client import SocketsClient
 class TaskType(Enum):
     debug_str = 0
     cntl_input = 1
+    get_telemetry = 2
 
 class TaskPriority(Enum):
     high = 1
@@ -51,6 +52,8 @@ class Task:
         if (self.task_type == TaskType.debug_str):
             print("Executing task: {}".format(self.val_list))
         elif (self.task_type == TaskType.cntl_input):
+            print("Executing task: {}".format(self.val_list))
+        elif (self.task_type == TaskType.get_telemetry):
             print("Executing task: {}".format(self.val_list))
         else:
             print("Unable to handle TaskType: {}".format(self.task_type))
