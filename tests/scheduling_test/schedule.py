@@ -14,7 +14,7 @@ class TaskPriority(Enum):
 class Schedule:
     def __init__(self):
         self.task_list = [] # Empty list
-        self.socket_connection = SocketsClient() # Make sockets client obect
+        self.socket_connection = SocketsClient("localhost", 9120) # Make sockets client obect
 
     def get_new_tasks(self):
         # communicate over sockets to generate new tasks based on UI input
