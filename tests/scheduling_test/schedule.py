@@ -9,8 +9,18 @@ class Schedule:
 
     def get_new_tasks(self):
         # communicate over sockets to generate new tasks based on UI input
-        self.socket_connection.send_data("Give me tasks")
-        pass
+        data = self.socket_connection.send_data("Give me tasks")
+        self.schedule_task(Task(TaskType.debug_str,
+                                TaskPriority.normal, 
+                                ["debug_str", self.task_index, data]))
+        return
+
+    def schedule_task(self, task):
+        if(task.priority == TaskPriority.high):
+            self.task_list.insert(0, task)
+        else:
+            self.task_list.append(task)
+        self.task_index += 1    
 
     # Report whether there are enough tasks left in the queue
     def has_tasks(self):
