@@ -1,6 +1,15 @@
 # Scheduling class for scheduling activities
 
+from enum import Enum
+
 from sockets_client import SocketsClient
+
+class TaskType(Enum):
+    debug_str = 0
+
+class TaskPriority(Enum):
+    high = 1
+    normal = 0
 
 class Schedule:
     def __init__(self):
