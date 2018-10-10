@@ -1,4 +1,5 @@
 import serial
+import serial_finder
 
 # Serial Baudrate, encoding scheme
 SERIAL_BAUD = 9600
@@ -29,8 +30,6 @@ EST_CON_VAL1 = 0b10100101
 EST_CON_VAL2 = 0b01011010
 
 class Packet:
-
-
     # Internal cosntructor
     def __init__(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
         self.cmd = cmd
@@ -68,6 +67,21 @@ class Packet:
         chksum_seqnum: {}""".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
 
 class SerialConnection:
+def find_port():
+    port = None
+    while (port == None):
+        # Get a list of all serial ports
+        ports = serial_finder.serial_ports()
+        print("Found ports:")
+        for p in ports:
+            print("{}".format(p))
+        # Select the port
+        port = serial_finder.find_port(ports)
+        if(port == None):
+            print("No port found, trying again.")
+            # TODO: Stop trying after a set number of attempts a la sys.exit(1)
+    print("Using port: {}".format(port))
+    return port
 
     def __init__(self, serial_port):
         self.serial_connection = serial.Serial(
