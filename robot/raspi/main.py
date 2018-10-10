@@ -8,15 +8,37 @@
 # to the Arduino/Teensy is present here. Sockets code will need to be merged 
 # into this program from the sockets_test file once it is stablized.
 
-# loop()
-while(True):
-    # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
-    # TODO: Write logic choosing a command to send (maybe use a queue)
-    # send_packet()
-    # Recieve a packet fromt eh Arduino/Teensy
-    ack_packet = usb_serial.get_packet()
-    if(ack_packet == None):
-        print("Received an invalid packet")
-    else:
-        print(ack_packet)
+from time import sleep
 
+# Scheduling imports
+from schedule import Schedule
+from schedule import Task
+from schedule import TaskType
+from schedule import TaskPriority
+
+# Make a schedule object
+# This also initializes the sockets/networking code
+# Note: The sockets should not connect to the topside unit until after the 
+# serial connection has been made. This is not an issue because the socket 
+# client on the robot is initialized without communicating with the server
+# (however the serial connection uses a handshake/"est_con")
+s = Schedule()
+
+# Create a task to establish contact with the Arduino/Teensy
+task_init_serial = Task(TaskType.serial_est_con,
+                   TaskPriority.high,
+                   ["establish_connection"])
+s.schedule_task(task_init_serial)
+
+terminate: bool = False
+while(not terminate):
+    # Get new tasks if needed
+    if (not s.has_tasks()):
+        s.get_new_tasks()
+        
+    # Get the next task to execute
+    t = s.get_next_task()
+    s.execute_task(t)
+    sleep(2)
+    
+s.terminate()
