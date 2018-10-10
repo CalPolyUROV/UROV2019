@@ -6,7 +6,7 @@ ENCODING = 'ascii'
 
 # Bitmask for extracting checksums from seqnum_chksum
 # Do not use directly, implement a checksum verification method
-# TODO: verify checksums, probably in get_packet()
+# TODO: verify checksums, probably in read_packet()
 CHKSUM_MASK = 0x0F
 
 # Initial value for sequence number
@@ -79,7 +79,7 @@ class SerialConnection:
         timeout=0.1)
 
     # Send a Packet over serial
-    def send_packet(self, p) -> None:
+    def write_packet(self, p) -> None:
         # TODO: prevent the sending of invalid packets
         self.serial_connection.write(p.cmd)
         self.serial_connection.write(p.value1)
@@ -87,7 +87,7 @@ class SerialConnection:
         self.serial_connection.write(p.seqnum_chksum)
 
     # Read in a packet from serial
-    def get_packet(self) -> Packet or None:
+    def read_packet(self) -> Packet or None:
         _cmd = self.serial_connection.read(size=1)
         _val1 = self.serial_connection.read(size=1)
         _val2 = self.serial_connection.read(size=1)
@@ -95,12 +95,23 @@ class SerialConnection:
         return Packet(_cmd, _val1, _val2, _seqnum_chksum)
         # Warning, this will not catch packets with invalid checksums
 
+    def send_receive_packet(self, p: Packet) -> Packet:
+        # send packet
+        self.write_packet(p)
+        # Recieve a packet from the Arduino/Teensy
+        p = self.read_packet()
+        if(p == None):
+            print("Received an invalid packet")
+        else:
+            print(p) # Debugging
+            return p
+
     # Send the inital packet and wait for the correct response
     def establish_contact(self):
         # Send initial packet
-        self.send_packet(Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM))
+        p_out = Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
         # Receive response
-        p = self.get_packet()
+        p_in = self.send_receive_packet(p_out)
         # TODO: Verify correctness of initial packet response from Arduino/Teensy
         #       Check arduino source to ensure order of response values, they might get flipped
         if(p.cmd == EST_CON_ACK): 
