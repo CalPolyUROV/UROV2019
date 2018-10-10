@@ -128,9 +128,11 @@ def find_port():
         p_in = self.send_receive_packet(p_out)
         # TODO: Verify correctness of initial packet response from Arduino/Teensy
         #       Check arduino source to ensure order of response values, they might get flipped
-        if(p.cmd == EST_CON_ACK): 
+        if(p_in.cmd == EST_CON_ACK & p.val1 == EST_CON_VAL1 & p.val2 == EST_CON_VAL2): 
             # good
             return
         else:
-            # bad 
-            pass
+            # bad
+            print("Response to initial contact was not satisfactory")
+            # TODO: Add logic to retry this a few times
+            return
