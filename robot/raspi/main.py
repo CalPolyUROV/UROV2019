@@ -1,12 +1,12 @@
-#python3
+# python3
 
-# This is the python program is meant to run on the Raspberry Pi located on the robot.
-# This program acts as a intermediary between the Raspberry Pi on the surface unit and the Arduino/Teensy on the robot.
-# Currently, only serial communication to the Arduino/Teensy is present here. Sockets code will need to be merged into 
-# this program from the sockets_test file once it is stablized.
-# Send the initial packet to make contact with Arduino/Teensy
-usb_serial.establish_contact()
-print("Sent initial packet")
+# This is the python program is meant to run on the Raspberry Pi located on
+# the robot. This program acts as a intermediary between the Raspberry Pi on
+# the surface unit and the Arduino/Teensy on the robot. The scheduling module
+# used in this program manages the serial and sockets connections to the 
+# Arduino/Teensy and topside raspberry Pi Currently, only serial communication
+# to the Arduino/Teensy is present here. Sockets code will need to be merged 
+# into this program from the sockets_test file once it is stablized.
 
 # loop()
 while(True):
