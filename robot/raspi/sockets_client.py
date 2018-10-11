@@ -4,6 +4,9 @@
 import socket   #for sockets
 import sys # For sys.exit() in order to bail out
 
+# Maximum number of times to try openeing a socket
+MAX_ATTEMPTS = 5 
+
 class SocketsClient:
 
     def __init__(self, remote_ip='192.168.0.101', remote_port=5000):
@@ -19,10 +22,21 @@ class SocketsClient:
             
         print('Socket Created')
 
-        #Connect to remote server  
-        self.s.connect((self.remote_ip , self.remote_port))
+    #Connect to remote server  
+    def connect_server(self):
+        attempts: int = 0
+        socket_open: bool = False
+        while(not socket_open):
+            try:
+                self.s.connect((self.remote_ip , self.remote_port))
+                socket_open = True
+            except ConnectionRefusedError:
+                if (attempts > MAX_ATTEMPTS):
+                    print("Could not open socket after {} attempts. Crashing now.".format(attempts))
+                    sys.exit(1)
+                attempts += 1
+                print("Failed to open socket, trying again.")
         print('Socket Connected to ' + self.remote_ip + ':' + str(self.remote_port))
-
 
     def send_data(self, message_str: str):
        
@@ -48,7 +62,6 @@ class SocketsClient:
             return reply
             # sleep(1) # sleep for 1 second
 
-            
     def close_socket(self):
         self.s.close()
         print('Socket closed')
