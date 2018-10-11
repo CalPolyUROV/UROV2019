@@ -12,6 +12,9 @@ import serial_finder # Identifies serial ports
 SERIAL_BAUD = 9600
 ENCODING = 'ascii'
 
+# Maximum number of times to try openeing a serial port
+MAX_ATTEMPTS: int = 4
+
 # Bitmask for extracting checksums from seqnum_chksum
 # Do not use directly, implement a checksum verification method
 # TODO: verify checksums, probably in read_packet()
@@ -73,11 +76,13 @@ class Packet:
         val2: {}\n
         chksum_seqnum: {}""".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
 
-class SerialConnection:
+# Finds a serial port for the serial connection
+# Calls the serial_finder library to search the operating system for serial ports
 def find_port():
     port = None
     while (port == None):
         # Get a list of all serial ports
+        print("Searching for serial ports")
         ports = serial_finder.serial_ports()
         print("Found ports:")
         for p in ports:
@@ -90,14 +95,27 @@ def find_port():
     print("Using port: {}".format(port))
     return port
 
-    def __init__(self, serial_port):
-        self.serial_connection = serial.Serial(
-        port=serial_port,
-        baudrate=9600,
-        parity=serial.PARITY_NONE,   # parity is error checking, odd means the message will have an odd number of 1 bits
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
-        timeout=0.1)
+class SerialConnection:
+    # Default port arg finds a serial port for the arduino/Teensy
+    def __init__(self, serial_port=find_port()):
+        attempts: int = 0
+        port_open: bool = False
+        while(not port_open):
+            try:
+                self.serial_connection = serial.Serial(
+                    port=serial_port,
+                    baudrate=SERIAL_BAUD,
+                    parity=serial.PARITY_NONE,   # parity is error checking, odd means the message will have an odd number of 1 bits
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
+                    timeout=0.1)
+                port_open = True
+            except serial.serialutil.SerialException:
+                if (attempts > MAX_ATTEMPTS):
+                    print("Could not open serial port after {} attempts. Crashing now.".format(attempts))
+                    sys.exit(1)
+                attempts += 1
+                print("Failed to open serial port, trying again.")
 
     # Send a Packet over serial
     def write_packet(self, p) -> None:
