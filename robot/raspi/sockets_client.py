@@ -1,8 +1,8 @@
 # Socket client class for use on robot
 
+# System imports
 import socket   #for sockets
-import sys  #for exit
-# from time import sleep
+import sys # For sys.exit() in order to bail out
 
 class SocketsClient:
 

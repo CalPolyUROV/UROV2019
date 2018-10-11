@@ -1,5 +1,12 @@
-import serial
-import serial_finder
+# This file contains code that manages the serial connection from the robot to
+# the Arduino/Teensy.
+
+# System imports
+import serial # Main serial library
+import sys # For sys.exit() in order to bail out
+
+# Our imports
+import serial_finder # Identifies serial ports
 
 # Serial Baudrate, encoding scheme
 SERIAL_BAUD = 9600
