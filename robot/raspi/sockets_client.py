@@ -1,8 +1,9 @@
 # Socket client class for use on robot
 
 # System imports
-import socket   #for sockets
-import sys # For sys.exit() in order to bail out
+import socket # Sockets library
+from sys import exit # End the program when things fail
+from time import sleep # Wait before retrying sockets connection
 
 # Maximum number of times to try openeing a socket
 MAX_ATTEMPTS = 5 
@@ -18,7 +19,7 @@ class SocketsClient:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error:
             print('Failed to create socket')
-            sys.exit() # Bail out
+            exit() # Bail out
             
         print('Socket Created')
 
@@ -33,9 +34,10 @@ class SocketsClient:
             except ConnectionRefusedError:
                 if (attempts > MAX_ATTEMPTS):
                     print("Could not open socket after {} attempts. Crashing now.".format(attempts))
-                    sys.exit(1)
+                    exit(1)
                 attempts += 1
                 print("Failed to open socket, trying again.")
+                sleep(1) # Wait a second before retrying
         print('Socket Connected to ' + self.remote_ip + ':' + str(self.remote_port))
 
     def send_data(self, message_str: str):

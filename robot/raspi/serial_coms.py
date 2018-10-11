@@ -2,8 +2,9 @@
 # the Arduino/Teensy.
 
 # System imports
-import serial # Main serial library
-import sys # For sys.exit() in order to bail out
+import serial # PySerial library
+from sys import exit # End the program when things fail
+from time import sleep # Wait before retrying sockets connection
 
 # Our imports
 import serial_finder # Identifies serial ports
@@ -113,9 +114,10 @@ class SerialConnection:
             except serial.serialutil.SerialException:
                 if (attempts > MAX_ATTEMPTS):
                     print("Could not open serial port after {} attempts. Crashing now.".format(attempts))
-                    sys.exit(1)
+                    exit(1)
                 attempts += 1
                 print("Failed to open serial port, trying again.")
+                sleep(1) # Wait a second before retrying
 
     # Send a Packet over serial
     def write_packet(self, p) -> None:
