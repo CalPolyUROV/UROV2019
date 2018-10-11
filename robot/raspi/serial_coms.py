@@ -121,8 +121,8 @@ class SerialConnection:
     def write_packet(self, p) -> None:
         # TODO: prevent the sending of invalid packets
         self.serial_connection.write(p.cmd)
-        self.serial_connection.write(p.value1)
-        self.serial_connection.write(p.value2)
+        self.serial_connection.write(p.val1)
+        self.serial_connection.write(p.val2)
         self.serial_connection.write(p.seqnum_chksum)
 
     # Read in a packet from serial
