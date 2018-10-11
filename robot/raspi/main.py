@@ -24,11 +24,7 @@ from schedule import TaskPriority
 # (however the serial connection uses a handshake/"est_con")
 s = Schedule()
 
-# Create a task to establish contact with the Arduino/Teensy
-task_init_serial = Task(TaskType.serial_est_con,
-                   TaskPriority.high,
-                   ["establish_connection"])
-s.schedule_task(task_init_serial)
+s.schedule_initial_tasks()
 
 terminate: bool = False
 while(not terminate):

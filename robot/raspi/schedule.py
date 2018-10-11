@@ -16,6 +16,7 @@ class TaskType(Enum):
     cntl_input = 1
     get_telemetry = 2
     serial_est_con = 3
+    sockets_connect = 4
 
 class TaskPriority(Enum):
     high = 1
@@ -49,6 +50,19 @@ class Schedule:
             self.task_list.append(task)
         self.task_index += 1    
 
+    def schedule_initial_tasks(self):
+        # Create a task to establish contact with the Arduino/Teensy
+        task_serial_est_con = Task(TaskType.serial_est_con,
+                                TaskPriority.high,
+                                [])
+        task_sockets_connect = Task(TaskType.sockets_connect,
+                                    TaskPriority.high,
+                                    [])
+        # Schedule initial tasks                    
+        self.schedule_task(task_sockets_connect) 
+        self.schedule_task(task_serial_est_con) # High priority goes to front of queue
+
+
     def execute_task(self, t: Task):
         # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
         # TODO: Write logic choosing a command to send (maybe use a queue)
@@ -61,6 +75,8 @@ class Schedule:
             print("Executing task: {}".format(t.val_list))
         elif (t.task_type == TaskType.serial_est_con):
             self.serial_connection.establish_contact()
+        elif (t.task_type == TaskType.sockets_connect):
+            self.socket_connection.connect_server()
         else:
             print("Unable to handle TaskType: {}".format(t.task_type))
 
