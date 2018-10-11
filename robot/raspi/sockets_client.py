@@ -15,6 +15,7 @@ class SocketsClient:
         self.remote_port = remote_port # Has default value
         
         #create an INET, STREAMing socket
+        # TODO: handle failure here verbosely
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error:

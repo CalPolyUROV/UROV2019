@@ -26,7 +26,7 @@ s = Schedule()
 
 s.schedule_initial_tasks()
 
-terminate: bool = False
+terminate: bool = False # Whether to exit main loop
 while(not terminate):
     # Get new tasks if needed
     if (not s.has_tasks()):
@@ -35,6 +35,6 @@ while(not terminate):
     # Get the next task to execute
     t = s.get_next_task()
     s.execute_task(t)
-    sleep(2)
+    sleep(2) # Temporary delay to not make things too fast during testing
     
 s.terminate()

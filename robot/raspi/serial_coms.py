@@ -99,6 +99,8 @@ def find_port():
 class SerialConnection:
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self, serial_port=find_port()):
+        # TODO: This error handling is not helpful right now because 
+        # serial_finder is more likely to fail than the opening of the port
         attempts: int = 0
         port_open: bool = False
         while(not port_open):
@@ -155,7 +157,9 @@ class SerialConnection:
         p_in = self.send_receive_packet(p_out)
         # TODO: Verify correctness of initial packet response from Arduino/Teensy
         #       Check arduino source to ensure order of response values, they might get flipped
-        if(p_in.cmd == EST_CON_ACK & p.val1 == EST_CON_VAL1 & p.val2 == EST_CON_VAL2): 
+        if((p_in.cmd == EST_CON_ACK) & 
+           (p_in.val1 == EST_CON_VAL1) & 
+           (p_in.val2 == EST_CON_VAL2)): 
             # good
             return
         else:
