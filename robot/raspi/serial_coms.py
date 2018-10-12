@@ -164,9 +164,9 @@ class SerialConnection:
         # Recieve a packet from the Arduino/Teensy
         p = self.read_packet()
         if(p == None):
-            debug("serial", "Received an invalid packet")
+            debug("serial_con", "Received an invalid packet")
         else:
-            debug("serial", p)  # Debugging
+            debug("serial_con", p)  # Debugging
             return p
 
     # Send the inital packet and wait for the correct response
@@ -184,6 +184,6 @@ class SerialConnection:
             return
         else:
             # bad
-            debug("serial", "Response to initial contact was not satisfactory")
+            debug("serial_con", "Response to initial contact was not satisfactory")
             # TODO: Add logic to retry this a few times
             return

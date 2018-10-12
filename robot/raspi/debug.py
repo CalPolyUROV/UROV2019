@@ -12,8 +12,10 @@ import settings
 # By formatting once inside debug_f(), format() is only called if printing is turned on.
 
 channels = {"sockets": True,
-            "serial": True,
+            "socket_con": True,
             "serial_finder": True,
+            "serial": True,
+            "serial_con":True,
             "execute_task": True}
 
 def debug(channel: str, message: str):

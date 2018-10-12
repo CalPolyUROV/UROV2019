@@ -33,9 +33,9 @@ class SocketsClient:
                         "socket", "Could not create socket after {} attempts. Crashing now.", [attempts])
                     exit(1)
                 attempts += 1
-                debug("socket", "Failed to create socket, trying again.")
+                debug("sockets", "Failed to create socket, trying again.")
                 sleep(1)  # Wait a second before retrying
-        debug("socket", 'Socket Created')
+        debug("sockets", 'Socket Created')
 
     # Connect to remote server
     def connect_server(self):
@@ -51,9 +51,9 @@ class SocketsClient:
                         "socket", "Could not open socket after {} attempts. Crashing now.", [attempts])
                     exit(1)
                 attempts += 1
-                debug("socket", "Failed to open socket, trying again.")
+                debug("socket_con", "Failed to open socket, trying again.")
                 sleep(1)  # Wait a second before retrying
-        debug_f("socket", 'Socket Connected to {}:{}',
+        debug_f("socket_con", 'Socket Connected to {}:{}',
                 [self.remote_ip, str(self.remote_port)])
 
     def send_data(self, message_str: str):
@@ -67,19 +67,19 @@ class SocketsClient:
                 self.s.sendall(message_enc)
             except socket.error:
                 # Send failed
-                debug("socket", 'Send failed')
+                debug("socket_con", 'Send failed')
                 exit()
 
-            debug("socket", 'Message send successfully')
+            debug("socket_con", 'Message send successfully')
 
             # Now receive data
             # BLocking call?
             reply = self.s.recv(4096)
 
-            debug("socket", reply)
+            debug("socket_con", reply)
             return reply
             # sleep(1) # sleep for 1 second
 
     def close_socket(self):
         self.s.close()
-        debug("socket", 'Socket closed')
+        debug("socket_con", 'Socket closed')
