@@ -8,7 +8,7 @@ from time import sleep  # Wait before retrying sockets connection
 from debug import debug  # Debug printing and logging
 from debug import debug_f
 
-# Maximum number of times to try openeing a socket
+# Maximum number of times to try creating or openeing a socket
 MAX_ATTEMPTS = 5
 
 
@@ -18,14 +18,22 @@ class SocketsClient:
         self.remote_ip = remote_ip  # Has defaut value
         self.remote_port = remote_port  # Has default value
 
-        # create an INET, STREAMing socket
-        # TODO: handle failure here verbosely
-        try:
-            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        except socket.error:
-            debug("socket", 'Failed to create socket')
-            exit()  # Bail out
-
+        # Attempt to create a socket
+        attempts: int = 0
+        socket_open: bool = False
+        while(not socket_open):
+            try:
+                # create an INET, STREAMing socket
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                socket_open = True
+            except socket.error:
+                if (attempts > MAX_ATTEMPTS):
+                    debug_f(
+                        "socket", "Could not create socket after {} attempts. Crashing now.", [attempts])
+                    exit(1)
+                attempts += 1
+                debug("socket", "Failed to create socket, trying again.")
+                sleep(1)  # Wait a second before retrying
         debug("socket", 'Socket Created')
 
     # Connect to remote server
