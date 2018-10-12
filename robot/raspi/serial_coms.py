@@ -2,12 +2,12 @@
 # the Arduino/Teensy.
 
 # System imports
-import serial # PySerial library
-from sys import exit # End the program when things fail
-from time import sleep # Wait before retrying sockets connection
+import serial  # PySerial library
+from sys import exit  # End the program when things fail
+from time import sleep  # Wait before retrying sockets connection
 
 # Our imports
-import serial_finder # Identifies serial ports
+import serial_finder  # Identifies serial ports
 from debug import debug
 from debug import debug_f
 
@@ -28,19 +28,20 @@ FIRST_SEQNUM = 0
 
 # List of codes for each command
 # we need to find a way to export this list and keep it synchronized
-# TODO: Move list to external file (maybe .txt or .csv), 
+# TODO: Move list to external file (maybe .txt or .csv),
 #       write script to place in Arduino source and python source
 #       will not be needed on topside Pi, only on robot
-EST_CON_CMD = 0x00 # cmd of initial packet
-EST_CON_ACK = 0x01 # cmd for response to initial packet
-SET_MOT_CMD = 0x20 # set motor (call)
-SET_MOT_ACK = 0x21 # motor has been set (reponse)
-RD_SENS_CMD = 0x40 # request read sensor value
-INV_CMD_ACK = 0xFF # Invalid command, value2 of response contains cmd
+EST_CON_CMD = 0x00  # cmd of initial packet
+EST_CON_ACK = 0x01  # cmd for response to initial packet
+SET_MOT_CMD = 0x20  # set motor (call)
+SET_MOT_ACK = 0x21  # motor has been set (reponse)
+RD_SENS_CMD = 0x40  # request read sensor value
+INV_CMD_ACK = 0xFF  # Invalid command, value2 of response contains cmd
 
 # Magic numbers to verify correct initial packet and response
 EST_CON_VAL1 = 0b10100101
 EST_CON_VAL2 = 0b01011010
+
 
 class Packet:
     # Internal cosntructor
@@ -57,7 +58,7 @@ class Packet:
     # Constructor for building packets that have been received, untrusted checksums
     def read_packet(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
         if(self.calc_chksum(cmd, val1, val2, self.extract_seqnum(seqnum_chksum)) == self.extract_chksum(seqnum_chksum)):
-            return Packet(cmd, val1, val2, seqnum_chksum) 
+            return Packet(cmd, val1, val2, seqnum_chksum)
 
     def extract_seqnum(self, seqnum_chksum: bytes) -> bytes:
         return seqnum_chksum >> 4
@@ -81,6 +82,8 @@ class Packet:
 
 # Finds a serial port for the serial connection
 # Calls the serial_finder library to search the operating system for serial ports
+
+
 def find_port():
     port = None
     while (port == None):
@@ -98,10 +101,11 @@ def find_port():
     debug_f("serial", "Using port: {}", [port])
     return port
 
+
 class SerialConnection:
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self, serial_port=find_port()):
-        # TODO: This error handling is not helpful right now because 
+        # TODO: This error handling is not helpful right now because
         # serial_finder is more likely to fail than the opening of the port
         attempts: int = 0
         port_open: bool = False
@@ -110,18 +114,20 @@ class SerialConnection:
                 self.serial_connection = serial.Serial(
                     port=serial_port,
                     baudrate=SERIAL_BAUD,
-                    parity=serial.PARITY_NONE,   # parity is error checking, odd means the message will have an odd number of 1 bits
+                    # parity is error checking, odd means the message will have an odd number of 1 bits
+                    parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE,
                     bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
                     timeout=0.1)
                 port_open = True
             except serial.serialutil.SerialException:
                 if (attempts > MAX_ATTEMPTS):
-                    debug_f("serial", "Could not open serial port after {} attempts. Crashing now.", [attempts])
+                    debug_f("serial", "Could not open serial port after {} attempts. Crashing now.", [
+                            attempts])
                     exit(1)
                 attempts += 1
                 debug("serial", "Failed to open serial port, trying again.")
-                sleep(1) # Wait a second before retrying
+                sleep(1)  # Wait a second before retrying
 
     # Send a Packet over serial
     def write_packet(self, p) -> None:
@@ -148,7 +154,7 @@ class SerialConnection:
         if(p == None):
             debug("serial", "Received an invalid packet")
         else:
-            debug("serial", p) # Debugging
+            debug("serial", p)  # Debugging
             return p
 
     # Send the inital packet and wait for the correct response
@@ -159,9 +165,9 @@ class SerialConnection:
         p_in = self.send_receive_packet(p_out)
         # TODO: Verify correctness of initial packet response from Arduino/Teensy
         #       Check arduino source to ensure order of response values, they might get flipped
-        if((p_in.cmd == EST_CON_ACK) & 
-           (p_in.val1 == EST_CON_VAL1) & 
-           (p_in.val2 == EST_CON_VAL2)): 
+        if((p_in.cmd == EST_CON_ACK) &
+           (p_in.val1 == EST_CON_VAL1) &
+           (p_in.val2 == EST_CON_VAL2)):
             # good
             return
         else:
