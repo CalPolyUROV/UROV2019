@@ -8,9 +8,7 @@ from time import sleep  # Wait before retrying sockets connection
 
 from debug import debug  # Debug printing and logging
 from debug import debug_f
-
-# Maximum number of times to try creating or openeing a socket
-MAX_ATTEMPTS = 5
+import settings
 
 
 class SocketsClient:

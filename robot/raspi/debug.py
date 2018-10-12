@@ -1,5 +1,6 @@
-PRINTING = True
-LOGGING = False
+"""Debugging print and logging functions
+"""
+import settings
 
 # Usage:
 # debug("channel", "message")
@@ -16,18 +17,18 @@ channels = {"sockets": True,
             "execute_task": True}
 
 def debug(channel: str, message: str):
-    if(PRINTING & channels[channel]):
+    if(settings.PRINTING & channels[channel]):
         # Print message to console
         # TODO: Replace all print statements with calls to debug()
         print("{}: {}".format(channel, message))
-    if(LOGGING):
+    if(settings.LOGGING):
         # TODO: Output stuff to a log file
         pass
 
 def debug_f(channel: str, message: str, formatting: list):
-    if(PRINTING):
+    if(settings.PRINTING):
         # TODO: Do this better
         print("{}: {}".format(channel, message.format(*formatting)))
-    if(LOGGING):
+    if(settings.LOGGING):
         # TODO: Output stuff to a log file
         pass   

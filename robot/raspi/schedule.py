@@ -3,6 +3,7 @@
 # System imports
 from enum import Enum  # Used for task properties
 
+import settings
 from debug import debug  # Debug printing and logging
 from debug import debug_f
 

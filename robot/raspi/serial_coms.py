@@ -8,16 +8,13 @@ from sys import exit  # End the program when things fail
 from time import sleep  # Wait before retrying sockets connection
 
 # Our imports
+import settings
 import serial_finder  # Identifies serial ports
 from debug import debug
 from debug import debug_f
 
-# Serial Baudrate, encoding scheme
-SERIAL_BAUD = 9600
+# encoding scheme
 ENCODING = 'ascii'
-
-# Maximum number of times to try openeing a serial port
-MAX_ATTEMPTS: int = 4
 
 # Bitmask for extracting checksums from seqnum_chksum
 # Do not use directly, implement a checksum verification method
@@ -128,7 +125,7 @@ class SerialConnection:
             try:
                 self.serial_connection = serial.Serial(
                     port=serial_port,
-                    baudrate=SERIAL_BAUD,
+                    baudrate=settings.SERIAL_BAUD,
                     # parity is error checking, odd means the message will have an odd number of 1 bits
                     parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE,
@@ -141,7 +138,7 @@ class SerialConnection:
                             attempts])
                     exit(1)
                 attempts += 1
-                debug("serial", "Failed to open serial port, trying again.")
+                debug("serial_con", "Failed to open serial port, trying again.")
                 sleep(1)  # Wait a second before retrying
 
     # Send a Packet over serial
