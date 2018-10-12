@@ -41,7 +41,7 @@ def find_port(ports):
     if platform == "linux" or platform == "linux2":
         print("Linux detected")
         for p in ports:
-            return '/dev/ttyS0'		
+            # return '/dev/ttyS0'  # If using raspi GPIO for serial, just pick this port
             if "USB" in p:
                 return p
 

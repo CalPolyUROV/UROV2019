@@ -86,20 +86,29 @@ class Packet:
 
 def find_port():
     port = None
-    while (port == None):
-        # Get a list of all serial ports
-        debug("serial", "Searching for serial ports")
-        ports = serial_finder.serial_ports()
-        debug("serial", "Found ports:")
-        for p in ports:
-            debug("serial", p)
-        # Select the port
-        port = serial_finder.find_port(ports)
-        if(port == None):
-            debug("serial", "No port found, trying again.")
-            # TODO: Stop trying after a set number of attempts a la sys.exit(1)
-    debug_f("serial", "Using port: {}", [port])
-    return port
+    attempts: int = 0
+    while(port == None):
+        try:
+                # Get a list of all serial ports
+            debug("serial", "Searching for serial ports")
+            ports = serial_finder.serial_ports()
+            debug("serial", "Found ports:")
+            for p in ports:
+                debug("serial", p)
+            # Select the port
+            port = serial_finder.find_port(ports)
+            debug_f("serial", "Using port: {}", [port])
+            return port
+
+        except serial.serialutil.SerialException:
+            pass
+        if (attempts > MAX_ATTEMPTS):
+            debug_f("serial", "Could not find serial port after {} attempts. Crashing now.", [
+                    attempts])
+            exit(1)
+            attempts += 1
+        debug("serial", "Failed to find serial port, trying again.")
+        sleep(1)  # Wait a second before retrying
 
 
 class SerialConnection:
