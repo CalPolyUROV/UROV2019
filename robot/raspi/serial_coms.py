@@ -1,6 +1,7 @@
-# This file contains code that manages the serial connection from the robot to
-# the Arduino/Teensy.
+""" This module manages the serial connection from the robot to the Arduino/Teensy.
 
+TODO: Add more documentation here
+"""
 # System imports
 import serial  # PySerial library
 from sys import exit  # End the program when things fail
@@ -26,8 +27,8 @@ CHKSUM_MASK = 0x0F
 # Initial value for sequence number
 FIRST_SEQNUM = 0
 
-# List of codes for each command
-# we need to find a way to export this list and keep it synchronized
+""" List of codes for each command
+"""
 # TODO: Move list to external file (maybe .txt or .csv),
 #       write script to place in Arduino source and python source
 #       will not be needed on topside Pi, only on robot
@@ -44,7 +45,11 @@ EST_CON_VAL2 = 0b01011010
 
 
 class Packet:
+    """ Packet class for storing information that is sent and received over serial
+
+    """
     # Internal cosntructor
+
     def __init__(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
         self.cmd = cmd
         self.val1 = val1
@@ -80,33 +85,43 @@ class Packet:
         val2: {}\n
         chksum_seqnum: {}""".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
 
-# Finds a serial port for the serial connection
-# Calls the serial_finder library to search the operating system for serial ports
+#
 
 
 def find_port():
+    """ Finds a serial port for the serial connection
+
+    Calls the serial_finder library to search the operating system for serial ports
+    """
     port = None
-    while (port == None):
-        # Get a list of all serial ports
-        debug("serial", "Searching for serial ports")
-        ports = serial_finder.serial_ports()
-        debug("serial", "Found ports:")
-        for p in ports:
-            debug("serial", p)
-        # Select the port
-        port = serial_finder.find_port(ports)
-        if(port == None):
-            debug("serial", "No port found, trying again.")
-            # TODO: Stop trying after a set number of attempts a la sys.exit(1)
-    debug_f("serial", "Using port: {}", [port])
-    return port
+    attempts: int = 0
+    while(port == None):
+        try:
+                # Get a list of all serial ports
+            debug("serial", "Searching for serial ports")
+            ports = serial_finder.serial_ports()
+            debug("serial", "Found ports:")
+            for p in ports:
+                debug("serial", p)
+            # Select the port
+            port = serial_finder.find_port(ports)
+            debug_f("serial", "Using port: {}", [port])
+            return port
+
+        except serial.serialutil.SerialException:
+            pass
+        if (attempts > MAX_ATTEMPTS):
+            debug_f("serial", "Could not find serial port after {} attempts. Crashing now.", [
+                    attempts])
+            exit(1)
+            attempts += 1
+        debug("serial", "Failed to find serial port, trying again.")
+        sleep(1)  # Wait a second before retrying
 
 
 class SerialConnection:
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self, serial_port=find_port()):
-        # TODO: This error handling is not helpful right now because
-        # serial_finder is more likely to fail than the opening of the port
         attempts: int = 0
         port_open: bool = False
         while(not port_open):

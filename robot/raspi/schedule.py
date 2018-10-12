@@ -60,7 +60,8 @@ class Schedule:
         self.task_index += 1
 
     def schedule_initial_tasks(self):
-        # Create a task to establish contact with the Arduino/Teensy
+        """ Create a task to establish contact with the Arduino/Teensy
+        """
         task_serial_est_con = Task(TaskType.serial_est_con,
                                    TaskPriority.high,
                                    [])
@@ -78,23 +79,30 @@ class Schedule:
 
         if (t.task_type == TaskType.debug_str):
             debug_f("execute_task", "Executing task: {}", t.val_list)
+
         elif (t.task_type == TaskType.cntl_input):
             debug_f("execute_task", "Executing task: {}", t.val_list)
+
         elif (t.task_type == TaskType.get_telemetry):
             debug_f("execute_task", "Executing task: {}", t.val_list)
+
         elif (t.task_type == TaskType.serial_est_con):
             self.serial_connection.establish_contact()
+
         elif (t.task_type == TaskType.sockets_connect):
             self.socket_connection.connect_server()
+
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
 
-    # Report whether there are enough tasks left in the queue
     def has_tasks(self):
+        """Report whether there are enough tasks left in the queue
+        """
         return len(self.task_list)
 
-    # take the next task off the queue
     def get_next_task(self):
+        """Take the next task off the queue
+        """
         return self.task_list.pop(0)
 
     def terminate(self):

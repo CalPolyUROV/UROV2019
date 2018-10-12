@@ -12,6 +12,7 @@ LOGGING = False
 
 channels = {"sockets": True,
             "serial": True,
+            "serial_finder": True,
             "execute_task": True}
 
 def debug(channel: str, message: str):
