@@ -8,7 +8,7 @@
 # to the Arduino/Teensy is present here. Sockets code will need to be merged 
 # into this program from the sockets_test file once it is stablized.
 
-from time import sleep
+from time import sleep # Temporary delay to not make things too fast during testing
 
 # Scheduling imports
 from schedule import Schedule

@@ -1,6 +1,7 @@
 # Scheduling class for scheduling activities
 
-from enum import Enum
+# System imports
+from enum import Enum # Used for task properties
 
 from debug import debug # Debug printing and logging
 from debug import debug_f
