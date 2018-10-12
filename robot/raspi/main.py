@@ -1,47 +1,40 @@
-#python3
+# python3
 
-# This is the python program is meant to run on the Raspberry Pi located on the robot.
-# This program acts as a intermediary between the Raspberry Pi on the surface unit and the Arduino/Teensy on the robot.
-# Currently, only serial communication to the Arduino/Teensy is present here. Sockets code will need to be merged into 
-# this program from the sockets_test file once it is stablized.
+# This is the python program is meant to run on the Raspberry Pi located on
+# the robot. This program acts as a intermediary between the Raspberry Pi on
+# the surface unit and the Arduino/Teensy on the robot. The scheduling module
+# used in this program manages the serial and sockets connections to the
+# Arduino/Teensy and topside raspberry Pi Currently, only serial communication
+# to the Arduino/Teensy is present here. Sockets code will need to be merged
+# into this program from the sockets_test file once it is stablized.
 
-# import sys
+from time import sleep  # Temporary delay to not make things too fast during testing
 
-import serial
+# Scheduling imports
+from schedule import Schedule
+from schedule import Task
 
-import serial_finder
-from serial_coms import SerialConnection
+# Make a schedule object
+s = Schedule()
 
-port = None
-while (port == None):
-    # Get a list of all serial ports
-    ports = serial_finder.serial_ports()
-    print("Found ports:")
-    for p in ports:
-        print("{}".format(p))
-    # Select the port
-    port = serial_finder.find_port(ports)
-    if(port == None):
-        print("No port found, trying again.")
-        # TODO: Stop trying after a set number of attempts a la sys.exit(1)
-print("Using port: {}".format(port))
+# This  initializes the sockets/networking code
+# Note: The sockets should not connect to the topside unit until after the
+#   serial connection has been made.
+#   (This is arbitrary, but the reasoning is that the robot should enumerate
+#   its own pieces prior to connecting to the server)
+#   (however the serial connection uses a handshake/"est_con")
+s.schedule_initial_tasks()
 
-# Create the serial connection object with the specified port    
-usb_serial = SerialConnection(port)
+terminate: bool = False  # Whether to exit main loop
+while(not terminate):
+    # Get new tasks if needed
+    # TODO: Integrate this if statement into the get_new_tasks call or a check_for_new_tasks()
+    if (not s.has_tasks()):
+        s.get_new_tasks()
 
-# Send the initial packet to make contact with Arduino/Teensy
-usb_serial.establish_contact()
-print("Sent initial packet")
+    # Get the next task to execute
+    t = s.get_next_task()
+    s.execute_task(t)
+    sleep(2)  # Temporary delay to not make things too fast during testing
 
-# loop()
-while(True):
-    # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
-    # TODO: Write logic choosing a command to send (maybe use a queue)
-    # send_packet()
-    # Recieve a packet fromt eh Arduino/Teensy
-    ack_packet = usb_serial.get_packet()
-    if(ack_packet == None):
-        print("Received an invalid packet")
-    else:
-        print(ack_packet)
-
+s.terminate()
