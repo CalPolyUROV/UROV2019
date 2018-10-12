@@ -13,17 +13,16 @@ from time import sleep  # Temporary delay to not make things too fast during tes
 # Scheduling imports
 from schedule import Schedule
 from schedule import Task
-from schedule import TaskType
-from schedule import TaskPriority
 
 # Make a schedule object
-# This also initializes the sockets/networking code
-# Note: The sockets should not connect to the topside unit until after the 
-# serial connection has been made. This is not an issue because the socket 
-# client on the robot is initialized without communicating with the server
-# (however the serial connection uses a handshake/"est_con")
 s = Schedule()
 
+# This  initializes the sockets/networking code
+# Note: The sockets should not connect to the topside unit until after the
+#   serial connection has been made.
+#   (This is arbitrary, but the reasoning is that the robot should enumerate
+#   its own pieces prior to connecting to the server)
+#   (however the serial connection uses a handshake/"est_con")
 s.schedule_initial_tasks()
 
 terminate: bool = False  # Whether to exit main loop
