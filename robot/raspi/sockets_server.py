@@ -1,12 +1,19 @@
-# Socket client server for use in topside UI
-
+""" Sockets server for use in topside UI
+"""
+# System imports
 import socket
 import sys
 from time import sleep
+
+# Our imports
+import settings
+from debug import debug
+from debug import debug_f
  
 class SocketsServer:
-
-    def __init__(self, ip_address="192.168.10.10", port=5000):
+    """ Manages sockets server which sends commands to robot
+    """
+    def __init__(self, ip_address=settings.TOPSIDE_IP_ADDRESS, port=settings.TOPSIDE_PORT):
         self.ip_address = ip_address
         self.port = port
         self.bound = False
@@ -20,23 +27,23 @@ class SocketsServer:
                 self.s.bind((self.ip_address, self.port))
             except socket.error as socket_error:
                 self.bound = False
-                print("Bind failed. Error Code: {}".format(socket_error))
+                debug_f("sockets", "Bind failed. Error Code: {}", [socket_error])
                 self.s.close()
                 sleep(1)
                 continue
             self.bound = True  
         
-        print('Socket bind to ' + str(self.ip_address) + ':' + str(self.port) + ' sucessful')
+        debug_f("sockets", 'Socket bound to {}:{} sucessfully', [self.ip_address, self.port])
     
     def open_server(self):    
         self.s.listen(10)
     
         while 1:
-            print('Socket now listening')
+            debug("socket_con", 'Socket now listening')
 
             #wait to accept a connection - blocking call
             conn, addr = self.s.accept()
-            print('Connected with ' + addr[0] + ':' + str(addr[1]))
+            debug_f("socket_con", 'Connected with {}:{}', [addr[0], addr[1]])
             
             #now keep talking with the client
             while 1:
@@ -44,13 +51,13 @@ class SocketsServer:
                 reply = 'OK...' + str(data)
                 if not data: 
                     break
-                print("Received: " + str(data))
+                debug_f("socket_con", "Received: {}", [data])
                 conn.sendall(reply.encode())
-                print("Sent reply: \"" + reply + "\"")
+                debug_f("socket_con", "Sent reply: \"{}\"", [reply])
 
             conn.close()
         self.close()
             
     def close(self):
         self.s.close()
-        print('Socket closed')
+        debug("socket_con", 'Socket closed')

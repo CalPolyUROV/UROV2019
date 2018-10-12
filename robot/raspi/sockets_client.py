@@ -15,7 +15,7 @@ class SocketsClient:
     """ Manages sockets network connection to topside raspi
     """
 
-    def __init__(self, remote_ip='192.168.0.101', remote_port=5000):
+    def __init__(self, remote_ip=settings.TOPSIDE_IP_ADDRESS, remote_port=settings.TOPSIDE_PORT):
         self.remote_ip = remote_ip  # Has defaut value
         self.remote_port = remote_port  # Has default value
 
