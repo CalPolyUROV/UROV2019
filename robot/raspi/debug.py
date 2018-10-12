@@ -1,6 +1,15 @@
 PRINTING = True
 LOGGING = False
 
+# Usage:
+# debug("channel", "message")
+# debug("channel", object)
+# debug_f("channel", "message with brackets: {}, {}", ["list", of_things_to_format_in])
+
+# equivelant to (don't do the following):
+#     debug("channel", "message with brackets: {}, {}".format("list", of_things_to_format_in)
+# By formatting once inside debug_f(), format() is only called if printing is turned on.
+
 def debug(channel: str, message: str):
     if(PRINTING):
         # Print message to console
