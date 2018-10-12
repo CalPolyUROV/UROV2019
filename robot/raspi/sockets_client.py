@@ -28,10 +28,17 @@ class SocketsClient:
                 self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 socket_open = True
             except socket.error:
-                if (attempts > MAX_ATTEMPTS):
-                    debug_f(
-                        "socket", "Could not create socket after {} attempts. Crashing now.", [attempts])
-                    exit(1)
+                if (attempts > settings.SOCKETS_MAX_ATTEMPTS):
+                    if(settings.REQUIRE_SOCKETS):
+                        # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+                        debug_f(
+                            "sockets", "Could not create socket after {} attempts. Crashing now.", [attempts])
+                        exit(1)
+                    else:
+                        debug_f("sockets", "Giving up on creating socket after {} attempts. Not required in settings.", [
+                                attempts])
+                        # TODO: Warn the rest of the system that sockets is not available
+                        return
                 attempts += 1
                 debug("sockets", "Failed to create socket, trying again.")
                 sleep(1)  # Wait a second before retrying
@@ -46,10 +53,17 @@ class SocketsClient:
                 self.s.connect((self.remote_ip, self.remote_port))
                 socket_open = True
             except ConnectionRefusedError:
-                if (attempts > MAX_ATTEMPTS):
-                    debug_f(
-                        "socket", "Could not open socket after {} attempts. Crashing now.", [attempts])
-                    exit(1)
+                if (attempts > settings.SOCKETS_MAX_ATTEMPTS):
+                    if(settings.REQUIRE_SOCKETS):
+                        # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+                        debug_f(
+                            "socket_con", "Could not open socket after {} attempts. Crashing now.", [attempts])
+                        exit(1)
+                    else:
+                        debug_f("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
+                                attempts])
+                        # TODO: Warn the rest of the system that sockets is not available
+                        return
                 attempts += 1
                 debug("socket_con", "Failed to open socket, trying again.")
                 sleep(1)  # Wait a second before retrying

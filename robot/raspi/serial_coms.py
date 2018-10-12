@@ -107,11 +107,17 @@ def find_port():
 
         except serial.serialutil.SerialException:
             pass
-        if (attempts > MAX_ATTEMPTS):
-            debug_f("serial", "Could not find serial port after {} attempts. Crashing now.", [
-                    attempts])
-            exit(1)
-            attempts += 1
+        if (attempts > settings.SERIAL_MAX_ATTEMPTS):
+            if(settings.REQUIRE_SERIAL):
+                # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+                debug_f("serial", "Could not find serial port after {} attempts. Crashing now.", [
+                        attempts])
+                exit(1)
+            else:
+                debug_f("serial", "Giving up on finding serial port after {} attempts. Not required in settings.", [
+                        attempts])
+                return
+        attempts += 1
         debug("serial", "Failed to find serial port, trying again.")
         sleep(1)  # Wait a second before retrying
 
@@ -133,10 +139,15 @@ class SerialConnection:
                     timeout=0.1)
                 port_open = True
             except serial.serialutil.SerialException:
-                if (attempts > MAX_ATTEMPTS):
-                    debug_f("serial", "Could not open serial port after {} attempts. Crashing now.", [
-                            attempts])
-                    exit(1)
+                if (attempts > settings.SERIAL_MAX_ATTEMPTS):
+                    if(settings.REQUIRE_SERIAL):
+                        debug_f("serial_con", "Could not open serial port after {} attempts. Crashing now.", [
+                                attempts])
+                        exit(1)
+                    else:
+                        debug_f("serial_con", "Giving up on serial connection after {} attempts. Not required in settings.", [
+                                attempts])
+                        return
                 attempts += 1
                 debug("serial_con", "Failed to open serial port, trying again.")
                 sleep(1)  # Wait a second before retrying

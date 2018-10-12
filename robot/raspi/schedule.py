@@ -63,16 +63,17 @@ class Schedule:
     def schedule_initial_tasks(self):
         """ Create a task to establish contact with the Arduino/Teensy
         """
-        task_serial_est_con = Task(TaskType.serial_est_con,
-                                   TaskPriority.high,
-                                   [])
-        task_sockets_connect = Task(TaskType.sockets_connect,
-                                    TaskPriority.high,
-                                    [])
-        # Schedule initial tasks
-        self.schedule_task(task_sockets_connect)
-        # High priority goes to front of queue
-        self.schedule_task(task_serial_est_con)
+        if(settings.USE_SOCKETS):
+            task_sockets_connect = Task(TaskType.sockets_connect,
+                                        TaskPriority.high,
+                                        [])
+            self.schedule_task(task_sockets_connect)
+
+        if(settings.USE_SERIAL):
+            task_serial_est_con = Task(TaskType.serial_est_con,
+                                       TaskPriority.high,
+                                       [])
+            self.schedule_task(task_serial_est_con)
 
     def execute_task(self, t: Task):
         # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
