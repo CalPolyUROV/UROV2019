@@ -5,6 +5,9 @@ import socket # Sockets library
 from sys import exit # End the program when things fail
 from time import sleep # Wait before retrying sockets connection
 
+from debug import debug # Debug printing and logging
+from debug import debug_f
+
 # Maximum number of times to try openeing a socket
 MAX_ATTEMPTS = 5 
 
@@ -19,10 +22,10 @@ class SocketsClient:
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error:
-            print('Failed to create socket')
+            debug("socket", 'Failed to create socket')
             exit() # Bail out
             
-        print('Socket Created')
+        debug("socket", 'Socket Created')
 
     #Connect to remote server  
     def connect_server(self):
@@ -34,12 +37,12 @@ class SocketsClient:
                 socket_open = True
             except ConnectionRefusedError:
                 if (attempts > MAX_ATTEMPTS):
-                    print("Could not open socket after {} attempts. Crashing now.".format(attempts))
+                    debug_f("socket", "Could not open socket after {} attempts. Crashing now.", [attempts])
                     exit(1)
                 attempts += 1
-                print("Failed to open socket, trying again.")
+                debug("socket", "Failed to open socket, trying again.")
                 sleep(1) # Wait a second before retrying
-        print('Socket Connected to ' + self.remote_ip + ':' + str(self.remote_port))
+        debug_f("socket", 'Socket Connected to {}:{}',  [self.remote_ip, str(self.remote_port)])
 
     def send_data(self, message_str: str):
        
@@ -52,19 +55,19 @@ class SocketsClient:
                 self.s.sendall(message_enc)
             except socket.error:
                 #Send failed
-                print('Send failed')
-                sys.exit()
+                debug("socket", 'Send failed')
+                exit()
             
-            print('Message send successfully')
+            debug("socket", 'Message send successfully')
             
             # Now receive data
             # BLocking call?
             reply = self.s.recv(4096)
             
-            print(reply)
+            debug("socket", reply)
             return reply
             # sleep(1) # sleep for 1 second
 
     def close_socket(self):
         self.s.close()
-        print('Socket closed')
+        debug("socket", 'Socket closed')

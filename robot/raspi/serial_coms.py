@@ -8,6 +8,8 @@ from time import sleep # Wait before retrying sockets connection
 
 # Our imports
 import serial_finder # Identifies serial ports
+from debug import debug
+from debug import debug_f
 
 # Serial Baudrate, encoding scheme
 SERIAL_BAUD = 9600
@@ -83,17 +85,17 @@ def find_port():
     port = None
     while (port == None):
         # Get a list of all serial ports
-        print("Searching for serial ports")
+        debug("serial", "Searching for serial ports")
         ports = serial_finder.serial_ports()
-        print("Found ports:")
+        debug("serial", "Found ports:")
         for p in ports:
-            print("{}".format(p))
+            debug("serial", p)
         # Select the port
         port = serial_finder.find_port(ports)
         if(port == None):
-            print("No port found, trying again.")
+            debug("serial", "No port found, trying again.")
             # TODO: Stop trying after a set number of attempts a la sys.exit(1)
-    print("Using port: {}".format(port))
+    debug_f("serial", "Using port: {}", [port])
     return port
 
 class SerialConnection:
@@ -115,10 +117,10 @@ class SerialConnection:
                 port_open = True
             except serial.serialutil.SerialException:
                 if (attempts > MAX_ATTEMPTS):
-                    print("Could not open serial port after {} attempts. Crashing now.".format(attempts))
+                    debug_f("serial", "Could not open serial port after {} attempts. Crashing now.", [attempts])
                     exit(1)
                 attempts += 1
-                print("Failed to open serial port, trying again.")
+                debug("serial", "Failed to open serial port, trying again.")
                 sleep(1) # Wait a second before retrying
 
     # Send a Packet over serial
@@ -144,9 +146,9 @@ class SerialConnection:
         # Recieve a packet from the Arduino/Teensy
         p = self.read_packet()
         if(p == None):
-            print("Received an invalid packet")
+            debug("serial", "Received an invalid packet")
         else:
-            print(p) # Debugging
+            debug("serial", p) # Debugging
             return p
 
     # Send the inital packet and wait for the correct response
@@ -164,6 +166,6 @@ class SerialConnection:
             return
         else:
             # bad
-            print("Response to initial contact was not satisfactory")
+            debug("serial", "Response to initial contact was not satisfactory")
             # TODO: Add logic to retry this a few times
             return

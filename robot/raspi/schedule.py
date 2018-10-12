@@ -2,6 +2,9 @@
 
 from enum import Enum
 
+from debug import debug # Debug printing and logging
+from debug import debug_f
+
 # Serial imports
 from serial_coms import find_port
 from serial_coms import SerialConnection
@@ -9,7 +12,6 @@ from serial_coms import Packet
 
 # Sockets networking import
 from sockets_client import SocketsClient
-
 
 class TaskType(Enum):
     debug_str = 0
@@ -68,17 +70,17 @@ class Schedule:
         # TODO: Write logic choosing a command to send (maybe use a queue)
 
         if (t.task_type == TaskType.debug_str):
-            print("Executing task: {}".format(t.val_list))
+            debug_f("execute_task", "Executing task: {}", t.val_list)
         elif (t.task_type == TaskType.cntl_input):
-            print("Executing task: {}".format(t.val_list))
+            debug_f("execute_task", "Executing task: {}", t.val_list)
         elif (t.task_type == TaskType.get_telemetry):
-            print("Executing task: {}".format(t.val_list))
+            debug_f("execute_task", "Executing task: {}", t.val_list)
         elif (t.task_type == TaskType.serial_est_con):
             self.serial_connection.establish_contact()
         elif (t.task_type == TaskType.sockets_connect):
             self.socket_connection.connect_server()
         else:
-            print("Unable to handle TaskType: {}".format(t.task_type))
+            debug_f("execute_task","Unable to handle TaskType: {}", t.task_type)
 
     # Report whether there are enough tasks left in the queue
     def has_tasks(self):
