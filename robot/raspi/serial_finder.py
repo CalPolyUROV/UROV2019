@@ -1,3 +1,5 @@
+""" This module seaches the operating system for devices on serial ports
+"""
 # TODO: Find the origin of this code and give credit
 
 import glob
@@ -5,12 +7,11 @@ import sys
 import serial
 from sys import platform
 
-# Finds all serial ports and returns a list containing them
-#@retval: a list containg all the serial ports
-def serial_ports():
-    """ Lists serial port names
 from debug import debug
 
+
+def serial_ports() -> list:
+    """ Finds all serial ports and returns a list containing them
 
         :raises EnvironmentError:
             On unsupported or unknown platforms
@@ -30,16 +31,17 @@ from debug import debug
     result = []
     for port in ports:
         try:
-            s = serial.Serial(port)
-            s.close()
-            result.append(port)
-        except (OSError, serial.SerialException):
+            s = serial.Serial(port)                 # Try to open a port
+            s.close()                               # Close the port if sucessful
+            result.append(port)                     # Add to list of good ports
+        except (OSError, serial.SerialException):   # If un sucessful
             pass
     return result
 
-#Finds a port in a list to use and returns it
-#@retval: a serial port
-def find_port(ports):
+
+def find_port(ports) -> str or None:
+    """ Finds a port in a list to use and returns itF
+    """
     if platform == "linux" or platform == "linux2":
         debug("serial_finder", "Linux detected")
         for p in ports:

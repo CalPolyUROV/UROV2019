@@ -1,4 +1,5 @@
-# Socket client class for use on robot
+"""Sockets client which communicates to topside raspi
+"""
 
 # System imports
 import socket  # Sockets library
@@ -13,6 +14,8 @@ MAX_ATTEMPTS = 5
 
 
 class SocketsClient:
+    """ Manages sockets network connection to topside raspi
+    """
 
     def __init__(self, remote_ip='192.168.0.101', remote_port=5000):
         self.remote_ip = remote_ip  # Has defaut value

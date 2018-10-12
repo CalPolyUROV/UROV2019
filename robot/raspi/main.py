@@ -1,13 +1,14 @@
 # python3
+""" Main Python code that runs on the Raspberry Pi 3B inside the robot
 
-# This is the python program is meant to run on the Raspberry Pi located on
-# the robot. This program acts as a intermediary between the Raspberry Pi on
-# the surface unit and the Arduino/Teensy on the robot. The scheduling module
-# used in this program manages the serial and sockets connections to the
-# Arduino/Teensy and topside raspberry Pi Currently, only serial communication
-# to the Arduino/Teensy is present here. Sockets code will need to be merged
-# into this program from the sockets_test file once it is stablized.
+This is the python program is meant to run on the Raspberry Pi located on
+the robot. This program acts as a intermediary between the Raspberry Pi on
+the surface unit and the Arduino/Teensy on the robot. The scheduling module
+used in this program manages the serial and sockets connections to the
+Arduino/Teensy and topside raspberry Pi respectively.
+"""
 
+# System imports
 from time import sleep  # Temporary delay to not make things too fast during testing
 
 # Scheduling imports
