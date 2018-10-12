@@ -43,22 +43,24 @@ EST_CON_VAL2 = 0b01011010
 
 class Packet:
     """ Packet class for storing information that is sent and received over serial
-
     """
-    # Internal cosntructor
 
     def __init__(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
+        """Internal constructor
+        """
         self.cmd = cmd
         self.val1 = val1
         self.val2 = val2
         self.seqnum_chksum = seqnum_chksum
 
-    # Constructor for building packets to send (chksum is created)
     def make_packet(self, cmd: bytes, val1: bytes, val2: bytes, seqnum: bytes):
+        """ Constructor for building packets to send (chksum is created)
+        """
         return Packet(cmd, val1, val2, (seqnum << 4) + self.calc_chksum(cmd, val1, val2, seqnum))
 
-    # Constructor for building packets that have been received, untrusted checksums
     def read_packet(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
+        """Constructor for building packets that have been received, untrusted checksums
+        """
         if(self.calc_chksum(cmd, val1, val2, self.extract_seqnum(seqnum_chksum)) == self.extract_chksum(seqnum_chksum)):
             return Packet(cmd, val1, val2, seqnum_chksum)
 
@@ -82,8 +84,6 @@ class Packet:
         val2: {}\n
         chksum_seqnum: {}""".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
 
-#
-
 
 def find_port():
     """ Finds a serial port for the serial connection
@@ -94,7 +94,7 @@ def find_port():
     attempts: int = 0
     while(port == None):
         try:
-                # Get a list of all serial ports
+            # Get a list of all serial ports
             debug("serial", "Searching for serial ports")
             ports = serial_finder.serial_ports()
             debug("serial", "Found ports:")

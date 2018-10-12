@@ -62,6 +62,9 @@ class Schedule:
 
     def schedule_initial_tasks(self):
         """ Create a task to establish contact with the Arduino/Teensy
+
+        These tasks will be executed in reverse order shown here because high
+        priority tasks are inidividually schedule to the front of the queue
         """
         if(settings.USE_SOCKETS):
             task_sockets_connect = Task(TaskType.sockets_connect,
