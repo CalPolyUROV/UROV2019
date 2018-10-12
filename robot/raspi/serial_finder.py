@@ -9,6 +9,8 @@ from sys import platform
 #@retval: a list containg all the serial ports
 def serial_ports():
     """ Lists serial port names
+from debug import debug
+
 
         :raises EnvironmentError:
             On unsupported or unknown platforms
@@ -39,23 +41,22 @@ def serial_ports():
 #@retval: a serial port
 def find_port(ports):
     if platform == "linux" or platform == "linux2":
-        print("Linux detected")
+        debug("serial_finder", "Linux detected")
         for p in ports:
             # return '/dev/ttyS0'  # If using raspi GPIO for serial, just pick this port
             if "USB" in p:
                 return p
 
     elif platform == "darwin":
-        print("Darwin detected")
+        debug("serial_finder", "Darwin detected")
         return ports[0]
 
     elif platform == "win32":
-        print("Windows detected")
+        debug("serial_finder", "Windows detected")
         p = ""
         for p in ports:
-            pass
+            debug("serial_finder", p)
         return p
-    # TODO: Actually return None if a port can't be found. The caller relies on this. 
+
     else:
-        return None         
-        
+        return None
