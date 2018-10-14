@@ -9,26 +9,39 @@
 
 #include <Servo.h>
 
+
+#define ESC_CENTER_MS 1500
 #define MOTOR_PIN 12
 
 #define ZERO 0
-#define MAX 400
-#define MIN -400
+#define MAX 295
+#define MIN -MAX
+
 #define DELTA 10
 #define WAIT 100
 
-Servo myservo;  // create servo object to control a servo
+// Delay for testing
+#define WAIT 500
+
+Servo thruster;  // create servo object to control a servo
 // twelve servo objects can be created on most boards
 
 int pos = ZERO;    // variable to store the servo position
 
 void setup()
 {
-  myservo.attach(MOTOR_PIN);  // attaches the servo on pin 9 to the servo object
+  Serial.begin(9600);
+  thruster.attach(MOTOR_PIN);  // attaches the servo on pin 9 to the servo object
+  Serial.println("Attached");
+  delay(100);
+  thruster.writeMicroseconds(ESC_CENTER_MS);
+  Serial.println("Wrote inital signal");
+  delay(100); // ensure that the signal was recieved
 }
 
 void loop()
 {
+  Serial.println("Starting Loop");
   for (pos = ZERO; pos <= MAX; pos += DELTA) // goes from 0 degrees to 180 degrees
   { // in steps of 1 degree
     write_servo(pos);             // tell servo to go to position in variable 'pos'
@@ -46,5 +59,6 @@ void loop()
 }
 
 void write_servo(int val) {
-  myservo.writeMicroseconds(1500 + val);
+  Serial.println(ESC_CENTER_MS + val);
+  thruster.writeMicroseconds(ESC_CENTER_MS + val);
 }
