@@ -14,11 +14,25 @@
 #define MOTOR_PIN 12
 
 #define ZERO 0
+
+/* The maximum throttle value
+   Originally, we would use 400 for this be it seemed to be having issues now
+   295 has been working better
+   ESC PWM Characteristics:
+      Pulse-width   (PWM)
+      Max Reverse:  1100 μs
+      Stopped:      1500 μs
+      Max Forward:  1900 μs
+      Deadband:     1475-1525 μs 
+*/
 #define MAX 295
 #define MIN -MAX
 
+/* The maximum change in motor speed
+  25 is too high, causing voltage drops from 24V to 21V
+  5 and 10 are much safer
+*/
 #define DELTA 10
-#define WAIT 100
 
 // Delay for testing
 #define WAIT 500
