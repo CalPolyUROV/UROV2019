@@ -1,9 +1,10 @@
 # Scheduling class for scheduling activities
 
-# System imports
-from enum import Enum  # Used for task properties
-
+# Our imports
 import settings
+from task import Task
+from task import TaskType
+from task import TaskPriority
 from debug import debug  # Debug printing and logging
 from debug import debug_f
 
@@ -14,26 +15,6 @@ from serial_coms import Packet
 
 # Sockets networking import
 from sockets_client import SocketsClient
-
-
-class TaskType(Enum):
-    debug_str = 0
-    cntl_input = 1
-    get_telemetry = 2
-    serial_est_con = 3
-    sockets_connect = 4
-
-
-class TaskPriority(Enum):
-    high = 1
-    normal = 0
-
-
-class Task:
-    def __init__(self, task_type: TaskType, priority: TaskPriority, val_list: list):
-        self.task_type = task_type
-        self.priority = priority
-        self.val_list = val_list
 
 
 class Schedule:
