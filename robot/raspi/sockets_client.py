@@ -6,9 +6,11 @@ import socket  # Sockets library
 from sys import exit  # End the program when things fail
 from time import sleep  # Wait before retrying sockets connection
 
+# Our imports
+import settings
 from debug import debug  # Debug printing and logging
 from debug import debug_f
-import settings
+
 
 
 class SocketsClient:

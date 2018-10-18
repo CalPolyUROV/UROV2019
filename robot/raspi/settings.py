@@ -1,8 +1,6 @@
 """Configurable settings that apply to the operation of the robot
 """
 
-
-
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = False
