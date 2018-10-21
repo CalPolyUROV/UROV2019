@@ -14,6 +14,7 @@ By formatting once inside debug_f(), format() is only called if printing is turn
 
 channels = {"sockets": True,
             "socket_con": True,
+            "decode": True,
             "serial_finder": True,
             "serial": True,
             "serial_con":True,
