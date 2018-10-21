@@ -8,10 +8,11 @@ import json
 
 class TaskType(IntEnum):
     debug_str = 0
-    cntl_input = 1
-    get_telemetry = 2
-    serial_est_con = 3
-    sockets_connect = 4
+    get_cntl = 1
+    cntl_input = 2
+    get_telemetry = 3
+    serial_est_con = 4
+    sockets_connect = 5
 
 
 class TaskPriority(IntEnum):
