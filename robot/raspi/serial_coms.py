@@ -91,7 +91,7 @@ def find_port():
     Calls the serial_finder library to search the operating system for serial ports
     """
     port = None
-    attempts: int = 0
+    attempts: int = 1
     while(port == None):
         try:
             # Get a list of all serial ports
@@ -102,12 +102,14 @@ def find_port():
                 debug("serial", p)
             # Select the port
             port = serial_finder.find_port(ports)
+            if(port == None):
+                raise serial.serialutil.SerialException
             debug_f("serial", "Using port: {}", [port])
             return port
 
         except serial.serialutil.SerialException:
             pass
-        if (attempts > settings.SERIAL_MAX_ATTEMPTS):
+        if (attempts >= settings.SERIAL_MAX_ATTEMPTS):
             if(settings.REQUIRE_SERIAL):
                 # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                 debug_f("serial", "Could not find serial port after {} attempts. Crashing now.", [
@@ -116,6 +118,7 @@ def find_port():
             else:
                 debug_f("serial", "Giving up on finding serial port after {} attempts. Not required in settings.", [
                         attempts])
+                settings.USE_SERIAL = False
                 return
         attempts += 1
         debug("serial", "Failed to find serial port, trying again.")
@@ -125,7 +128,7 @@ def find_port():
 class SerialConnection:
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self, serial_port=find_port()):
-        attempts: int = 0
+        attempts: int = 1
         port_open: bool = False
         while(not port_open):
             try:
@@ -139,7 +142,7 @@ class SerialConnection:
                     timeout=0.1)
                 port_open = True
             except serial.serialutil.SerialException:
-                if (attempts > settings.SERIAL_MAX_ATTEMPTS):
+                if (attempts >= settings.SERIAL_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SERIAL):
                         debug_f("serial_con", "Could not open serial port after {} attempts. Crashing now.", [
                                 attempts])
@@ -147,6 +150,7 @@ class SerialConnection:
                     else:
                         debug_f("serial_con", "Giving up on serial connection after {} attempts. Not required in settings.", [
                                 attempts])
+                        settings.USE_SERIAL = False
                         return
                 attempts += 1
                 debug("serial_con", "Failed to open serial port, trying again.")

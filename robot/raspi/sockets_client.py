@@ -22,7 +22,7 @@ class SocketsClient:
         self.remote_port = remote_port  # Has default value
 
         # Attempt to create a socket
-        attempts: int = 0
+        attempts: int = 1
         socket_open: bool = False
         while(not socket_open):
             try:
@@ -30,7 +30,7 @@ class SocketsClient:
                 self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 socket_open = True
             except socket.error:
-                if (attempts > settings.SOCKETS_MAX_ATTEMPTS):
+                if (attempts >= settings.SOCKETS_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SOCKETS):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                         debug_f(
@@ -39,7 +39,7 @@ class SocketsClient:
                     else:
                         debug_f("sockets", "Giving up on creating socket after {} attempts. Not required in settings.", [
                                 attempts])
-                        # TODO: Warn the rest of the system that sockets is not available
+                        settings.USE_SOCKETS = False
                         return
                 attempts += 1
                 debug("sockets", "Failed to create socket, trying again.")
@@ -48,14 +48,14 @@ class SocketsClient:
 
     # Connect to remote server
     def connect_server(self):
-        attempts: int = 0
+        attempts: int = 1
         socket_open: bool = False
-        while(not socket_open):
+        while(settings.USE_SOCKETS and not socket_open):
             try:
                 self.s.connect((self.remote_ip, self.remote_port))
                 socket_open = True
             except ConnectionRefusedError:
-                if (attempts > settings.SOCKETS_MAX_ATTEMPTS):
+                if (attempts >= settings.SOCKETS_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SOCKETS):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                         debug_f(
@@ -64,11 +64,11 @@ class SocketsClient:
                     else:
                         debug_f("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
                                 attempts])
-                        # TODO: Warn the rest of the system that sockets is not available
+                        settings.USE_SOCKETS = False
                         return
                 attempts += 1
                 debug("socket_con", "Failed to open socket, trying again.")
-                sleep(1)  # Wait a second before retrying
+                sleep(settings.SOCKETS_RETRY_WAIT)  # Wait a second before retrying
         debug_f("socket_con", 'Socket Connected to {}:{}',
                 [self.remote_ip, str(self.remote_port)])
 
