@@ -12,8 +12,11 @@ Arduino/Teensy and topside raspberry Pi respectively.
 from time import sleep  # Temporary delay to not make things too fast during testing
 
 # Scheduling imports
+import settings
 from schedule import Schedule
 from schedule import Task
+
+settings.ROLE = 'robot'
 
 # Make a schedule object
 s = Schedule()
