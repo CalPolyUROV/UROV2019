@@ -86,14 +86,14 @@ class SocketsClient:
                 debug("socket_con", 'Send failed')
                 exit()
 
-            debug("socket_con", 'Message send successfully')
+            debug_f("socket_con", 'Message send successfully: {}', [data])
 
             # Now receive data
             # BLocking call?
             reply = self.s.recv(settings.MAX_SOCKET_SIZE)
 
-            debug("socket_con", reply)
             return reply
+            debug_f("socket_con", "reply: {}", [reply])
             # sleep(1) # sleep for 1 second
 
     def close_socket(self):
