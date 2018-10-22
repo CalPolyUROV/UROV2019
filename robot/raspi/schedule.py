@@ -5,6 +5,7 @@ import settings
 from task import Task
 from task import TaskType
 from task import TaskPriority
+from task import decode as decode_task
 from debug import debug  # Debug printing and logging
 from debug import debug_f
 
@@ -39,7 +40,8 @@ class Schedule:
         elif(TaskPriority == TaskPriority.low):
             self.task_list.append(t)
         else:
-            self.task_list.append(task)
+            debug_f(
+                "schedule", "Cannot schedule task with unknown priority: {}", [t.priority])
         self.task_index += 1
 
     def schedule_initial_tasks(self):
@@ -83,10 +85,10 @@ class Schedule:
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
 
-    def has_tasks(self):
+    def has_tasks(self) -> bool:
         """Report whether there are enough tasks left in the queue
         """
-        return len(self.task_list)
+        return 0 < len(self.task_list)
 
     def get_new_tasks(self) -> None:
         # communicate over sockets to generate new tasks based on UI input
@@ -99,6 +101,7 @@ class Schedule:
     def get_next_task(self):
         """Take the next task off the queue
         """
+
         return self.task_list.pop(0)
 
     def terminate(self):
