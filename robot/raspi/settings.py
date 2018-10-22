@@ -2,19 +2,19 @@
 """
 
 # Sockets Connection
-USE_SOCKETS = True
-REQUIRE_SOCKETS = False
-TOPSIDE_IP_ADDRESS = '192.168.0.101'
-TOPSIDE_PORT = 5000
+USE_SOCKETS: bool = True
+REQUIRE_SOCKETS: bool = False
+TOPSIDE_IP_ADDRESS: str = 'localhost' #'192.168.0.101'
+TOPSIDE_PORT: int = 5000
 
 
 # Serial Connection
-USE_SERIAL = True
-REQUIRE_SERIAL = False
-SERIAL_BAUD = 9600  # Serial Baudrate
+USE_SERIAL: bool = False
+REQUIRE_SERIAL: bool = False
+SERIAL_BAUD: int = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS: int = 2  # Maximum number of times to try openeing a serial port
 
 
 # Debugging
-PRINTING = True
-LOGGING = False
+PRINTING: bool = True
+LOGGING: bool = False
