@@ -19,7 +19,7 @@ from schedule import Task
 settings.ROLE = 'robot'
 
 # Make a schedule object
-s = Schedule()
+s: Schedule = Schedule()
 
 # This  initializes the sockets/networking code
 # Note: The sockets should not connect to the topside unit until after the
@@ -37,7 +37,7 @@ while(not terminate):
         s.get_new_tasks()
 
     # Get the next task to execute
-    t = s.get_next_task()
+    t: Task = s.get_next_task()
     s.execute_task(t)
     sleep(2)  # Temporary delay to not make things too fast during testing
 
