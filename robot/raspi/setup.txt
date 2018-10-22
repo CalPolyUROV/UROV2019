@@ -1,4 +1,6 @@
 1. Make sure python3 is installed
+
 2. make sure PySerial is installed
 	"pip install pyserial"
+
 3. profit?
