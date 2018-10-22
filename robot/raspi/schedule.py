@@ -22,21 +22,22 @@ class Schedule:
         self.task_list = []  # Empty list
         self.task_index = 0
         # Create the serial_est_con connection object with the specified port
-        self.serial_connection = SerialConnection()
-        self.socket_connection = SocketsClient(
-            "localhost", 9120)  # Make sockets client obect
+        if(settings.USE_SERIAL):
+            debug("schedule", "Using serial as enabled in settings")
+            self.serial_connection = SerialConnection()
+        if(settings.USE_SOCKETS):
+            debug("schedule", "Using sockets as enabled in settings")
+            self.socket_connection = SocketsClient(
+                "localhost", 9120)  # Make sockets client obect
 
-    def get_new_tasks(self):
-        # communicate over sockets to generate new tasks based on UI input
-        data = self.socket_connection.send_data("Give me tasks")
-        self.schedule_task(Task(TaskType.debug_str,
-                                TaskPriority.normal,
-                                ["debug_str", self.task_index, data]))
-        return
-
-    def schedule_task(self, task):
-        if(task.priority == TaskPriority.high):
-            self.task_list.insert(0, task)
+    def schedule_task(self, t: Task):
+        if(t.priority == TaskPriority.high):
+            self.task_list.insert(0, t)
+        elif(TaskPriority == TaskPriority.normal):
+            self.task_list.append(t)
+            # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
+        elif(TaskPriority == TaskPriority.low):
+            self.task_list.append(t)
         else:
             self.task_list.append(task)
         self.task_index += 1
@@ -73,7 +74,8 @@ class Schedule:
             debug_f("execute_task", "Executing task: {}", t.val_list)
 
         elif (t.task_type == TaskType.serial_est_con):
-            self.serial_connection.establish_contact()
+            if(settings.USE_SERIAL):
+                self.serial_connection.establish_contact()
 
         elif (t.task_type == TaskType.sockets_connect):
             self.socket_connection.connect_server()
@@ -85,6 +87,14 @@ class Schedule:
         """Report whether there are enough tasks left in the queue
         """
         return len(self.task_list)
+
+    def get_new_tasks(self) -> None:
+        # communicate over sockets to generate new tasks based on UI input
+        t: Task = Task(TaskType.get_cntl, TaskPriority.high,
+                       ["control input pls"])
+        data: bytes = self.socket_connection.send_data(t.encode())
+        self.schedule_task(decode_task(data))
+        return
 
     def get_next_task(self):
         """Take the next task off the queue
