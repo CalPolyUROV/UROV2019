@@ -21,11 +21,11 @@ channels = {"schedule": True,
             "serial": True,
             "serial_con":True}
 
+# TODO: Use settings.ROLE for per client and server debugging
 
 def debug(channel: str, message: str):
     if(settings.PRINTING & channels[channel]):
         # Print message to console
-        # TODO: Replace all print statements with calls to debug()
         print("{}: {}".format(channel, message))
     if(settings.LOGGING):
         # TODO: Output stuff to a log file

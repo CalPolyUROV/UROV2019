@@ -1,6 +1,9 @@
 """Configurable settings that apply to the operation of the robot
 """
 
+ROLE: str  # Not a user facing setting
+
+
 # Sockets Connection
 USE_SOCKETS: bool = True
 REQUIRE_SOCKETS: bool = False
@@ -20,5 +23,6 @@ SERIAL_MAX_ATTEMPTS: int = 2  # Maximum number of times to try openeing a serial
 
 
 # Debugging
+# TODO: track debugging for server and client separately
 PRINTING: bool = True
 LOGGING: bool = False
