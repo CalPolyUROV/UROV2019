@@ -90,7 +90,7 @@ class SocketsClient:
 
             # Now receive data
             # BLocking call?
-            reply = self.s.recv(4096)
+            reply = self.s.recv(settings.MAX_SOCKET_SIZE)
 
             debug("socket_con", reply)
             return reply

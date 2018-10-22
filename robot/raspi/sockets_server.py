@@ -52,7 +52,8 @@ class SocketsServer:
             # now keep talking with the client
             # Blocking?
             while 1:
-                data = conn.recv(1024)
+                # Recieve data
+                data: bytes = conn.recv(settings.MAX_SOCKET_SIZE)
                 if (not data):
                     break
                 debug_f("socket_con", "Received: {}", [data])
