@@ -12,13 +12,14 @@ equivelant to (don't do the following):
 By formatting once inside debug_f(), format() is only called if printing is turned on.
 """
 
-channels = {"sockets": True,
+channels = {"schedule": True,
+            "execute_task": True,
+            "sockets": True,
             "socket_con": True,
             "decode": True,
             "serial_finder": True,
             "serial": True,
-            "serial_con":True,
-            "execute_task": True}
+            "serial_con":True}
 
 
 def debug(channel: str, message: str):
