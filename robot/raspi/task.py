@@ -34,8 +34,22 @@ class Task:
         return json.dumps(self, default=encode_task).encode()
 
 
-def decode(data):
-    return json.loads(data, object_hook=decode_task)
+def decode(data: bytes) -> Task:
+    debug_f("decode", "Trying to decode {}, which is a {}",
+            [data, data.__class__])
+    try:
+        t: Task = json.loads(data, object_hook=decode_task)
+        debug_f("decode", "Decoded to {}, which is a {}",
+                [data, data.__class__])
+        return t
+    except:
+        debug_f("decode", "Could not decode {}", [data])
+    if data is Task:
+        return data
+    elif data[0] == "__Task__":  # data is list:
+        return Task(data[1], data[2], data[3])
+    # else:
+    debug_f("decode", "Can't use data from JSON decoder: {}", [data])
 
 
 def encode_task(t: Task):
@@ -47,6 +61,8 @@ def encode_task(t: Task):
 
 
 def decode_task(dictionary):
-    if "__Task__" in dictionary:
+    if "__Task__".encode() in dictionary:
         return Task(dictionary["task_type"], dictionary["priority"], dictionary["val_list"])
+    else:
+        debug_f("decode", "Can't parse JSON from {}", [dictionary])
     return dictionary

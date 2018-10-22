@@ -8,6 +8,7 @@ from time import sleep
 # Our imports
 import settings
 from task import *
+from task import decode as decode_task
 from debug import debug
 from debug import debug_f
 
@@ -35,11 +36,40 @@ class SocketsServer:
                 self.s.close()
                 sleep(1)
                 continue
-            self.bound = True  
-        
-        debug_f("sockets", 'Socket bound to {}:{} sucessfully', [self.ip_address, self.port])
-    
-    def open_server(self):    
+            self.bound = True
+
+        debug_f("sockets", 'Socket bound to {}:{} sucessfully',
+                [self.ip_address, self.port])
+
+    def handle_response(self, t: Task) -> Task:
+        reply: Task
+        if (t.task_type == TaskType.debug_str):
+            debug_f("execute_task", "Debug_str task: {}", t.val_list)
+            t: Task = Task(TaskType.get_cntl, TaskPriority.high, [
+                           "Automatic control request in response of telemetry data"])
+            reply = self.handle_response(t)
+
+        elif (t.task_type == TaskType.get_cntl):
+            # Handle accumulated commands
+            t: Task = Task(TaskType.cntl_input, TaskPriority.normal, [
+                           "do stuff", 1, 2, "3"])
+            reply = t
+
+        elif (t.task_type == TaskType.get_telemetry):
+            debug_f("execute_task", "Executing task: {}", t.val_list)
+            # TODO: handle telemetry data
+            t: Task = Task(TaskType.get_cntl, TaskPriority.high, [
+                           "Automatic control request in response of telemetry data"])
+            reply = self.handle_response(t)
+
+        else:
+            debug_f("execute_task", "Unable to handle TaskType: {}, values: {}", [
+                    t.task_type, t.val_list])
+            reply = Task(TaskType.cntl_input, TaskPriority.high,
+                         ["This is a command"])
+        return reply
+
+    def open_server(self):
         self.s.listen(10)
 
         while 1:
@@ -56,8 +86,12 @@ class SocketsServer:
                 data: bytes = conn.recv(settings.MAX_SOCKET_SIZE)
                 if (not data):
                     break
-                debug_f("socket_con", "Received: {}", [data])
-                reply = handle_response(decode(data))
+                debug_f("socket_con", "Received data: {}", [data])
+                # Decode data into task
+                t: Task = decode_task(data)
+                debug_f("socket_con", "Decoded data to task: {}", [t])
+                # Handle data and respond
+                reply: Task = self.handle_response(data)
                 conn.sendall(reply.encode())
                 debug_f("socket_con", "Sent reply: \"{}\"", [reply])
 

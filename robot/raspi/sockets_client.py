@@ -8,9 +8,9 @@ from time import sleep  # Wait before retrying sockets connection
 
 # Our imports
 import settings
+from task import *
 from debug import debug  # Debug printing and logging
 from debug import debug_f
-
 
 
 class SocketsClient:
@@ -68,19 +68,19 @@ class SocketsClient:
                         return
                 attempts += 1
                 debug("socket_con", "Failed to open socket, trying again.")
-                sleep(settings.SOCKETS_RETRY_WAIT)  # Wait a second before retrying
+                # Wait a second before retrying
+                sleep(settings.SOCKETS_RETRY_WAIT)
         debug_f("socket_con", 'Socket Connected to {}:{}',
                 [self.remote_ip, str(self.remote_port)])
 
-    def send_data(self, message_str: str):
-
-        message_enc = message_str.encode()
-
+    def send_data(self, data: bytes) -> Task:
+        if (not settings.USE_SOCKETS):
+            return
         while 1:
             # Send some data to remote server
             try:
                 # Set the whole string
-                self.s.sendall(message_enc)
+                self.s.sendall(data)
             except socket.error:
                 # Send failed
                 debug("socket_con", 'Send failed')
@@ -92,8 +92,8 @@ class SocketsClient:
             # BLocking call?
             reply = self.s.recv(settings.MAX_SOCKET_SIZE)
 
-            return reply
             debug_f("socket_con", "reply: {}", [reply])
+            return decode_task(reply)
             # sleep(1) # sleep for 1 second
 
     def close_socket(self):
