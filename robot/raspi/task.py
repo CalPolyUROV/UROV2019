@@ -5,6 +5,9 @@
 from enum import IntEnum  # Used for task properties
 import json
 
+# Our imports
+from debug import debug_f
+
 
 class TaskType(IntEnum):
     debug_str = 0
@@ -16,8 +19,9 @@ class TaskType(IntEnum):
 
 
 class TaskPriority(IntEnum):
-    high = 1
-    normal = 0
+    high = 2
+    normal = 1
+    low = 0
 
 
 class Task:
