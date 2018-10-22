@@ -10,6 +10,7 @@ from time import sleep  # Wait before retrying sockets connection
 # Our imports
 import settings
 import serial_finder  # Identifies serial ports
+import task
 from debug import debug
 from debug import debug_f
 
@@ -66,9 +67,15 @@ class Packet:
 
     def extract_seqnum(self, seqnum_chksum: bytes) -> bytes:
         return seqnum_chksum >> 4
+    
+    def get_seqnum(self) -> bytes:
+        return self.extract_chksum(self.seqnum_chksum)
 
     def extract_chksum(self, seqnum_chksum: bytes) -> bytes:
         return seqnum_chksum & CHKSUM_MASK
+
+    def get_chksum(self) -> bytes:
+        return self.extract_chksum(self.seqnum_chksum)
 
     def calc_chksum(self, cmd, val1, val2, seqnum) -> bytes:
         return (cmd +
@@ -78,11 +85,11 @@ class Packet:
         # idk, it has primes
         # TODO: Make this better, but it must match on this and the Arduino/Teensy. (Maybe CRC32?)
 
+    def isValid(self) -> bool:
+        return self.get_chksum() == self.calc_chksum(self.cmd, self.val1, self.val2, self.get_seqnum())
+
     def __repr__(self):
-        return """cmd: {}\n
-        val1: {}\n
-        val2: {}\n
-        chksum_seqnum: {}""".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
+        return "\ncmd: {}\nval1: {}\nval2: {}\nchksum_seqnum: {}".format(self.cmd, self.val1, self.val2, self.seqnum_chksum)
 
 
 def find_port():
@@ -127,7 +134,9 @@ def find_port():
 
 class SerialConnection:
     # Default port arg finds a serial port for the arduino/Teensy
-    def __init__(self, serial_port=find_port()):
+    def __init__(self, serial_port=None):
+        if(serial_port == None):
+            serial_port = find_port()
         attempts: int = 1
         port_open: bool = False
         while(not port_open):
@@ -152,17 +161,20 @@ class SerialConnection:
                                 attempts])
                         settings.USE_SERIAL = False
                         return
-                attempts += 1
-                debug("serial_con", "Failed to open serial port, trying again.")
-                sleep(1)  # Wait a second before retrying
+            attempts += 1
+            debug("serial_con", "Failed to open serial port, trying again.")
+            sleep(1)  # Wait a second before retrying
 
     # Send a Packet over serial
     def write_packet(self, p) -> None:
-        # TODO: prevent the sending of invalid packets
+        if(not p.isValid()):
+            debug_f("serial", "Ignoring sending of invalid packet {}", [p])
+            return
         self.serial_connection.write(p.cmd)
         self.serial_connection.write(p.val1)
         self.serial_connection.write(p.val2)
         self.serial_connection.write(p.seqnum_chksum)
+        return
 
     # Read in a packet from serial
     def read_packet(self) -> Packet or None:
@@ -174,6 +186,9 @@ class SerialConnection:
         # Warning, this will not catch packets with invalid checksums
 
     def send_receive_packet(self, p: Packet) -> Packet:
+        if(not settings.USE_SERIAL):
+            debug_f("serial", "Serial is not used, ignoring sending of packet {}", [p])
+            raise serial.serialutil.SerialException
         # send packet
         self.write_packet(p)
         # Recieve a packet from the Arduino/Teensy
@@ -190,8 +205,6 @@ class SerialConnection:
         p_out = Packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
         # Receive response
         p_in = self.send_receive_packet(p_out)
-        # TODO: Verify correctness of initial packet response from Arduino/Teensy
-        #       Check arduino source to ensure order of response values, they might get flipped
         if((p_in.cmd == EST_CON_ACK) &
            (p_in.val1 == EST_CON_VAL1) &
            (p_in.val2 == EST_CON_VAL2)):
