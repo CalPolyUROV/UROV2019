@@ -30,8 +30,8 @@ class Task:
         self.priority = priority
         self.val_list = val_list
 
-    def encode(self):
-        return json.dumps(self, default=encode_task)
+    def encode(self) -> bytes:
+        return json.dumps(self, default=encode_task).encode()
 
 
 def decode(data):
@@ -40,11 +40,10 @@ def decode(data):
 
 def encode_task(t: Task):
     if isinstance(t, Task):
-        return (t.task_type, t.priority, t.val_list)
+        return ("__Task__", t.task_type, t.priority, t.val_list)
     else:
         type_name = t.__class__.__name__
-        raise TypeError(
-            f"Object of type '{type_name}' is not JSON serializable")
+        raise TypeError("Object of type '{}' is not a Task".format(type_name))
 
 
 def decode_task(dictionary):
