@@ -45,22 +45,22 @@ class SocketsServer:
 
     def handle_response(self, t: Task) -> Task:
         debug_f("execute_task", "Executing task: {} which is {}", [t, t.__class__.__name__])
-        reply: Task
+        reply = None
         if (t.task_type == TaskType.debug_str):
             debug_f("execute_task", "Debug_str task: {}", [t.val_list])
-            t: Task = Task(TaskType.get_cntl, TaskPriority.high, ["Automatic control request in response of telemetry data"])
+            t = Task(TaskType.get_cntl, TaskPriority.high, ["Automatic control request in response of telemetry data"])
             reply = self.handle_response(t)
 
         elif (t.task_type == TaskType.get_cntl):
             # Handle accumulated commands
-            t: Task = Task(TaskType.cntl_input, TaskPriority.normal, [
+            t = Task(TaskType.cntl_input, TaskPriority.normal, [
                            "do stuff", 1, 2, "3"])
             reply = t
 
         elif (t.task_type == TaskType.get_telemetry):
             debug_f("execute_task", "Executing task: {}", t.val_list)
             # TODO: handle telemetry data
-            t: Task = Task(TaskType.get_cntl, TaskPriority.high, [
+            t = Task(TaskType.get_cntl, TaskPriority.high, [
                            "Automatic control request in response of telemetry data"])
             reply = self.handle_response(t)
 
@@ -85,15 +85,15 @@ class SocketsServer:
             # Blocking?
             while 1:
                 # Recieve data
-                data: bytes = conn.recv(settings.MAX_SOCKET_SIZE)
+                data = conn.recv(settings.MAX_SOCKET_SIZE)
                 if (not data):
                     break
                 debug_f("socket_con", "Received data: {}", [data])
                 # Decode data into task
-                t: Task = decode(data)
+                t = decode(data)
                 debug_f("socket_con", "Decoded data to task: {}", [t])
                 # Handle data and respond
-                reply: Task = self.handle_response(t)
+                reply = self.handle_response(t)
                 conn.sendall(reply.encode())
                 debug_f("socket_con", "Sent reply: \"{}\"", [reply])
 
