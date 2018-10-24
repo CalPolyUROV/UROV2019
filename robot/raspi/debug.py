@@ -12,19 +12,11 @@ equivelant to (don't do the following):
 By formatting once inside debug_f(), format() is only called if printing is turned on.
 """
 
-channels = {"schedule": True,
-            "execute_task": True,
-            "sockets": True,
-            "socket_con": True,
-            "decode": True,
-            "serial_finder": True,
-            "serial": True,
-            "serial_con":True}
-
 # TODO: Use settings.ROLE for per client and server debugging
 
+
 def debug(channel: str, message: str):
-    if(settings.PRINTING & channels[channel]):
+    if(settings.PRINTING & settings.CHANNELS[channel]):
         # Print message to console
         print("{}: {}".format(channel, message))
     if(settings.LOGGING):
@@ -33,7 +25,7 @@ def debug(channel: str, message: str):
 
 
 def debug_f(channel: str, message: str, formatting: list):
-    if(settings.PRINTING):
+    if(settings.PRINTING & settings.CHANNELS[channel]):
         # TODO: Do this better
         print("{}: {}".format(channel, message.format(*formatting)))
     if(settings.LOGGING):

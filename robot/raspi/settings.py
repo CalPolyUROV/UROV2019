@@ -2,6 +2,16 @@
 """
 
 ROLE: str  # Not a user facing setting
+# Debug channels
+CHANNELS = {"schedule": True,
+            "execute_task": True,
+            "sockets": False,
+            "socket_con": False,
+            "encode": False,
+            "decode": True,
+            "serial_finder": True,
+            "serial": True,
+            "serial_con":True}
 
 
 # Sockets Connection
