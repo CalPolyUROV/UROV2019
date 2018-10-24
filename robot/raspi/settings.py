@@ -6,9 +6,9 @@ ROLE = "not set"  # Not a user facing setting
 # Debug channels
 CHANNELS = {"schedule": True,
             "execute_task": True,
-            "sockets": False,
-            "socket_con": False,
-            "encode": False,
+            "sockets": True,
+            "socket_con": True,
+            "encode": True,
             "decode": True,
             "serial_finder": True,
             "serial": True,
@@ -17,10 +17,10 @@ CHANNELS = {"schedule": True,
 
 # Sockets Connection
 USE_SOCKETS = True
-REQUIRE_SOCKETS = False
-TOPSIDE_IP_ADDRESS = 'localhost' #'192.168.137.127'
-TOPSIDE_PORT = 5000
-ROBOT_IPADDRESS = 'localhost' #"192.168.137.50"
+REQUIRE_SOCKETS = True
+TOPSIDE_IP_ADDRESS = '192.168.137.127'
+TOPSIDE_PORT = 9120
+ROBOT_IPADDRESS =  "192.168.137.50"
 SOCKETS_MAX_ATTEMPTS = 2  # Maximum number of times to try creating or opening a socket
 SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
 MAX_SOCKET_SIZE = 1024  # Maximum size for single receiving call

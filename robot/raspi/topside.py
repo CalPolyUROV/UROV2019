@@ -7,5 +7,5 @@ from sockets_server import SocketsServer
 
 settings.ROLE = "server"
 
-s = SocketsServer("localhost", 9120)
+s = SocketsServer(settings.TOPSIDE_IP_ADDRESS, TOPSIDE_PORT)
 s.open_server()
