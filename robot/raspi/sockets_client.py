@@ -8,7 +8,10 @@ from time import sleep  # Wait before retrying sockets connection
 
 # Our imports
 import settings
-from task import *
+from task import Task
+from task import TaskType
+from task import TaskPriority
+from task import decode
 from debug import debug  # Debug printing and logging
 from debug import debug_f
 
@@ -93,7 +96,7 @@ class SocketsClient:
             reply = self.s.recv(settings.MAX_SOCKET_SIZE)
 
             debug_f("socket_con", "reply: {}", [reply])
-            return decode_task(reply)
+            return reply
             # sleep(1) # sleep for 1 second
 
     def close_socket(self):

@@ -7,8 +7,10 @@ from time import sleep
 
 # Our imports
 import settings
-from task import *
-from task import decode as decode_task
+from task import Task
+from task import TaskType
+from task import TaskPriority
+from task import decode
 from debug import debug
 from debug import debug_f
 
@@ -26,7 +28,7 @@ class SocketsServer:
             # create socket, use ipv4
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             #s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
-            print('Socket created')
+            debug("sockets", 'Socket created')
             try:
                 self.s.bind((self.ip_address, self.port))
             except socket.error as socket_error:
@@ -42,11 +44,11 @@ class SocketsServer:
                 [self.ip_address, self.port])
 
     def handle_response(self, t: Task) -> Task:
+        debug_f("execute_task", "Executing task: {} which is {}", [t, t.__class__.__name__])
         reply: Task
         if (t.task_type == TaskType.debug_str):
-            debug_f("execute_task", "Debug_str task: {}", t.val_list)
-            t: Task = Task(TaskType.get_cntl, TaskPriority.high, [
-                           "Automatic control request in response of telemetry data"])
+            debug_f("execute_task", "Debug_str task: {}", [t.val_list])
+            t: Task = Task(TaskType.get_cntl, TaskPriority.high, ["Automatic control request in response of telemetry data"])
             reply = self.handle_response(t)
 
         elif (t.task_type == TaskType.get_cntl):
@@ -88,10 +90,10 @@ class SocketsServer:
                     break
                 debug_f("socket_con", "Received data: {}", [data])
                 # Decode data into task
-                t: Task = decode_task(data)
+                t: Task = decode(data)
                 debug_f("socket_con", "Decoded data to task: {}", [t])
                 # Handle data and respond
-                reply: Task = self.handle_response(data)
+                reply: Task = self.handle_response(t)
                 conn.sendall(reply.encode())
                 debug_f("socket_con", "Sent reply: \"{}\"", [reply])
 
