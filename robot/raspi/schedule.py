@@ -106,4 +106,6 @@ class Schedule:
         return self.task_list.pop(0)
 
     def terminate(self):
+        """Close the sockets connection
+        """
         self.socket_connection.close_socket()
