@@ -1,4 +1,6 @@
 """The task class and associated code for using and passing tasks
+
+The Task object is one that defines a action or event on the robot raspberry pi or the surface unit raspberry pi
 """
 
 # System imports
@@ -6,6 +8,7 @@ from enum import IntEnum  # Used for task properties
 import json
 
 # Our imports
+from debug import debug
 from debug import debug_f
 
 
@@ -30,39 +33,58 @@ class Task:
         self.priority = priority
         self.val_list = val_list
 
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__) and (self.task_type == other.task_type) and (self.priority == other.priority) and (self.val_list == other.val_list)
+
     def encode(self) -> bytes:
-        return json.dumps(self, default=encode_task).encode()
+        """Encoding method used in sending data over sockets
+        """
+        debug_f("encode", "Encoding task as JSON bytes: {}", [self])
+        data: bytes = (json.dumps(self, default=encode_task)).encode()
+        debug_f("encode", "Encoded task as bytes: {}", [data])
+        return data
 
 
 def decode(data: bytes) -> Task:
-    debug_f("decode", "Trying to decode {}, which is a {}",
-            [data, data.__class__])
+    """Decoding method used in receiving of data over sockets
+    """
+    debug_f("decode", "Trying to decode {}, which is {}", [data, data.__class__.__name__])
     try:
-        t: Task = json.loads(data, object_hook=decode_task)
-        debug_f("decode", "Decoded to {}, which is a {}",
-                [data, data.__class__])
+        t: Task = decode_task(json.loads(data))
+        debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
         return t
     except:
         debug_f("decode", "Could not decode {}", [data])
-    if data is Task:
-        return data
-    elif data[0] == "__Task__":  # data is list:
-        return Task(data[1], data[2], data[3])
-    # else:
-    debug_f("decode", "Can't use data from JSON decoder: {}", [data])
 
 
 def encode_task(t: Task):
+    """Encoding method passed to json.dumps()
+    """
     if isinstance(t, Task):
-        return ("__Task__", t.task_type, t.priority, t.val_list)
-    else:
-        type_name = t.__class__.__name__
-        raise TypeError("Object of type '{}' is not a Task".format(type_name))
+        dct: dict = {}
+        dct["__Task__"] = True
+        dct["task_type"] = t.task_type
+        dct["priority"] = t.priority
+        dct["val_list"] = t.val_list
+        return (dct)
+    type_name = t.__class__
+    raise TypeError("Object of type '{}' is not a Task".format(type_name))
 
 
-def decode_task(dictionary):
-    if "__Task__".encode() in dictionary:
-        return Task(dictionary["task_type"], dictionary["priority"], dictionary["val_list"])
-    else:
-        debug_f("decode", "Can't parse JSON from {}", [dictionary])
-    return dictionary
+def decode_task(dct: dict) -> Task:
+    """Decoding function that receives a dict from json.loads()
+    """
+    debug_f("decode", "JSON gave us {} which is {}",
+            [dct, dct.__class__.__name__])
+    if (dct["__Task__"] == True):
+        task_type: TaskType = TaskType(dct['task_type'])
+        priority: TaskPriority = TaskPriority(dct['priority'])
+        val_list: list = dct['val_list']
+
+        debug_f("decode", "\ttype: {}", [task_type])
+        debug_f("decode", "\tpriority: {}", [priority])
+        # debug_f("decode", "\tval_list: {}", val_list)
+
+        return Task(task_type, priority, val_list)
+    debug_f("decode", "Can't parse JSON from {}", [dct])
+    return dct
