@@ -36,4 +36,4 @@ SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
 # Debugging
 # TODO: track debugging for server and client separately
 PRINTING = True
-OGGING = False
+LOGGING = False
