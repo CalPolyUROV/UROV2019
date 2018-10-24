@@ -32,12 +32,13 @@ class Schedule:
                 "localhost", 9120)  # Make sockets client obect
 
     def schedule_task(self, t: Task):
+        debug_f("schedule", "Scheduling task {}", [t])
         if(t.priority == TaskPriority.high):
             self.task_list.insert(0, t)
-        elif(TaskPriority == TaskPriority.normal):
+        elif(t.priority == TaskPriority.normal):
             self.task_list.append(t)
             # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
-        elif(TaskPriority == TaskPriority.low):
+        elif(t.priority == TaskPriority.low):
             self.task_list.append(t)
         else:
             debug_f(
