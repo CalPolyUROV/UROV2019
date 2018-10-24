@@ -1,7 +1,8 @@
 """Configurable settings that apply to the operation of the robot
 """
 
-ROLE: str  # Not a user facing setting
+ROLE: str = "not set"  # Not a user facing setting
+
 # Debug channels
 CHANNELS = {"schedule": True,
             "execute_task": True,
