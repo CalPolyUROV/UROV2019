@@ -19,7 +19,7 @@ from schedule import Task
 settings.ROLE = 'robot'
 
 # Make a schedule object
-s: Schedule = Schedule()
+s = Schedule()
 
 # This  initializes the sockets/networking code
 # Note: The sockets should not connect to the topside unit until after the
@@ -29,7 +29,7 @@ s: Schedule = Schedule()
 #   (however the serial connection uses a handshake/"est_con")
 s.schedule_initial_tasks()
 
-terminate: bool = False  # Whether to exit main loop
+terminate = False  # Whether to exit main loop
 while(not terminate):
     # Get new tasks if needed
     # TODO: Integrate this if statement into the get_new_tasks call or a check_for_new_tasks()
@@ -37,7 +37,7 @@ while(not terminate):
         s.get_new_tasks()
 
     # Get the next task to execute
-    t: Task = s.get_next_task()
+    t = s.get_next_task()
     s.execute_task(t)
     # sleep(2)  # Temporary delay to not make things too fast during testing
 
