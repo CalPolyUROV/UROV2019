@@ -1,6 +1,6 @@
 
 PYTHON_CMD = python3
-PYTHON_FLAGS = -b -B -W ignore:Deprecation
+PYTHON_FLAGS = -B
 
 ROBOT_SRC = main.py
 SERVER_SRC = topside.py
