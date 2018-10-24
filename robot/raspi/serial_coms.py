@@ -98,7 +98,7 @@ def find_port():
     Calls the serial_finder library to search the operating system for serial ports
     """
     port = None
-    attempts: int = 1
+    attempts = 1
     while(port == None):
         try:
             # Get a list of all serial ports
@@ -137,8 +137,8 @@ class SerialConnection:
     def __init__(self, serial_port=None):
         if(serial_port == None):
             serial_port = find_port()
-        attempts: int = 1
-        port_open: bool = False
+        attempts = 1
+        port_open = False
         while(not port_open):
             try:
                 self.serial_connection = serial.Serial(

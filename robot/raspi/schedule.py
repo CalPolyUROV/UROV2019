@@ -41,8 +41,7 @@ class Schedule:
         elif(t.priority == TaskPriority.low):
             self.task_list.append(t)
         else:
-            debug_f(
-                "schedule", "Cannot schedule task with unknown priority: {}", [t.priority])
+            debug_f("schedule", "Cannot schedule task with unknown priority: {}", [t.priority])
         self.task_index += 1
 
     def schedule_initial_tasks(self):
@@ -59,8 +58,7 @@ class Schedule:
 
         if(settings.USE_SERIAL):
             task_serial_est_con = Task(TaskType.serial_est_con,
-                                       TaskPriority.high,
-                                       [])
+                                       TaskPriority.high,                                      [])
             self.schedule_task(task_serial_est_con)
 
     def execute_task(self, t: Task):
@@ -93,9 +91,9 @@ class Schedule:
 
     def get_new_tasks(self) -> None:
         # communicate over sockets to generate new tasks based on UI input
-        t: Task = Task(TaskType.get_cntl, TaskPriority.high,
+        t = Task(TaskType.get_cntl, TaskPriority.high,
                        ["control input pls"])
-        data: bytes = self.socket_connection.send_data(t.encode())
+        data = self.socket_connection.send_data(t.encode())
         self.schedule_task(decode_task(data))
         return
 

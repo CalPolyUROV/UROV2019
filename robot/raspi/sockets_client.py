@@ -25,8 +25,8 @@ class SocketsClient:
         self.remote_port = remote_port  # Has default value
 
         # Attempt to create a socket
-        attempts: int = 1
-        socket_open: bool = False
+        attempts = 1
+        socket_open = False
         while(not socket_open):
             try:
                 # create an INET, STREAMing socket
@@ -51,8 +51,8 @@ class SocketsClient:
 
     # Connect to remote server
     def connect_server(self):
-        attempts: int = 1
-        socket_open: bool = False
+        attempts = 1
+        socket_open = False
         while(settings.USE_SOCKETS and not socket_open):
             try:
                 self.s.connect((self.remote_ip, self.remote_port))

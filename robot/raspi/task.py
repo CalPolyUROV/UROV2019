@@ -40,7 +40,7 @@ class Task:
         """Encoding method used in sending data over sockets
         """
         debug_f("encode", "Encoding task as JSON bytes: {}", [self])
-        data: bytes = (json.dumps(self, default=encode_task)).encode()
+        data = (json.dumps(self, default=encode_task)).encode()
         debug_f("encode", "Encoded task as bytes: {}", [data])
         return data
 
@@ -50,7 +50,7 @@ def decode(data: bytes) -> Task:
     """
     debug_f("decode", "Trying to decode {}, which is {}", [data, data.__class__.__name__])
     try:
-        t: Task = decode_task(json.loads(data))
+        t = decode_task(json.loads(data))
         debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
         return t
     except:
@@ -61,7 +61,7 @@ def encode_task(t: Task):
     """Encoding method passed to json.dumps()
     """
     if isinstance(t, Task):
-        dct: dict = {}
+        dct = {}
         dct["__Task__"] = True
         dct["task_type"] = t.task_type
         dct["priority"] = t.priority
@@ -77,9 +77,9 @@ def decode_task(dct: dict) -> Task:
     debug_f("decode", "JSON gave us {} which is {}",
             [dct, dct.__class__.__name__])
     if (dct["__Task__"] == True):
-        task_type: TaskType = TaskType(dct['task_type'])
-        priority: TaskPriority = TaskPriority(dct['priority'])
-        val_list: list = dct['val_list']
+        task_type = TaskType(dct['task_type'])
+        priority = TaskPriority(dct['priority'])
+        val_list = dct['val_list']
 
         debug_f("decode", "\ttype: {}", [task_type])
         debug_f("decode", "\tpriority: {}", [priority])
