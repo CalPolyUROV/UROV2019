@@ -101,7 +101,8 @@ class Schedule:
     def get_next_task(self):
         """Take the next task off the queue
         """
-
+        if (not self.has_tasks()):
+            self.get_new_tasks()
         return self.task_list.pop(0)
 
     def terminate(self):
