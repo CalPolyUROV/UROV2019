@@ -62,7 +62,7 @@ class SocketsClient:
                     if(settings.REQUIRE_SOCKETS):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                         debug_f(
-                            "socket_con", "Could not open socket after {} attempts. Crashing now.", [attempts])
+                            "socket_con", "Could not connect to server at {}:{}  after {} attempts. Crashing now.", [self.remote_ip, self.remote_port,attempts])
                         exit(1)
                     else:
                         debug_f("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
@@ -70,7 +70,7 @@ class SocketsClient:
                         settings.USE_SOCKETS = False
                         return
                 attempts += 1
-                debug("socket_con", "Failed to open socket, trying again.")
+                debug_f("socket_con", "Failed to connect to server at {}:{}, trying again.", [self.remote_ip, self.remote_port])
                 # Wait a second before retrying
                 sleep(settings.SOCKETS_RETRY_WAIT)
         debug_f("socket_con", 'Socket Connected to {}:{}',

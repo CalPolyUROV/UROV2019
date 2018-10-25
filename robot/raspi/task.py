@@ -49,12 +49,12 @@ def decode(data: bytes) -> Task:
     """Decoding method used in receiving of data over sockets
     """
     debug_f("decode", "Trying to decode {}, which is {}", [data, data.__class__.__name__])
-    try:
-        t = decode_task(json.loads(data))
-        debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
-        return t
-    except:
-        debug_f("decode", "Could not decode {}", [data])
+    # try:
+    t = decode_task(json.loads(data.decode("utf-8")))
+    debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
+    return t
+    #except:
+    debug_f("decode", "Could not decode {}", [data])
 
 
 def encode_task(t: Task):

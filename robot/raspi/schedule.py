@@ -28,8 +28,7 @@ class Schedule:
             self.serial_connection = SerialConnection()
         if(settings.USE_SOCKETS):
             debug("schedule", "Using sockets as enabled in settings")
-            self.socket_connection = SocketsClient(
-                "localhost", 9120)  # Make sockets client obect
+            self.socket_connection = SocketsClient(settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)  # Make sockets client obect
 
     def schedule_task(self, t: Task):
         debug_f("schedule", "Scheduling task {}", [t])

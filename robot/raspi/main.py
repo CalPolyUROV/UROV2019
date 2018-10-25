@@ -39,6 +39,6 @@ while(not terminate):
     # Get the next task to execute
     t = s.get_next_task()
     s.execute_task(t)
-    # sleep(2)  # Temporary delay to not make things too fast during testing
+    sleep(2)  # Temporary delay to not make things too fast during testing
 
 s.terminate()
