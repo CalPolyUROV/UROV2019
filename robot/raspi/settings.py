@@ -18,7 +18,7 @@ CHANNELS = {"schedule": True,
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = True
-TOPSIDE_IP_ADDRESS = '192.168.137.127'
+TOPSIDE_IP_ADDRESS = "localhost" # '192.168.137.127'
 TOPSIDE_PORT = 9120
 ROBOT_IPADDRESS =  "192.168.137.50"
 SOCKETS_MAX_ATTEMPTS = 2  # Maximum number of times to try creating or opening a socket
@@ -32,6 +32,10 @@ REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
 
+# Blink Test
+RD_SENS_CMD = 0x40
+BLINK_CMD = 0x80
+BLINK_ACK = 0x81
 
 # Debugging
 # TODO: track debugging for server and client separately

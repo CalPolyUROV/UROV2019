@@ -43,62 +43,31 @@ class SocketsServer:
         debug_f("sockets", 'Socket bound to {}:{} sucessfully',
                 [self.ip_address, self.port])
 
-    def handle_response(self, t: Task) -> Task:
-        debug_f("execute_task", "Executing task: {} which is {}", [t, t.__class__.__name__])
-        reply = None
-        if (t.task_type == TaskType.debug_str):
-            debug_f("execute_task", "Debug_str task: {}", [t.val_list])
-            t = Task(TaskType.get_cntl, TaskPriority.high, ["Automatic control request in response of telemetry data"])
-            reply = self.handle_response(t)
-
-        elif (t.task_type == TaskType.get_cntl):
-            # Handle accumulated commands
-            t = Task(TaskType.cntl_input, TaskPriority.normal, [
-                           "do stuff", 1, 2, "3"])
-            reply = t
-
-        elif (t.task_type == TaskType.get_telemetry):
-            debug_f("execute_task", "Executing task: {}", t.val_list)
-            # TODO: handle telemetry data
-            t = Task(TaskType.get_cntl, TaskPriority.high, [
-                           "Automatic control request in response of telemetry data"])
-            reply = self.handle_response(t)
-
-        else:
-            debug_f("execute_task", "Unable to handle TaskType: {}, values: {}", [
-                    t.task_type, t.val_list])
-            reply = Task(TaskType.cntl_input, TaskPriority.high,
-                         ["This is a command"])
-        return reply
-
     def open_server(self):
         self.s.listen(10)
 
-        while 1:
-            debug("socket_con", 'Socket now listening')
+    def accept_connection(self,):
+        debug("socket_con", 'Socket now listening')
 
-            # wait to accept a connection - blocking call
-            conn, addr = self.s.accept()
-            debug_f("socket_con", 'Connected with {}:{}', [addr[0], addr[1]])
+        # wait to accept a connection - blocking call
+        self.conn, self.addr = self.s.accept()
+        debug_f("socket_con", 'Connected with {}:{}', [self.addr[0], self.addr[1]])
 
-            # now keep talking with the client
-            # Blocking?
-            while 1:
-                # Recieve data
-                data = conn.recv(settings.MAX_SOCKET_SIZE)
-                if (not data):
-                    break
-                debug_f("socket_con", "Received data: {}", [data])
-                # Decode data into task
-                t = decode(data)
-                debug_f("socket_con", "Decoded data to task: {}", [t])
-                # Handle data and respond
-                reply = self.handle_response(t)
-                conn.sendall(reply.encode())
-                debug_f("socket_con", "Sent reply: \"{}\"", [reply])
+        # now keep talking with the client
+        # Blocking?
 
-            conn.close()
-        self.close()
+    def recieve_data(self, task_queue: list, handler):
+        data = self.conn.recv(settings.MAX_SOCKET_SIZE)
+        if (not data):
+            return
+        debug_f("socket_con", "Received data: {}", [data])
+        # Decode data into task
+        t = decode(data)
+        debug_f("socket_con", "Decoded data to task: {}", [t])
+        # Handle data and respond
+        reply = handler(t, task_queue)
+        self.conn.sendall(reply.encode())
+        debug_f("socket_con", "Sent reply: \"{}\"", [reply])
 
     def close(self):
         self.s.close()
