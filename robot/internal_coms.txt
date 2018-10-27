@@ -10,7 +10,7 @@ Internal Coms Draft v0.1
 
 +-------------------------------------------------------+
 |          |                                            |
-|          |                          chksum   seq num  |
+|          |                          seq num  chksum   |
 |          |                          +------+ +-----+  |
 |  Call:   |  index   Value   Value   1 nibble 1 nibble |
 | +-----+  |  +----+  +----+  +----+  +---------------+ |
@@ -20,7 +20,7 @@ Internal Coms Draft v0.1
 
 +---------------------------------------------------------+
 |            |                                            |
-|            |                          chksum   seq num  |
+|            |                          seq num  chksum   |
 |            |                          +------+ +-----+  |
 | Response:  |  index   Value   Value   1 nibble 1 nibble |
 | +-------+  |  +----+  -----+  +----+  +---------------+ |
