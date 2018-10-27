@@ -1,10 +1,10 @@
-#include <wire.h>
+//#include <wire.h>
 #include <Servo.h>
 
 #include "Arduino.h"
 #include "VectorMotors.h"
 
-#include "Settings.h"
+#include "settings.h"
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
@@ -29,7 +29,7 @@
 ///////////connecting the ESC to the arduino (switch the pin to the one in use)
 
 #define ESC_CENTER_MS 1500
-
+#define MOTOR_JERK_MAX 10
 /*
    connect three 24 gauge wires to the arduino (can power the arduino)
    the yellow wire is the signal wire (connect to any pin on the arduino)
