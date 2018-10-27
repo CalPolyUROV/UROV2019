@@ -1,3 +1,4 @@
+// NOTE: THIS FILE IS NOT IN CURRENTLY USED BUT IS HERE FOR REFERENCE
 //#include <wire.h>
 #include <Servo.h>
 
