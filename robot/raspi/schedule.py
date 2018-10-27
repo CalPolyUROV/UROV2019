@@ -47,7 +47,7 @@ class Schedule:
         """ Create a task to establish contact with the Arduino/Teensy
 
         These tasks will be executed in reverse order shown here because high
-        priority tasks are inidividually schedule to the front of the queue
+        priority tasks are individually scheduled to the front of the queue
         """
         if(settings.USE_SOCKETS):
             task_sockets_connect = Task(TaskType.sockets_connect,
@@ -60,7 +60,7 @@ class Schedule:
                                        TaskPriority.high,                                      [])
             self.schedule_task(task_serial_est_con)
 
-    def execute_task(self, t: Task):
+    def execute_task(self, t: Task, seq_num_val):
         # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
         # TODO: Write logic choosing a command to send (maybe use a queue)
 
@@ -79,6 +79,9 @@ class Schedule:
 
         elif (t.task_type == TaskType.sockets_connect):
             self.socket_connection.connect_server()
+
+        elif (t.task_type == TaskType.blink_test):
+            self.serial_connection.send_receive_packet(Packet.make_packet(settings.BLINK_ACK, t.val_list[0], t.val_list[1], seq_num_val))
 
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
