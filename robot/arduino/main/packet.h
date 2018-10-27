@@ -13,7 +13,9 @@
 #define EST_CON_ACK 0x01 // respond to new connection
 #define SET_MOT_CMD 0x20 // set motor (call)
 #define SET_MOT_ACK 0x21 // motor has been set (reponse)
-#define RD_SENS_CMD 0x40
+#define RD_SENS_CMD 0x40 // TODO
+#define BLINK_CMD   0x80 // blink
+#define BLINK_ACK   0x81 // blink has been activated (response)
 #define INV_CMD_ACK 0xFF // Invalid command, value2 of response contains cmd
 
 
