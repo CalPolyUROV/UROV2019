@@ -106,3 +106,4 @@ venv.bak/
 robot/raspi/.vscode
 
 .idea/*
+.vscode/settings.json

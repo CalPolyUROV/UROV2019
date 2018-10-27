@@ -68,6 +68,7 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
     case BLINK_CMD:
       blink_std();
       create_packet(&response, BLINK_ACK, p.value1, p.value2, expect_seqnum_nibble);
+      break;
     default:
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
