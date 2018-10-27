@@ -19,6 +19,7 @@ class TaskType(IntEnum):
     get_telemetry = 3
     serial_est_con = 4
     sockets_connect = 5
+    blink_test = 6
 
 
 class TaskPriority(IntEnum):

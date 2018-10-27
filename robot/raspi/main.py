@@ -29,6 +29,7 @@ s = Schedule()
 #   (however the serial connection uses a handshake/"est_con")
 s.schedule_initial_tasks()
 
+seq_num_val = 0
 terminate = False  # Whether to exit main loop
 while(not terminate):
     # Get new tasks if needed
@@ -38,7 +39,8 @@ while(not terminate):
 
     # Get the next task to execute
     t = s.get_next_task()
-    s.execute_task(t)
+    s.execute_task(t, seq_num_val)
+    seq_num_val += 1
     sleep(2)  # Temporary delay to not make things too fast during testing
 
 s.terminate()
