@@ -41,7 +41,7 @@ void loop() {
     // error from handle_packet()
   }
   inc_seqnum();
-  blink_delay(100);
+  //blink_delay(100);
 }
 
 // Executes the actions for a given packet and sends response packet
@@ -65,6 +65,9 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
       break;
     case RD_SENS_CMD:
       break;
+    case BLINK_CMD:
+      blink_std();
+      create_packet(&response, BLINK_ACK, p.value1, p.value2, expect_seqnum_nibble);
     default:
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
