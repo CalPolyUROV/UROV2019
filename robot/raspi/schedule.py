@@ -30,9 +30,13 @@ class Schedule:
             self.serial_connection = SerialConnection()
         if(settings.USE_SOCKETS):
             debug("schedule", "Using sockets as enabled in settings")
-            self.socket_connection = SocketsClient(settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)  # Make sockets client obect
+            self.socket_connection = SocketsClient(
+                settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)  # Make sockets client obect
 
     def schedule_task(self, t: Task):
+        if(not t is Task):
+            debug_f('schedule', "Cannot schedule non task object: {}", [t])
+            return
         debug_f("schedule", "Scheduling task {}", [t])
         if(t.priority == TaskPriority.high):
             self.task_list.insert(0, t)
@@ -42,7 +46,8 @@ class Schedule:
         elif(t.priority == TaskPriority.low):
             self.task_list.append(t)
         else:
-            debug_f("schedule", "Cannot schedule task with unknown priority: {}", [t.priority])
+            debug_f(
+                "schedule", "Cannot schedule task with unknown priority: {}", [t.priority])
         self.task_index += 1
 
     def schedule_initial_tasks(self):
@@ -52,19 +57,17 @@ class Schedule:
         priority tasks are individually scheduled to the front of the queue
         """
         if(settings.USE_SOCKETS):
-            task_sockets_connect = Task(TaskType.sockets_connect,
-                                        TaskPriority.high,
-                                        [])
-            self.schedule_task(task_sockets_connect)
+            t = Task(TaskType.sockets_connect, TaskPriority.high, [])
+            self.schedule_task(t)
 
         if(settings.USE_SERIAL):
-            task_serial_est_con = Task(TaskType.serial_est_con, TaskPriority.high, [])
-            self.schedule_task(task_serial_est_con)
+            t = Task(TaskType.serial_est_con, TaskPriority.high, [])
+            self.schedule_task(t)
 
     def execute_task(self, t: Task, seq_num_val):
         # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
         # TODO: Write logic choosing a command to send (maybe use a queue)
-
+        sched_list = []
         if (t.task_type == TaskType.debug_str):
             debug_f("execute_task", "Executing task: {}", t.val_list)
 
@@ -76,10 +79,11 @@ class Schedule:
 
         elif (t.task_type == TaskType.serial_est_con):
             if(settings.USE_SERIAL):
-                self.serial_connection.establish_contact()
+                sched_list = self.serial_connection.establish_contact()
 
         elif (t.task_type == TaskType.sockets_connect):
-            self.socket_connection.connect_server()
+            if(settings.USE_SOCKETS):
+                self.socket_connection.connect_server()
 
         elif (t.task_type == TaskType.blink_test):
             p = make_packet(serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1], seq_num_val)
@@ -87,6 +91,10 @@ class Schedule:
 
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
+        if(not sched_list is list):
+            return
+        for(t in sched_list):
+            self.schedule_task(task)
 
     def has_tasks(self) -> bool:
         """Report whether there are enough tasks left in the queue

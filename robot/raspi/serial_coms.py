@@ -10,7 +10,9 @@ from time import sleep  # Wait before retrying sockets connection
 # Our imports
 import settings
 import serial_finder  # Identifies serial ports
-import task
+from task import Task
+from task import TaskType
+from task import TaskPriority
 from debug import debug
 from debug import debug_f
 
@@ -239,9 +241,9 @@ class SerialConnection:
            (p_in.val1 == EST_CON_VAL1) &
            (p_in.val2 == EST_CON_VAL2)):
             # good
-            return
+            return []
         else:
             # bad
             debug("serial_con", "Response to initial contact was not satisfactory")
             # TODO: Add logic to retry this a few times
-            return
+            return [Task(TaskType.serial_est_con, TaskPriority.high, [])]
