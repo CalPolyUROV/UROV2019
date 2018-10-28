@@ -1,3 +1,4 @@
+// NOTE: THIS FILE IS NOT IN CURRENTLY USED BUT IS HERE FOR REFERENCE
 //#include <wire.h>
 #include <Servo.h>
 
@@ -7,8 +8,10 @@
 #include "settings.h"
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
+#define MAX 295
+#define MIN -MAX
 
-//20 motor speed unit things per interval (maybe change to dv/dt later)
+//10 motor speed unit things per interval (maybe change to dv/dt later)
 
 /* NEW PINOUT:
        +---------+
@@ -85,40 +88,40 @@ void motorSetup()
 }
 
 ///////////////////////////////////////////////////////////////////////////how to write motorspeeds
-// function that takes input from -400 to 400
+// function that takes input from MIN to MAX
 ////////how to use the motor
 // servo.writeMicroseconds(number from 1100 to 1900)
-// less than 1500 should be backward (limit 1100)
-// more than 1500 should be forward  (limit 1900)
+// less than 1500 should be backward (limit 1500-MAX = 1205)
+// more than 1500 should be forward  (limit 1500+MAX = 1795)
 
 void motor_A(int mspeed)
 {
-  motorA.writeMicroseconds(map(mspeed, MOTOR_A_DIR * -400, MOTOR_A_DIR * 400, 1100, 1900));
+  motorA.writeMicroseconds(map(mspeed, MOTOR_A_DIR * MIN, MOTOR_A_DIR * MAX, 1500+MIN, 1500+MAX));
 }
 
 void motor_B(int mspeed)
 {
-  motorB.writeMicroseconds(map(mspeed, MOTOR_B_DIR * -400, MOTOR_B_DIR * 400, 1100, 1900));
+  motorB.writeMicroseconds(map(mspeed, MOTOR_B_DIR * MIN, MOTOR_B_DIR * MAX, 1500+MIN, 1500+MAX));
 }
 
 void motor_C(int mspeed)
 {
-  motorC.writeMicroseconds(map(mspeed, MOTOR_C_DIR * -400, MOTOR_C_DIR * 400, 1100, 1900));
+  motorC.writeMicroseconds(map(mspeed, MOTOR_C_DIR * MIN, MOTOR_C_DIR * MAX, 1500+MIN, 1500+MAX));
 }
 
 void motor_D(int mspeed)
 {
-  motorD.writeMicroseconds(map(mspeed, MOTOR_D_DIR * -400, MOTOR_D_DIR * 400, 1100, 1900));
+  motorD.writeMicroseconds(map(mspeed, MOTOR_D_DIR * MIN, MOTOR_D_DIR * MAX, 1500+MIN, 1500+MAX));
 }
 
 void motor_E(int mspeed)
 {
-  motorE.writeMicroseconds(map(mspeed, MOTOR_E_DIR * -400, MOTOR_E_DIR * 400, 1100, 1900));
+  motorE.writeMicroseconds(map(mspeed, MOTOR_E_DIR * MIN, MOTOR_E_DIR * MAX, 1500+MIN, 1500+MAX));
 }
 
 void motor_F(int mspeed)
 {
-  motorF.writeMicroseconds(map(mspeed, (MOTOR_F_DIR * -400), MOTOR_F_DIR * 400, 1100, 1900));
+  motorF.writeMicroseconds(map(mspeed, (MOTOR_F_DIR * MIN), MOTOR_F_DIR * MAX, 1500+MIN, 1500+MAX));
 }
 
 
@@ -126,18 +129,18 @@ void motor_F(int mspeed)
 void setMotors(int X, int Y, int Z, int R, unsigned char buttons)
 {
   motor_speed_A = constrain(((Y + X) / 1)
-                            + (R / 1), -400, 400);
+                            + (R / 1), MIN, MAX);
 
   motor_speed_B = constrain(((Y - X) / 1)
-                            - (R / 1), -400, 400);
+                            - (R / 1), MIN, MAX);
 
   motor_speed_E = constrain((((-1 * Y) + X) / 1)
-                            - (R / 1), -400, 400);
+                            - (R / 1), MIN, MAX);
 
   motor_speed_F = constrain((((-1 * Y) - X) / 1)
-                            + (R / 1), -400, 400);
+                            + (R / 1), MIN, MAX);
 
-  motor_speed_Z = constrain(Z, -400, 400);
+  motor_speed_Z = constrain(Z, MIN, MAX);
 
   previous_speed_A = brownOutPrevent(previous_speed_A, motor_speed_A);
   previous_speed_B = brownOutPrevent(previous_speed_B, motor_speed_B);
@@ -186,11 +189,11 @@ void setMotors(int X, int Y, int Z, int R, unsigned char buttons)
 int brownOutPrevent(int currentSpeed, int targetSpeed)
 { // This jerk constraint can help prevent brownouts
   if ((targetSpeed - currentSpeed) > MOTOR_JERK_MAX)
-  { //If target is over 20 above, only increase by 20
+  { //If target is over 10 above, only increase by 10
     return currentSpeed + MOTOR_JERK_MAX;
   }
   else if ((currentSpeed - targetSpeed) > MOTOR_JERK_MAX)
-  { //If target is over 20 below
+  { //If target is over 10 below
     return currentSpeed - MOTOR_JERK_MAX;
   }
   else

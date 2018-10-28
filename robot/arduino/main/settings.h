@@ -12,6 +12,15 @@
 #define COMS_BAUD 9600
 #define DEBUG_BAUD 9600
 
+//--Motor Codes:-----------------------------
+#define MOTOR_CODE_A 0
+#define MOTOR_CODE_B 0
+#define MOTOR_CODE_C 0
+#define MOTOR_CODE_D 0
+#define MOTOR_CODE_E 0
+#define MOTOR_CODE_F 0
+
+
 //--Pinouts:---------------------------------
 //Thrusters
 #define MOTOR_A_PIN 8

@@ -2,6 +2,7 @@
 #include "defs.h"
 #include "packet.h"
 #include "blink.h"
+#include "motors.h"
 
 SERIAL_CLASS *coms_serial; // Main UART coms to on-robot Raspberry Pi
 DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
@@ -55,8 +56,9 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
     case SET_MOT_CMD:
-      // TODO: bring in previous motor code from 2018
-      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble); // This is the wrong response
+      // TODO: add acceleration code for motors? (may occur on Pi instead)
+      setMotor(p.value1, p.value2);
+      create_packet(&response, SET_MOT_ACK, p.value1, p.value2, expect_seqnum_nibble);
       break;
     case RD_SENS_CMD:
       break;
