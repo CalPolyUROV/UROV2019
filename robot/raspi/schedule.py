@@ -10,9 +10,11 @@ from debug import debug  # Debug printing and logging
 from debug import debug_f
 
 # Serial imports
+import serial_coms
 from serial_coms import find_port
 from serial_coms import SerialConnection
 from serial_coms import Packet
+from serial_coms import make_packet
 
 # Sockets networking import
 from sockets_client import SocketsClient
@@ -81,7 +83,8 @@ class Schedule:
             self.socket_connection.connect_server()
 
         elif (t.task_type == TaskType.blink_test):
-            self.serial_connection.send_receive_packet(Packet.make_packet(settings.BLINK_ACK, t.val_list[0], t.val_list[1], seq_num_val))
+            p = make_packet(serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1], seq_num_val)
+            self.serial_connection.send_receive_packet(p)
 
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
