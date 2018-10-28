@@ -1,7 +1,3 @@
-/*
-  Originally based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
-*/
-
 #include "settings.h"
 #include "defs.h"
 #include "packet.h"
@@ -36,7 +32,6 @@ void loop() {
     //error from get_packet()
   }
   inc_seqnum();
-  //debug_packet(debug_serial, p);
   if (handle_packet(p, get_seqnum_nibble())) {
     // error from handle_packet()
   }
