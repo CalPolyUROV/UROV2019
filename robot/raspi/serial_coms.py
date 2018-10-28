@@ -30,8 +30,8 @@ FIRST_SEQNUM = 0
 # TODO: Move list to external file (maybe .txt or .csv),
 #       write script to place in Arduino source and python source
 #       will not be needed on topside Pi, only on robot
-EST_CON_CMD = 0x00  # cmd of initial packet
-EST_CON_ACK = 0x01  # cmd for response to initial packet
+EST_CON_CMD = 0x10  # cmd of initial packet
+EST_CON_ACK = 0x11  # cmd for response to initial packet
 SET_MOT_CMD = 0x20  # set motor (call)
 SET_MOT_ACK = 0x21  # motor has been set (reponse)
 RD_SENS_CMD = 0x40  # request read sensor value

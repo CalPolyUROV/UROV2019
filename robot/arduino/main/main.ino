@@ -24,7 +24,6 @@ void setup() {
   blink_std();
 
   seqnum = FIRST_SEQNUM;
-  //establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
