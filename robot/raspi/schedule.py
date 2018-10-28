@@ -13,6 +13,7 @@ from debug import debug_f
 from serial_coms import find_port
 from serial_coms import SerialConnection
 from serial_coms import Packet
+from serial_coms import make_packet
 
 # Sockets networking import
 from sockets_client import SocketsClient
@@ -56,8 +57,7 @@ class Schedule:
             self.schedule_task(task_sockets_connect)
 
         if(settings.USE_SERIAL):
-            task_serial_est_con = Task(TaskType.serial_est_con,
-                                       TaskPriority.high,                                      [])
+            task_serial_est_con = Task(TaskType.serial_est_con, TaskPriority.high, [])
             self.schedule_task(task_serial_est_con)
 
     def execute_task(self, t: Task, seq_num_val):
@@ -81,7 +81,7 @@ class Schedule:
             self.socket_connection.connect_server()
 
         elif (t.task_type == TaskType.blink_test):
-            self.serial_connection.send_receive_packet(Packet.make_packet(settings.BLINK_ACK, t.val_list[0], t.val_list[1], seq_num_val))
+            self.serial_connection.send_receive_packet(make_packet(settings.BLINK_ACK, t.val_list[0], t.val_list[1], seq_num_val))
 
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
@@ -91,7 +91,9 @@ class Schedule:
         """
         return 0 < len(self.task_list)
 
-    def get_new_tasks(self) -> None:
+    def get_new_tasks(self) -> bool:
+        if(not settings.USE_SOCKETS):
+            return
         # communicate over sockets to generate new tasks based on UI input
         t = Task(TaskType.get_cntl, TaskPriority.high,
                        ["control input pls"])
@@ -99,11 +101,13 @@ class Schedule:
         self.schedule_task(decode_task(data))
         return
 
-    def get_next_task(self):
+    def get_next_task(self) -> Task or None:
         """Take the next task off the queue
         """
         if (not self.has_tasks()):
-            self.get_new_tasks()
+            if(not self.get_new_tasks()):
+                return None
+
         return self.task_list.pop(0)
 
     def terminate(self):
