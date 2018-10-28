@@ -35,8 +35,8 @@ MAX_SOCKET_SIZE = 1024  # Maximum size for single receiving call
 # Serial Connection
 USE_SERIAL = True
 REQUIRE_SERIAL = True
-SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
 SERIAL_BAUD = 19200  # Serial Baudrate
+SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
 
 
 # Debugging
