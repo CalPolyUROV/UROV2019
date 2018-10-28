@@ -9,38 +9,52 @@ Arduino/Teensy and topside raspberry Pi respectively.
 """
 
 # System imports
+import os
+import sys
 from time import sleep  # Temporary delay to not make things too fast during testing
 
 # Scheduling imports
 import settings
-from schedule import Schedule
-from schedule import Task
+from schedule import Schedule, Task
 
-settings.ROLE = 'robot'
 
-# Make a schedule object
-s = Schedule()
+def main():
+    settings.ROLE = 'robot'
 
-# This  initializes the sockets/networking code
-# Note: The sockets should not connect to the topside unit until after the
-#   serial connection has been made.
-#   (This is arbitrary, but the reasoning is that the robot should enumerate
-#   its own pieces prior to connecting to the server)
-#   (however the serial connection uses a handshake/"est_con")
-s.schedule_initial_tasks()
+    # Make a schedule object
+    s = Schedule()
 
-seq_num_val = 0
-terminate = False  # Whether to exit main loop
-while(not terminate):
-    # Get new tasks if needed
-    # TODO: Integrate this if statement into the get_new_tasks call or a check_for_new_tasks()
-    if (not s.has_tasks()):
-        s.get_new_tasks()
+    # This  initializes the sockets/networking code
+    # Note: The sockets should not connect to the topside unit until after the
+    #   serial connection has been made.
+    #   (This is arbitrary, but the reasoning is that the robot should enumerate
+    #   its own pieces prior to connecting to the server)
+    #   (however the serial connection uses a handshake/"est_con")
+    s.schedule_initial_tasks()
 
-    # Get the next task to execute
-    t = s.get_next_task()
-    s.execute_task(t, seq_num_val)
-    seq_num_val += 1
-    sleep(2)  # Temporary delay to not make things too fast during testing
+    seq_num_val = 0
+    terminate = False  # Whether to exit main loop
+    while(not terminate):
+        # Get new tasks if needed
+        # TODO: Integrate this if statement into the get_new_tasks call or a check_for_new_tasks()
+        if (not s.has_tasks()):
+            s.get_new_tasks()
 
-s.terminate()
+        # Get the next task to execute
+        t = s.get_next_task()
+        s.execute_task(t, seq_num_val)
+        seq_num_val += 1
+        sleep(2)  # Temporary delay to not make things too fast during testing
+
+    s.terminate()
+
+# https://stackoverflow.com/questions/21120947/catching-keyboardinterrupt-in-python-during-program-shutdown
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted, exiting')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
