@@ -32,10 +32,6 @@ REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
 
-# Blink Test
-RD_SENS_CMD = 0x40
-BLINK_CMD = 0x80
-BLINK_ACK = 0x81
 
 # Debugging
 # TODO: track debugging for server and client separately

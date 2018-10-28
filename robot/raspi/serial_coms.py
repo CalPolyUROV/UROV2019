@@ -35,6 +35,8 @@ EST_CON_ACK = 0x01  # cmd for response to initial packet
 SET_MOT_CMD = 0x20  # set motor (call)
 SET_MOT_ACK = 0x21  # motor has been set (reponse)
 RD_SENS_CMD = 0x40  # request read sensor value
+BLINK_CMD = 0x80
+BLINK_ACK = 0x81
 INV_CMD_ACK = 0xFF  # Invalid command, value2 of response contains cmd
 
 # Magic numbers to verify correct initial packet and response
