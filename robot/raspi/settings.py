@@ -6,14 +6,19 @@ ROLE = "not set"  # Not a user facing setting
 # Debug channels
 CHANNELS = {"schedule": True,
             "execute_task": True,
+            
             "sockets": False,
             "socket_con": False,
-            "encode": True,
-            "decode": True,
-            "serial_finder": True,
+            "encode": False,
+            "decode": False,
+
+            "serial_finder": False,
             "serial": True,
             "serial_con":True,
-            "packet":True}
+            "ser_packet":True,
+            "chksum":False,
+            
+            "test":False}
 
 
 # Sockets Connection
