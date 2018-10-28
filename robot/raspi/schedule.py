@@ -58,8 +58,7 @@ class Schedule:
             self.schedule_task(task_sockets_connect)
 
         if(settings.USE_SERIAL):
-            task_serial_est_con = Task(TaskType.serial_est_con,
-                                       TaskPriority.high,                                      [])
+            task_serial_est_con = Task(TaskType.serial_est_con, TaskPriority.high, [])
             self.schedule_task(task_serial_est_con)
 
     def execute_task(self, t: Task, seq_num_val):
@@ -94,7 +93,9 @@ class Schedule:
         """
         return 0 < len(self.task_list)
 
-    def get_new_tasks(self) -> None:
+    def get_new_tasks(self) -> bool:
+        if(not settings.USE_SOCKETS):
+            return
         # communicate over sockets to generate new tasks based on UI input
         t = Task(TaskType.get_cntl, TaskPriority.high,
                        ["control input pls"])
@@ -102,11 +103,13 @@ class Schedule:
         self.schedule_task(decode_task(data))
         return
 
-    def get_next_task(self):
+    def get_next_task(self) -> Task or None:
         """Take the next task off the queue
         """
         if (not self.has_tasks()):
-            self.get_new_tasks()
+            if(not self.get_new_tasks()):
+                return None
+
         return self.task_list.pop(0)
 
     def terminate(self):

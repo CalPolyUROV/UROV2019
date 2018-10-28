@@ -6,10 +6,10 @@ ROLE = "not set"  # Not a user facing setting
 # Debug channels
 CHANNELS = {"schedule": True,
             "execute_task": True,
-            "sockets": True,
-            "socket_con": True,
-            "encode": False,
-            "decode": False,
+            "sockets": False,
+            "socket_con": False,
+            "encode": True,
+            "decode": True,
             "serial_finder": True,
             "serial": True,
             "serial_con":True,
@@ -17,8 +17,8 @@ CHANNELS = {"schedule": True,
 
 
 # Sockets Connection
-USE_SOCKETS = True
-REQUIRE_SOCKETS = True
+USE_SOCKETS = False
+REQUIRE_SOCKETS = False
 TOPSIDE_IP_ADDRESS = "localhost" # '192.168.137.127'
 TOPSIDE_PORT = 9120
 ROBOT_IPADDRESS =  "localhost" # "192.168.137.50"
