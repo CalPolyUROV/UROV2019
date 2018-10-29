@@ -46,9 +46,9 @@ EST_CON_VAL2 = 0b01011010
 
 def calc_chksum(cmd: int, val1: int, val2: int, seqnum: int) -> int:
     sum = (cmd +
-            (val1 * 3) +
-            (val2 * 5) +
-            (seqnum * 7)) & CHKSUM_MASK
+           (val1 * 3) +
+           (val2 * 5) +
+           (seqnum * 7)) & CHKSUM_MASK
     return sum
     # idk, it has primes
     # TODO: Make this better, but it must match on this and the Arduino/Teensy. (Maybe CRC32?)
@@ -65,8 +65,8 @@ class Packet:
         self.val1 = val1
         self.val2 = val2
         self.seqnum_chksum = seqnum_chksum
-        
-        debug_f("packet", "Constructed: {}", [self])
+
+        # debug_f("ser_packet", "Constructed: {}", [self])
 
     def extract_seqnum(self, seqnum_chksum: int) -> int:
         return int.from_bytes(seqnum_chksum, byteorder='big') >> 4
@@ -88,33 +88,43 @@ class Packet:
 
     def __eq__(self, other) -> bool:
         return ((self.__class__ == other.__class__) and
-               (self.cmd == other.cmd) and
-               (self.val1 == other.val1) and
-               (self.val2 == other.val2) and
-               (self.seqnum_chksum == other.seqnum_chksum))
-               
+                (self.cmd == other.cmd) and
+                (self.val1 == other.val1) and
+                (self.val2 == other.val2) and
+                (self.seqnum_chksum == other.seqnum_chksum))
+
     def __repr__(self):
-        return "Packet: cmd: {} val1: {} val2: {} chksum: {} seqnum: {}".format(self.cmd, self.val1, self.val2, self.get_chksum(), self.get_seqnum())
+        return "Packet: cmd: {} val1: {} val2: {} seqnum: {} chksum: {}".format(self.cmd, self.val1, self.val2, self.get_seqnum(), self.get_chksum())
 
 
-def make_packet(cmd: int, val1: int, val2: int, seqnum: int):
+def new_packet(cmd: int, val1: int, val2: int, seqnum: int):
     """ Constructor for building packets to send (chksum is created)
     """
     chksum = calc_chksum(cmd, val1, val2, seqnum)
     return Packet(cmd, val1, val2, ((seqnum << 4) + chksum))
 
+
+def make_packet(cmd: int, val1: int, val2: int, seqnum: int, chksum: int):
+    """ Constructor for building packets (chksum is given)
+    """
+    # chksum = calc_chksum(cmd, val1, val2, seqnum)
+    return Packet(cmd, val1, val2, ((seqnum << 4) + chksum))
+
+
 def parse_packet(cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
-        """Constructor for building packets that have been received, untrusted checksums
-        """
-        # if(calc_chksum(cmd, val1, val2, self.extract_seqnum(seqnum_chksum)) == self.extract_chksum(seqnum_chksum)):
-        p =  make_packet(int.from_bytes(cmd, byteorder='big'),
-                          int.from_bytes(val1, byteorder='big'), 
-                          int.from_bytes(val2, byteorder='big'),
-                          int.from_bytes(seqnum_chksum, byteorder='big'))
-        if(p.isValid()):
-            return p
-        else:
-            debug_f("packet", "read invalid packet {}", [p])
+    """Constructor for building packets that have been received, untrusted checksums
+    """
+    _cmd = int.from_bytes(cmd, byteorder='big')
+    _val1 = int.from_bytes(val1, byteorder='big')
+    _val2 = int.from_bytes(val2, byteorder='big')
+    _seqnum = int.from_bytes(seqnum_chksum, byteorder='big') >> 4
+    _chksum = int.from_bytes(seqnum_chksum, byteorder='big') & CHKSUM_MASK
+    p = make_packet(_cmd, _val1, _val2, _seqnum, _chksum)
+    if(p.isValid()):
+        return p
+    else:
+        debug_f("ser_packet", "read invalid packet {}", [p])
+
 
 def find_port():
     """ Finds a serial port for the serial connection
@@ -126,16 +136,16 @@ def find_port():
     while(port == None):
         try:
             # Get a list of all serial ports
-            debug("serial", "Searching for serial ports")
+            debug('serial_finder', "Searching for serial ports")
             ports = serial_finder.serial_ports()
-            debug("serial", "Found ports:")
+            debug('serial_finder', "Found ports:")
             for p in ports:
-                debug("serial", p)
+                debug('serial_finder', p)
             # Select the port
             port = serial_finder.find_port(ports)
             if(port == None):
                 raise serial.serialutil.SerialException
-            debug_f("serial", "Using port: {}", [port])
+            debug_f("serial_finder", "Using port: {}", [port])
             return port
 
         except serial.serialutil.SerialException:
@@ -143,16 +153,16 @@ def find_port():
         if (attempts >= settings.SERIAL_MAX_ATTEMPTS):
             if(settings.REQUIRE_SERIAL):
                 # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                debug_f("serial", "Could not find serial port after {} attempts. Crashing now.", [
+                debug_f('serial_finder', "Could not find serial port after {} attempts. Crashing now.", [
                         attempts])
                 exit(1)
             else:
-                debug_f("serial", "Giving up on finding serial port after {} attempts. Not required in settings.", [
+                debug_f('serial_finder', "Giving up on finding serial port after {} attempts. Not required in settings.", [
                         attempts])
                 settings.USE_SERIAL = False
                 return
         attempts += 1
-        debug("serial", "Failed to find serial port, trying again.")
+        debug('serial_finder', "Failed to find serial port, trying again.")
         sleep(1)  # Wait a second before retrying
 
 
@@ -173,7 +183,9 @@ class SerialConnection:
                     stopbits=serial.STOPBITS_ONE,
                     bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
                     timeout=0.1)
-                port_open = True
+                debug_f('serial_con', "Opened serial connection on {} at baud {}", [
+                        serial_port, settings.SERIAL_BAUD])
+                return
             except serial.serialutil.SerialException:
                 if (attempts >= settings.SERIAL_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SERIAL):
@@ -203,11 +215,9 @@ class SerialConnection:
 
     # Read in a packet from serial
     def read_packet(self) -> Packet or None:
-        _temp = self.serial_connection.read(size=1)
-        if (_temp == b''):
+        _cmd = self.serial_connection.read(size=1)
+        if (_cmd == b''):
             _cmd = self.serial_connection.read(size=1)
-        else:
-            _cmd = _temp
         _val1 = self.serial_connection.read(size=1)
         _val2 = self.serial_connection.read(size=1)
         _seqnum_chksum = self.serial_connection.read(size=1)
@@ -231,17 +241,19 @@ class SerialConnection:
 
     # Send the inital packet and wait for the correct response
     def establish_contact(self):
-        # Send initial packet
         p_out = make_packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
-        # Receive response
+        debug_f('serial_con', "Establishing connection by sending {}", [p_out])
+        # Send initial packet and receive response
         p_in = self.send_receive_packet(p_out)
         if((p_in.cmd == EST_CON_ACK) &
            (p_in.val1 == EST_CON_VAL1) &
            (p_in.val2 == EST_CON_VAL2)):
             # good
+            debug("serial_con", "Sucessfully established contact over serial")
             return []
         else:
             # bad
             debug("serial_con", "Response to initial contact was not satisfactory")
             # TODO: Add logic to retry this a few times
-            return [Task(TaskType.serial_est_con, TaskPriority.high, [])]
+            t = Task(TaskType.serial_est_con, TaskPriority.high, [])
+            return [t]
