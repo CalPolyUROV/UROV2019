@@ -25,11 +25,11 @@ class Schedule:
         if(settings.USE_SOCKETS):
             debug("schedule", "Using sockets as enabled in settings")
             self.socket_connection = SocketsClient(
-                settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)  # Make sockets client obect
+                settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)  # Make sockets client object
 
     def schedule_task(self, t: Task):
-        if(not t is Task):
-            debug_f('schedule', "Cannot schedule non task object: {}", [t])
+        if(not isinstance(t, Task)):
+            debug_f('schedule', "Cannot schedule non task object that is {}", [t])
             return
         debug_f("schedule", "Scheduling task {}", [t])
         if(t.priority == TaskPriority.high):
@@ -59,17 +59,20 @@ class Schedule:
             self.schedule_task(t)
 
     def execute_task(self, t: Task, seq_num_val):
+        if (t == None):
+            debug('execute_task', "Tried to execute None")
+            return
         # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
         # TODO: Write logic choosing a command to send (maybe use a queue)
         sched_list = []
         if (t.task_type == TaskType.debug_str):
-            debug_f("execute_task", "Executing task: {}", t.val_list)
+            debug_f('execute_task', "Executing task: {}", t.val_list)
 
         elif (t.task_type == TaskType.cntl_input):
-            debug_f("execute_task", "Executing task: {}", t.val_list)
+            debug_f('execute_task', "Executing task: {}", t.val_list)
 
         elif (t.task_type == TaskType.get_telemetry):
-            debug_f("execute_task", "Executing task: {}", t.val_list)
+            debug_f('execute_task', "Executing task: {}", t.val_list)
 
         elif (t.task_type == TaskType.serial_est_con):
             if(settings.USE_SERIAL):
@@ -84,11 +87,11 @@ class Schedule:
             self.serial_connection.send_receive_packet(p)
 
         else:
-            debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
-        if(not sched_list is list):
-            return
-        for(t in sched_list):
-            self.schedule_task(task)
+            debug_f('execute_task', "Unable to handle TaskType: {}", t.task_type)
+        # if(not sched_list is list):
+        #     return
+        for t in sched_list:
+            self.schedule_task(t)
 
     def has_tasks(self) -> bool:
         """Report whether there are enough tasks left in the queue
