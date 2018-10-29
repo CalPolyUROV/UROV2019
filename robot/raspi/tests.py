@@ -18,6 +18,8 @@ t1 = Task(TaskType.debug_str, TaskPriority.normal, ["text", 1, 2, "3"])
 data = t1.encode()
 t2 = decode(data)
 assert(t1 == t2)  # json test 1
+t3 = decode(b'Garbage data, good luck decoding this')
+assert(t3 == None) # json test 2
 
 
 # Packet test debug channels

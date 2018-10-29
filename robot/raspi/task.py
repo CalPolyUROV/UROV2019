@@ -35,7 +35,13 @@ class Task:
         self.val_list = val_list
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and (self.task_type == other.task_type) and (self.priority == other.priority) and (self.val_list == other.val_list)
+        return (self.__class__ == other.__class__) and \
+               (self.task_type == other.task_type) and \
+               (self.priority == other.priority) and \
+               (self.val_list == other.val_list)
+
+    def __repr__(self):
+        return "Task: type: {}, priority: {}, val_list: {}".format(self.task_type, self.priority, self.val_list)
 
     def encode(self) -> bytes:
         """Encoding method used in sending data over sockets
@@ -49,13 +55,15 @@ class Task:
 def decode(data: bytes) -> Task:
     """Decoding method used in receiving of data over sockets
     """
-    debug_f("decode", "Trying to decode {}, which is {}", [data, data.__class__.__name__])
-    # try:
-    t = decode_task(json.loads(data.decode("utf-8")))
-    debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
-    return t
-    #except:
-    debug_f("decode", "Could not decode {}", [data])
+    debug_f("decode", "Trying to decode {}, which is {}",
+            [data, data.__class__.__name__])
+    try:
+        t = decode_task(json.loads(data.decode("utf-8")))
+        debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
+        return t
+    except:
+        debug_f("decode", "Could not decode {}", [data])
+        return None
 
 
 def encode_task(t: Task):
