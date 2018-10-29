@@ -2,19 +2,17 @@
 
 TODO: Add more documentation here
 """
+
 # System imports
-import serial  # PySerial library
 from sys import exit  # End the program when things fail
 from time import sleep  # Wait before retrying sockets connection
+import serial  # PySerial library
 
 # Our imports
-import settings
 import serial_finder  # Identifies serial ports
-from task import Task
-from task import TaskType
-from task import TaskPriority
-from debug import debug
-from debug import debug_f
+import settings
+from debug import debug, debug_f
+from task import Task, TaskPriority, TaskType
 
 # encoding scheme
 ENCODING = 'ascii'

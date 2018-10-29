@@ -1,23 +1,17 @@
 # Scheduling class for scheduling activities
 
+
 # Our imports
 import settings
-from task import Task
-from task import TaskType
-from task import TaskPriority
-from task import decode as decode_task
 from debug import debug  # Debug printing and logging
 from debug import debug_f
-
+from task import Task, TaskPriority, TaskType
 # Serial imports
 import serial_coms
-from serial_coms import find_port
-from serial_coms import SerialConnection
-from serial_coms import Packet
-from serial_coms import make_packet
-
+from serial_coms import Packet, SerialConnection, find_port, make_packet
 # Sockets networking import
 from sockets_client import SocketsClient
+from task import decode as decode_task
 
 
 class Schedule:

@@ -3,11 +3,8 @@
 
 # Our imports
 import settings
-from debug import debug
-from debug import debug_f
-from task import Task
-from task import TaskType
-from task import TaskPriority
+from debug import debug, debug_f
+from task import Task, TaskType, TaskPriority
 from sockets_server import SocketsServer
 from server import handle_response
 

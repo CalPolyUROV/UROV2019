@@ -8,12 +8,8 @@ from time import sleep  # Wait before retrying sockets connection
 
 # Our imports
 import settings
-from task import Task
-from task import TaskType
-from task import TaskPriority
-from task import decode
-from debug import debug  # Debug printing and logging
-from debug import debug_f
+from task import Task, TaskType, TaskPriority, decode
+from debug import debug, debug_f  # Debug printing and logging
 
 
 class SocketsClient:
