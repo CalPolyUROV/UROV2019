@@ -81,10 +81,12 @@ class Packet:
         return self.seqnum_chksum & CHKSUM_MASK
 
     def isValid(self) -> bool:
-        chksum = self.get_chksum() 
-        expected = calc_chksum(self.cmd, self.val1, self.val2, self.get_seqnum())
-        debug_f("packet", "Packet had chksum of {}, {} was expected", [chksum, expected])
-        return chksum == expected   
+        chksum = self.get_chksum()
+        expected = calc_chksum(self.cmd, self.val1,
+                               self.val2, self.get_seqnum())
+        debug_f('chksum', "Packet had chksum of {}, {} was expected", [
+                chksum, expected])
+        return chksum == expected
 
     def __eq__(self, other) -> bool:
         return ((self.__class__ == other.__class__) and
