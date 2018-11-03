@@ -9,8 +9,8 @@
 #define TEENSY
 // TEENSY or MEGA
 
-#define COMS_BAUD 9600
-#define DEBUG_BAUD 9600
+#define COMS_BAUD 19200
+#define DEBUG_BAUD 19200
 
 //--Motor Codes:-----------------------------
 // Must be kept from 0-5 because of for loops

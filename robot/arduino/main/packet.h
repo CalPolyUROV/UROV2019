@@ -9,8 +9,8 @@
 // lookup table for indexes of commands
 // byte cmd_lut[255] = {EST_CMD, SET_MOT_CMD, READ...}
 // currently using switch statement and bodge LUT
-#define EST_CON_CMD 0x00 // establish connection (call) // TODO: EST packet should be different from empty packet
-#define EST_CON_ACK 0x01 // respond to new connection
+#define EST_CON_CMD 0x10 // establish connection (call)
+#define EST_CON_ACK 0x11 // respond to new connection
 #define SET_MOT_CMD 0x20 // set motor (call)
 #define SET_MOT_ACK 0x21 // motor has been set (reponse)
 #define RD_SENS_CMD 0x40 // TODO

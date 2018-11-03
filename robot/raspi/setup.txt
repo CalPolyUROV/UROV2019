@@ -1,6 +1,7 @@
-1. Make sure python3 is installed
+1. Use "make env" to set up python, pip, and pyserial
 
-2. make sure PySerial is installed
-	"pip install pyserial"
+2. Debug the script...
 
-3. profit?
+3. ???
+
+4. Profit

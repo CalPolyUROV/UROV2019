@@ -1,7 +1,3 @@
-/*
-  Originally based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
-*/
-
 #include "settings.h"
 #include "defs.h"
 #include "packet.h"
