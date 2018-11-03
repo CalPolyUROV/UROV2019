@@ -223,7 +223,7 @@ class SerialConnection:
         _val1 = self.serial_connection.read(size=1)
         _val2 = self.serial_connection.read(size=1)
         _seqnum_chksum = self.serial_connection.read(size=1)
-        debug_f('packet', "Received: {}{}{}{}", [_cmd, _val1, _val2, _seqnum_chksum])
+        debug_f('ser_packet', "Received: {}{}{}{}", [_cmd, _val1, _val2, _seqnum_chksum])
         return parse_packet(_cmd, _val1, _val2, _seqnum_chksum)
         # Warning, this will not catch packets with invalid checksums
 
@@ -243,7 +243,7 @@ class SerialConnection:
 
     # Send the inital packet and wait for the correct response
     def establish_contact(self):
-        p_out = make_packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
+        p_out = new_packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
         debug_f('serial_con', "Establishing connection by sending {}", [p_out])
         # Send initial packet and receive response
         p_in = self.send_receive_packet(p_out)
