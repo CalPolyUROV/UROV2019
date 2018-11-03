@@ -1,26 +1,6 @@
 #include "motors.h"
 #include "settings.h"
-
-#define MOTOR_MAX_AMP   295
-#define MOTOR_JERK_MAX  10
-#define ESC_CENTER_MS   1500
-#define ESC_MAX_MS      ESC_CENTER_MS + MOTOR_MAX_AMP
-#define ESC_MIN_MS      ESC_CENTER_MS - MOTOR_MAX_AMP
-
-// Global Motor Values
-int current_speed_A = 0;
-int current_speed_B = 0;
-int current_speed_C = 0;
-int current_speed_D = 0;
-int current_speed_E = 0;
-int current_speed_F = 0;
-
-int target_speed_A = 0;
-int target_speed_B = 0;
-int target_speed_C = 0;
-int target_speed_D = 0;
-int target_speed_E = 0;
-int target_speed_F = 0;
+#include "TeensyThreads.h"
 
 Servo motorA;
 Servo motorB;
@@ -28,6 +8,8 @@ Servo motorC;
 Servo motorD;
 Servo motorE;
 Servo motorF;
+
+ServoMotor servoMotors[NUM_MOTORS];
 
 void motorSetup() {
    // attach motors to pins
@@ -38,42 +20,52 @@ void motorSetup() {
    motorE.attach(MOTOR_E_PIN);
    motorF.attach(MOTOR_F_PIN);
 
-   // initialize motor values
-   motorA.writeMicroseconds(ESC_CENTER_MS);
-   motorB.writeMicroseconds(ESC_CENTER_MS);
-   motorC.writeMicroseconds(ESC_CENTER_MS);
-   motorD.writeMicroseconds(ESC_CENTER_MS);
-   motorE.writeMicroseconds(ESC_CENTER_MS);
-   motorF.writeMicroseconds(ESC_CENTER_MS);
+   // Add servos to array
+   servoMotors[0].servo = &motorA;
+   servoMotors[1].servo = &motorB;
+   servoMotors[2].servo = &motorC;
+   servoMotors[3].servo = &motorD;
+   servoMotors[4].servo = &motorE;
+   servoMotors[5].servo = &motorF;
 
-   // delay to ensure signal reception
-   delay(100);
+   servoMotors[0].direction = MOTOR_A_DIR;
+   servoMotors[1].direction = MOTOR_B_DIR;
+   servoMotors[2].direction = MOTOR_C_DIR;
+   servoMotors[3].direction = MOTOR_D_DIR;
+   servoMotors[4].direction = MOTOR_E_DIR;
+   servoMotors[5].direction = MOTOR_F_DIR;
+   
+   // Initialize motor base values
+   for(int i = 0; i < NUM_MOTORS; i++) {
+      servoMotors[i].current_value = ESC_CENTER_MS;
+      servoMotors[i].target_value = ESC_CENTER_MS;
+   }
+
+   // Update motors with initial values
+   updateMotors();
 }
 
-// assumes values are safe as far as acceleration
-void setMotor(byte motor, byte value) {
-   switch(motor) {
-      case MOTOR_CODE_A:
-         motorA.writeMicroseconds(map(value, MOTOR_A_DIR * 0, MOTOR_A_DIR * 255, ESC_MIN_MS, ESC_MAX_MS));
-         break;
-      case MOTOR_CODE_B:
-         motorB.writeMicroseconds(map(value, MOTOR_B_DIR * 0, MOTOR_B_DIR * 255, ESC_MIN_MS, ESC_MAX_MS));
-         break;
-      case MOTOR_CODE_C:
-         motorA.writeMicroseconds(map(value, MOTOR_C_DIR * 0, MOTOR_C_DIR * 255, ESC_MIN_MS, ESC_MAX_MS));
-         break;
-      case MOTOR_CODE_D:
-         motorA.writeMicroseconds(map(value, MOTOR_D_DIR * 0, MOTOR_D_DIR * 255, ESC_MIN_MS, ESC_MAX_MS));
-         break;
-      case MOTOR_CODE_E:
-         motorA.writeMicroseconds(map(value, MOTOR_E_DIR * 0, MOTOR_E_DIR * 255, ESC_MIN_MS, ESC_MAX_MS));
-         break;
-      case MOTOR_CODE_F:
-         motorA.writeMicroseconds(map(value, MOTOR_F_DIR * 0, MOTOR_F_DIR * 255, ESC_MIN_MS, ESC_MAX_MS));
-         break;
-      default:
-         // invalid motor parameter
-         // TODO: raise some sort of error?
-         break;
+// Updates all motors to move toward their target values
+// Assumes only called after a safe time delay
+void updateMotors() {
+   for(int i = 0; i < NUM_MOTORS; i++) {
+      ServoMotor* curServo = &servoMotors[i];
+      // Update current_value to be closer to target value
+      if(curServo->target_value < curServo->current_value) {
+         curServo->current_value -= max(curServo->target_value, curServo->current_value - MOTOR_JERK_MAX);
+      }
+      else {
+         curServo->current_value -= min(curServo->target_value, curServo->current_value + MOTOR_JERK_MAX);
+      }
+      // Write new current_value out to motor
+      threads.stop();
+      (*(curServo->servo)).writeMicroseconds(
+            map(curServo->current_value, 0, curServo->direction * 255, ESC_MIN_MS, ESC_MAX_MS)
+      );
+      threads.start();
    }
+}
+
+void setMotorTarget(byte motor, byte targetValue) {
+   servoMotors[motor].target_value = (int)targetValue;
 }

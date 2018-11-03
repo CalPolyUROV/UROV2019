@@ -13,16 +13,17 @@
 #define DEBUG_BAUD 9600
 
 //--Motor Codes:-----------------------------
+// Must be kept from 0-5 because of for loops
 #define MOTOR_CODE_A 0
-#define MOTOR_CODE_B 0
-#define MOTOR_CODE_C 0
-#define MOTOR_CODE_D 0
-#define MOTOR_CODE_E 0
-#define MOTOR_CODE_F 0
+#define MOTOR_CODE_B 1
+#define MOTOR_CODE_C 2
+#define MOTOR_CODE_D 3
+#define MOTOR_CODE_E 4
+#define MOTOR_CODE_F 5
 
 
 //--Pinouts:---------------------------------
-//Thrusters
+// Thrusters
 #define MOTOR_A_PIN 8
 #define MOTOR_B_PIN 9
 #define MOTOR_C_PIN 10
