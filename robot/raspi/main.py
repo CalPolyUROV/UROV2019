@@ -1,4 +1,4 @@
-# python3
+#!/usr/bin/python3
 """ Main Python code that runs on the Raspberry Pi 3B inside the robot
 
 This is the python program is meant to run on the Raspberry Pi located on
