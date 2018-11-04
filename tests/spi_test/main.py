@@ -2,7 +2,8 @@ import spidev
 import time
 
 spi = spidev.SpiDev() # create spi object
-spi.open(0, 1) # open spi port 0, device (CS) 1
+
+spi.open(0, 0) # open spi port 0, device (CS) 0
 
 try:
     while True:
@@ -11,6 +12,6 @@ try:
         time.sleep(1) # sleep for 0.1 seconds
      #end while
  
-except KeyboardInterrupt: # Ctrl+C pressed, so…
-    spi.close() # … close the port before exit
+except KeyboardInterrupt:
+    spi.close() #  close the port before exit
 #end try
