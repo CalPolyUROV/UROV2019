@@ -1,0 +1,6 @@
+
+Teensy's SPI reference
+https://www.pjrc.com/teensy/td_libs_SPI.html
+
+SPIDev is installed by apt and lets you do SPI stuff in python
+http://tightdev.net/SpiDev_Doc.pdf
