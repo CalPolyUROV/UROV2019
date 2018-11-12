@@ -103,8 +103,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 *.bak
-robot/raspi/.vscode
 
 .idea/*
 .vscode/*
-robot/.vscode/*
+robot/.vscode
+topside/.vscode
+tests/.vscode
+robot/raspi/.vscode
+tests/spi_test/.vscode
