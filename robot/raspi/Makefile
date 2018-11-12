@@ -27,5 +27,6 @@ env:
 	sudo apt install python3-pip
 	$(PYTHON_CMD) -m pip install --upgrade pip
 	$(PYTHON_CMD) -m pip install pyserial --user
+	$(PYTHON_CMD) -m pip install pygame --user
 	$(PYTHON_CMD) --version | diff $(PYTHON_VERSION) -
 	
