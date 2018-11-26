@@ -1,4 +1,5 @@
 #include "packet.h"
+#include "TeensyThreads.h"
 
 // Wait for the UART buffer to be filled with a whole packet.
 // This is a blocking operation (i think)
@@ -16,10 +17,12 @@ void create_packet(packet *p, byte cmd, byte value1, byte value2, byte seqnum_ni
 
 // Send the packet over a serial interface
 int send_packet(SERIAL_CLASS *serial, packet p) {
+  threads.stop();
   serial->write(p.cmd);
   serial->write(p.value1);
   serial->write(p.value2);
   serial->write(p.seqnum_chksum);
+  threads.start();
   return 0;
 }
 
