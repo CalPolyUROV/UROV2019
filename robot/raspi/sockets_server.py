@@ -7,12 +7,8 @@ from time import sleep
 
 # Our imports
 import settings
-from task import Task
-from task import TaskType
-from task import TaskPriority
-from task import decode
-from debug import debug
-from debug import debug_f
+from debug import debug, debug_f
+from task import Task, TaskType, TaskPriority, decode
 
 
 class SocketsServer:

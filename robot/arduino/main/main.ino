@@ -1,11 +1,9 @@
-/*
-  Originally based on http://www.arduino.cc/en/Tutorial/SerialCallResponse
-*/
-
 #include "settings.h"
 #include "defs.h"
 #include "packet.h"
 #include "blink.h"
+#include "motors.h"
+#include "TeensyThreads.h"
 
 SERIAL_CLASS *coms_serial; // Main UART coms to on-robot Raspberry Pi
 DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
@@ -28,20 +26,41 @@ void setup() {
 
   seqnum = FIRST_SEQNUM;
   //establishContact();  // send a byte to establish contact until receiver responds
+
+  motorSetup();
+
+  // Initialize threads
+  threads.addThread(communicationThread);
+  threads.addThread(motorThread);
+}
+
+// Motor update thread
+void motorThread() {
+  while(true) {
+    updateMotors();
+    threads.delay(MOTOR_DELTA_MS);
+  }
 }
 
 void loop() {
+  //nothing to do in here?
+}
+
+void communicationThread() {
   packet p;
-  if (get_packet(&p, get_seqnum_nibble())) {
-    //error from get_packet()
+  while(true) {
+    if (get_packet(&p, get_seqnum_nibble())) {
+      //error from get_packet()
+    }
+    inc_seqnum();
+    //debug_packet(debug_serial, p);
+    if (handle_packet(p, get_seqnum_nibble())) {
+      // error from handle_packet()
+    }
+    inc_seqnum();
+    //blink_delay(100);
+    threads.yield();
   }
-  inc_seqnum();
-  //debug_packet(debug_serial, p);
-  if (handle_packet(p, get_seqnum_nibble())) {
-    // error from handle_packet()
-  }
-  inc_seqnum();
-  //blink_delay(100);
 }
 
 // Executes the actions for a given packet and sends response packet
@@ -60,8 +79,10 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
     case SET_MOT_CMD:
-      // TODO: bring in previous motor code from 2018
-      create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble); // This is the wrong response
+      // TODO: add acceleration code for motors? (may occur on Pi instead)
+      //TODO replace setMotor with just updated target motor values
+      setMotorTarget(p.value1, p.value2);
+      create_packet(&response, SET_MOT_ACK, p.value1, p.value2, expect_seqnum_nibble);
       break;
     case RD_SENS_CMD:
       break;

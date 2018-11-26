@@ -51,3 +51,23 @@ Internal Coms Draft v0.1
      +------------------------->+Response|
                                 +--------+
                                 
+
+Motor Command Format (Pi -> Arduino/Teensy)
++--------------------------------------------------+
+|                                                  |
+|                                seq num  chksum   |
+|                                +------+ +-----+  |
+|  SET_MOT_CMD  MOTOR #  SPEED   1 nibble 1 nibble |
+|  +---------+  +-----+  +----+  +---------------+ |
+|  1 Byte       1 Byte   1 Byte  1 Byte            |
+|                                                  |
++--------------------------------------------------+
+
+Motor Codes
+#   |   MOTOR
+0   |   A
+1   |   B
+2   |   C
+3   |   D
+4   |   E
+5   |   F
