@@ -20,6 +20,34 @@ class Controller:
         print("Data number: " + str(self.data_number))
         self.print_data(self.joystick_data)
         self.data_number = self.data_number + 1
+        return self.map_data(self.joystick_data)
+
+    def map_data(self, joystick_data: dict) -> dict:
+        control_data = {}
+        control_data["controller_num"] = self.try_key(joystick_data, "number")
+        control_data["controller_name"] = self.try_key(joystick_data, "name")
+        control_data["axis_1"] = self.try_key(joystick_data, "axis_1")
+        control_data["axis_2"] = self.try_key(joystick_data, "axis_2")
+        control_data["axis_3"] = self.try_key(joystick_data, "axis_3")
+        control_data["axis_4"] = self.try_key(joystick_data, "axis_4")
+        control_data["button_a"] = self.try_key(joystick_data, "button_0")
+        control_data["button_b"] = self.try_key(joystick_data, "button_1")
+        control_data["button_x"] = self.try_key(joystick_data, "button_2")
+        control_data["button_y"] = self.try_key(joystick_data, "button_3")
+        control_data["button_4"] = self.try_key(joystick_data, "button_4")
+        control_data["button_5"] = self.try_key(joystick_data, "button_5")
+        control_data["button_6"] = self.try_key(joystick_data, "button_6")
+        control_data["button_7"] = self.try_key(joystick_data, "button_7")
+        control_data["button_8"] = self.try_key(joystick_data, "button_8")
+        control_data["button_9"] = self.try_key(joystick_data, "button_9")
+        control_data["dpad"] = self.try_key(joystick_data, "dpad")
+        return control_data
+
+    def try_key(self, d: dict, k: str):
+        try:
+            return d[k]
+        except (KeyError):
+            return "Key invalid: " + k
 
     def initialize(self):
 
@@ -69,7 +97,8 @@ class Controller:
                 self.joystick_data["num_buttons"] = joystick.get_numbuttons()
 
                 for i in range(self.joystick_data["num_buttons"]):
-                    self.joystick_data["button_" + str(i)] = joystick.get_button(i)
+                    self.joystick_data["button_" +
+                                       str(i)] = joystick.get_button(i)
 
                 # Hat switch. All or nothing for direction, not like joysticks.
                 # Value comes back in an array.
