@@ -7,7 +7,7 @@ import sys
 import serial
 from sys import platform
 
-from debug import debug
+from utils import debug
 
 
 def serial_ports() -> list:

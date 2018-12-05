@@ -8,14 +8,10 @@ used in this program manages the serial and sockets connections to the
 Arduino/Teensy and topside raspberry Pi respectively.
 """
 
-# System imports
-import os
-import sys
-from time import sleep  # Temporary delay to not make things too fast during testing
-
 # Scheduling imports
 import settings
 from schedule import Schedule, Task
+from utils import sleep, exit
 
 
 def main():
@@ -48,13 +44,10 @@ def main():
 
     s.terminate()
 
+
 # https://stackoverflow.com/questions/21120947/catching-keyboardinterrupt-in-python-during-program-shutdown
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print('Interrupted, exiting')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+        exit()

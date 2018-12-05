@@ -8,7 +8,7 @@ from enum import IntEnum  # Used for task properties
 import json
 
 # Our imports
-from debug import debug, debug_f
+from utils import debug, debug_f
 
 
 class TaskType(IntEnum):

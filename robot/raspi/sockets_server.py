@@ -3,11 +3,10 @@
 # System imports
 import socket
 import sys
-from time import sleep
 
 # Our imports
 import settings
-from debug import debug, debug_f
+from utils import sleep, debug, debug_f
 from task import Task, TaskType, TaskPriority, decode
 
 

@@ -4,7 +4,7 @@
 # Imports
 import serial_coms
 import settings
-from debug import debug, debug_f
+from utils import debug, debug_f
 from serial_coms import Packet, make_packet, parse_packet
 from task import Task, TaskPriority, TaskType, decode
 

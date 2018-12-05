@@ -5,13 +5,12 @@ TODO: Add more documentation here
 
 # System imports
 from sys import exit  # End the program when things fail
-from time import sleep  # Wait before retrying sockets connection
 import serial  # PySerial library
 
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
-from debug import debug, debug_f
+from utils import sleep, debug, debug_f
 from task import Task, TaskPriority, TaskType
 
 # encoding scheme

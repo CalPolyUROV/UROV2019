@@ -3,8 +3,7 @@
 
 # Our imports
 import settings
-from debug import debug  # Debug printing and logging
-from debug import debug_f
+from utils import debug, debug_f
 from task import Task, TaskPriority, TaskType
 # Serial imports
 import serial_coms

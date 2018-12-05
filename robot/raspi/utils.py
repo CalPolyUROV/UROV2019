@@ -1,7 +1,28 @@
+
+# System imports
+import os  # For exit
+import sys  # For exit
+import time  # For sleep
+import _thread  # For  multi threaded debug
+
+# Our imports
+import settings
+
+
+def sleep(time_s: int):
+    time.sleep(time_s)
+
+
+def exit():
+    print(': Interrupted, exiting')
+    try:
+        sys.exit(0)
+    except SystemExit:
+        os._exit(0)
+
+
 """Debugging print and logging functions
 """
-import settings
-import _thread
 
 """Usage:
 debug("channel", "message")

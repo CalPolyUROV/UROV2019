@@ -4,7 +4,7 @@
 
 # Our imports
 import settings
-from debug import debug, debug_f
+from utils import exit, debug, debug_f
 from task import Task, TaskType, TaskPriority
 from sockets_server import SocketsServer
 from server import handle_response

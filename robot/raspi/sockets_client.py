@@ -3,13 +3,11 @@
 
 # System imports
 import socket  # Sockets library
-from sys import exit  # End the program when things fail
-from time import sleep  # Wait before retrying sockets connection
 
 # Our imports
 import settings
+from utils import sleep, exit, debug, debug_f  # Debug printing and logging
 from task import Task, TaskType, TaskPriority, decode
-from debug import debug, debug_f  # Debug printing and logging
 
 
 class SocketsClient:
