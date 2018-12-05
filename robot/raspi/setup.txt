@@ -1,4 +1,4 @@
-1. Use "make env" to set up python, pip, and pyserial
+1. Use "make env" to set up python, pip, and dependancies
 
 2. Debug the script...
 
