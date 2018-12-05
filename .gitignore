@@ -111,3 +111,4 @@ topside/.vscode
 tests/.vscode
 robot/raspi/.vscode
 tests/spi_test/.vscode
+.directory
