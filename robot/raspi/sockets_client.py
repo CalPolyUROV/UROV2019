@@ -56,7 +56,7 @@ class SocketsClient:
                     if(settings.REQUIRE_SOCKETS):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                         debug_f(
-                            "socket_con", "Could not connect to server at {}:{}  after {} attempts. Crashing now.", [self.remote_ip, self.remote_port,attempts])
+                            "socket_con", "Could not connect to server at {}:{}  after {} attempts. Crashing now.", [self.remote_ip, self.remote_port, attempts])
                         exit(1)
                     else:
                         debug_f("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
@@ -84,6 +84,8 @@ class SocketsClient:
                 exit()
 
             debug_f("socket_con", 'Message send successfully: {}', [data])
+
+            # TODO: Handle loss of connection, attemp to recover 
 
             # Now receive data
             # BLocking call?
