@@ -12,6 +12,7 @@ from control_unit import ControlUnit
 
 def main():
     settings.ROLE = "server"
+    # settings.PRINTING = False
 
     cu = ControlUnit()
     s = SocketsServer(settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
@@ -35,4 +36,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        exit()
+        exit("Interrupted, exiting")

@@ -18,6 +18,29 @@ CHANNELS = {"schedule": True,
 
             "test": True}
 
+# Mapping of pygame joystick output to values we can make sense of
+# "pygame_name":"name_we_use",
+control_mappings = {"number": "controller_num",
+                    "name": "controler_name",
+                    "axis_0": "axis_0",
+                    "axis_1": "axis_1",
+                    "axis_2": "axis_2",
+                    "axis_3": "axis_3",
+                    "axis_4": "axis_4",
+                    "axis_5": "axis_5",
+                    "axis_1": "axis_1",
+                    "button_0": "button_a",
+                    "button_1": "button_b",
+                    "button_2": "button_x",
+                    "button_3": "button_y",
+                    "button_4": "button_4",
+                    "button_5": "button_5",
+                    "button_6": "button_6",
+                    "button_7": "button_7",
+                    "button_8": "button_8",
+                    "button_9": "button_9",
+                    "dpad": "dpad"
+                    }
 
 # Sockets Connection
 USE_SOCKETS = True

@@ -13,8 +13,8 @@ def sleep(time_s: int):
     time.sleep(time_s)
 
 
-def exit():
-    print(': Interrupted, exiting')
+def exit(reason: str):
+    print(': ' + reason)
     try:
         sys.exit(0)
     except SystemExit:
@@ -54,6 +54,7 @@ def _seq_debug(channel: str, message: str):
     if(settings.LOGGING):
         # TODO: Output stuff to a log file
         pass
+    _thread.exit()
 
 
 def seq_debug_f(channel: str, message: str, formatting: list):
@@ -63,3 +64,4 @@ def seq_debug_f(channel: str, message: str, formatting: list):
     if(settings.LOGGING):
         # TODO: Output stuff to a log file
         pass
+    _thread.exit()

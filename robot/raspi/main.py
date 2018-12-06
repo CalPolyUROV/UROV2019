@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.6
 """ Main Python code that runs on the Raspberry Pi 3B inside the robot
 
 This is the python program is meant to run on the Raspberry Pi located on
@@ -16,6 +16,7 @@ from utils import sleep, exit
 
 def main():
     settings.ROLE = 'robot'
+    # settings.PRINTING = False
 
     # Make a schedule object
     s = Schedule()
@@ -40,7 +41,7 @@ def main():
         t = s.get_next_task()
         s.execute_task(t, seq_num_val)
         seq_num_val += 1
-        sleep(2)  # Temporary delay to not make things too fast during testing
+        #sleep(2)  # Temporary delay to not make things too fast during testing
 
     s.terminate()
 
@@ -50,4 +51,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        exit()
+        exit("Interrupted, exiting")
