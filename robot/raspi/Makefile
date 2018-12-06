@@ -22,30 +22,32 @@ test: $(TEST_SRC)
 # Setup environment for development and use
 # Supprts only systems that use the apt package manager and diff
 # Windows and Mac not supported
-env: py_modules # env_setup py_setup py_modules
-	
+env: 
 	$(PYTHON_CMD) --version | diff $(PYTHON_VERSION) -
 
-env_setup: 
-	sudo apt-get update
-	sudo apt-get install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev
+env_setup: py_modules # env_setup py_setup py_modules
+	sudo apt update
+	sudo apt upgrade
 	
-py_setup:
+py_setup: env_setup
 	# From apt repos: (based on your distro, raspbian will be different)
-	# sudo apt-get update
-	# sudo apt install python3
-	# sudo apt install python3-pip
+	sudo apt update
+	sudo apt install python3
+	sudo apt install python3-pip
+	
+py_build:
+	sudo apt update
+	sudo apt upgrade
+	sudo apt install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev
+	# According to https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f
+	#wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tar.xz
+	#tar xf Python-3.6.5.tar.xz
+	#cd Python-3.6.5
+	#./configure --enable-optimizations
+	#make
+	#sudo make altinstall
 
-#	According to https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f
-# 	wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tar.xz
-# 	tar xf Python-3.6.5.tar.xz
-# 	cd Python-3.6.5
-# 	./configure
-# 	make
-# 	sudo make altinstall
-
-py_modules:
-
+py_modules: py_setup
 	$(PYTHON_CMD) -m pip install --upgrade pip
 	$(PYTHON_CMD) -m pip install pyserial --user
 	$(PYTHON_CMD) -m pip install pygame --user
