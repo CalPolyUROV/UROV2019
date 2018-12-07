@@ -81,7 +81,7 @@ class SocketsClient:
             except socket.error:
                 # Send failed
                 debug("socket_con", 'Send failed')
-                exit()
+                exit("Sockets send failed")
 
             debug_f("socket_con", 'Message send successfully: {}', [data])
 
