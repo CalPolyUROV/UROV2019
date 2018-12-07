@@ -1,4 +1,4 @@
-"""Example controller code from https://www.pygame.org/docs/ref/joystick.html
+""" Based on example controller code from https://www.pygame.org/docs/ref/joystick.html
 """
 # Sytem imports
 import pygame
@@ -6,13 +6,13 @@ import _thread
 
 # Our imports
 import settings
+from utils import debug, debug_f
 
 
 class Controller:
 
     def __init__(self):
         self.joystick_data = {}
-        self.data_number = 0
         _thread.start_new_thread(self.initialize, ())
 
     def print_data(self, d: dict):
@@ -20,21 +20,21 @@ class Controller:
             print(str(val) + ":\t" + str(self.joystick_data[val]))
 
     def get_input(self):
-        #print("Data number: " + str(self.data_number))
-        #self.print_data(self.joystick_data)
-        self.data_number = self.data_number + 1
         return self.map_data(self.joystick_data)
 
     def map_data(self, joystick_data: dict) -> dict:
         control_data = {}
         for k in joystick_data:
-            control_data[self.try_key(settings.control_mappings, k)] = joystick_data[k]
+            new_key = self.try_key(settings.control_mappings, k)
+            if new_key != None:
+                control_data[new_key] = joystick_data[k]
         return control_data
 
     def try_key(self, d: dict, k: str):
         try:
             return d[k]
         except (KeyError):
+            debug_f("controls_reader", "Unknown control key: ", [k])
             return "Key not supplied in mapping: " + k
 
     def initialize(self):
@@ -86,4 +86,13 @@ class Controller:
         # Close the window and quit.
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
+        debug("controls_reader", "exiting pygame")
         pygame.quit()
+        debug("controls_reader", "exited pygame")
+
+def format_controls(data: dict):
+    new_data = {}
+    for k in data: 
+        if data[k] != 0:
+            new_data[k] = data[k]
+    return new_data
