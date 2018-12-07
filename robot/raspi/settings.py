@@ -5,10 +5,12 @@
 CHANNELS = {"schedule": True,
             "execute_task": True,
 
-            "sockets": True,
-            "socket_con": True,
-            "encode": True,
-            "decode": True,
+            "controls_reader":False,
+
+            "sockets": False,
+            "socket_con": False,
+            "encode": False,
+            "decode": False,
 
             "serial_finder": False,
             "serial": True,
