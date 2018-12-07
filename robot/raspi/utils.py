@@ -39,29 +39,29 @@ By formatting once inside debug_f(), format() is only called if printing is turn
 
 def debug(channel: str, message: str):
     if(settings.CHANNELS[channel]):
-        _thread.start_new_thread(_seq_debug, (channel, message))
+        if(settings.PRINTING):
+            # Print message to console
+            print("{}:\t{}".format(channel, message))
+        if(settings.LOGGING):
+            # TODO: Output stuff to a log file
+            pass
+            # _thread.start_new_thread(log, (channel, message))
 
 
 def debug_f(channel: str, message: str, formatting: list):
     if(settings.CHANNELS[channel]):
-        _thread.start_new_thread(seq_debug_f, (channel, message, formatting))
+        if(settings.PRINTING):
+            # TODO: Do this better
+            print("{}:\t{}".format(channel, message.format(*formatting)))
+        if (settings.LOGGING):
+            # TODO: Output stuff to a log file
+            pass
+            # _thread.start_new_thread(log_f, (channel, message, formatting))
 
 
-def _seq_debug(channel: str, message: str):
-    if(settings.PRINTING):
-        # Print message to console
-        print("{}:\t{}".format(channel, message))
-    if(settings.LOGGING):
-        # TODO: Output stuff to a log file
-        pass
-    _thread.exit()
+def log(channel: str, message: str):
+    pass
 
 
-def seq_debug_f(channel: str, message: str, formatting: list):
-    if(settings.PRINTING):
-        # TODO: Do this better
-        print("{}:\t{}".format(channel, message.format(*formatting)))
-    if(settings.LOGGING):
-        # TODO: Output stuff to a log file
-        pass
-    _thread.exit()
+def log_f(channel: str, message: str, formatting: list):
+    pass
