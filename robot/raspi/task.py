@@ -9,6 +9,7 @@ import json
 
 # Our imports
 from utils import debug, debug_f
+from controller import format_controls
 
 
 class TaskType(IntEnum):
@@ -40,6 +41,8 @@ class Task:
                (self.val_list == other.val_list)
 
     def __repr__(self):
+        if(self.task_type == TaskType.cntl_input):
+            return "Task: type: {}, priority: {}, val_list: {}".format(self.task_type, self.priority, format_controls(self.val_list))
         return "Task: type: {}, priority: {}, val_list: {}".format(self.task_type, self.priority, self.val_list)
 
     def encode(self) -> bytes:
