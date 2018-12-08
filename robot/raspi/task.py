@@ -35,15 +35,21 @@ class Task:
         self.val_list = val_list
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__) and \
-               (self.task_type == other.task_type) and \
-               (self.priority == other.priority) and \
-               (self.val_list == other.val_list)
+        return (
+            (self.__class__ == other.__class__)
+            and (self.task_type == other.task_type)
+            and (self.priority == other.priority)
+            and (self.val_list == other.val_list)
+        )
 
     def __repr__(self):
-        if(self.task_type == TaskType.cntl_input):
-            return "Task: type: {}, priority: {}, val_list: {}".format(self.task_type, self.priority, format_controls(self.val_list))
-        return "Task: type: {}, priority: {}, val_list: {}".format(self.task_type, self.priority, self.val_list)
+        if self.task_type == TaskType.cntl_input:
+            return "Task: type: {}, priority: {}, val_list: {}".format(
+                self.task_type, self.priority, format_controls(self.val_list)
+            )
+        return "Task: type: {}, priority: {}, val_list: {}".format(
+            self.task_type, self.priority, self.val_list
+        )
 
     def encode(self) -> bytes:
         """Encoding method used in sending data over sockets
@@ -57,8 +63,9 @@ class Task:
 def decode(data: bytes) -> Task:
     """Decoding method used in receiving of data over sockets
     """
-    debug_f("decode", "Trying to decode {}, which is {}",
-            [data, data.__class__.__name__])
+    debug_f(
+        "decode", "Trying to decode {}, which is {}", [data, data.__class__.__name__]
+    )
     try:
         t = decode_task(json.loads(data.decode("utf-8")))
         debug_f("decode", "Decoded to {}, which is {}", [t, t.__class__.__name__])
@@ -77,7 +84,7 @@ def encode_task(t: Task):
         dct["task_type"] = t.task_type
         dct["priority"] = t.priority
         dct["val_list"] = t.val_list
-        return (dct)
+        return dct
     type_name = t.__class__
     raise TypeError("Object of type '{}' is not a Task".format(type_name))
 
@@ -87,10 +94,10 @@ def decode_task(dct: dict) -> Task:
     """
     debug_f("decode", "JSON gave us {} which is {}",
             [dct, dct.__class__.__name__])
-    if (dct["__Task__"] == True):
-        task_type = TaskType(dct['task_type'])
-        priority = TaskPriority(dct['priority'])
-        val_list = dct['val_list']
+    if dct["__Task__"] == True:
+        task_type = TaskType(dct["task_type"])
+        priority = TaskPriority(dct["priority"])
+        val_list = dct["val_list"]
 
         debug_f("decode", "\ttype: {}", [task_type])
         debug_f("decode", "\tpriority: {}", [priority])

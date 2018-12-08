@@ -10,7 +10,6 @@ from utils import debug, debug_f
 
 
 class Controller:
-
     def __init__(self):
         self.joystick_data = {}
         _thread.start_new_thread(self.initialize, ())
@@ -90,9 +89,10 @@ class Controller:
         pygame.quit()
         debug("controls_reader", "exited pygame")
 
+
 def format_controls(data: dict):
     new_data = {}
-    for k in data: 
+    for k in data:
         if data[k] != 0:
             new_data[k] = data[k]
     return new_data

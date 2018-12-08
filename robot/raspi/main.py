@@ -15,7 +15,7 @@ from utils import sleep, exit
 
 
 def main():
-    settings.ROLE = 'robot'
+    settings.ROLE = "robot"
     # settings.PRINTING = False
 
     # Make a schedule object
@@ -31,23 +31,23 @@ def main():
 
     seq_num_val = 0
     terminate = False  # Whether to exit main loop
-    while(not terminate):
+    while not terminate:
         # Get new tasks if needed
         # TODO: Integrate this if statement into the get_new_tasks call or a check_for_new_tasks()
-        if (not s.has_tasks()):
+        if not s.has_tasks():
             s.get_new_tasks()
 
         # Get the next task to execute
         t = s.get_next_task()
         s.execute_task(t, seq_num_val)
         seq_num_val += 1
-        #sleep(2)  # Temporary delay to not make things too fast during testing
+        # sleep(2)  # Temporary delay to not make things too fast during testing
 
     s.terminate()
 
 
 # https://stackoverflow.com/questions/21120947/catching-keyboardinterrupt-in-python-during-program-shutdown
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
