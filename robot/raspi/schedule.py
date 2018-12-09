@@ -1,5 +1,5 @@
-# Scheduling class for scheduling activities
-
+""" Scheduling class for queue based scheduling in Node class
+"""
 
 # Our imports
 import settings
@@ -9,7 +9,6 @@ from task import Task, TaskPriority, TaskType
 # Serial imports
 import serial_coms
 from serial_coms import Packet, SerialConnection, find_port
-
 
 
 class Schedule:
@@ -23,22 +22,21 @@ class Schedule:
         if isinstance(input, list):
             for t in input:
                 self.schedule_task(t)
-        elif not isinstance(t, Task):
-            debug_f(
-                "schedule", "Cannot schedule non task object that is {}", [t])
+        elif not isinstance(input, Task):
+            debug_f("schedule", "Cannot schedule non task object {}", [input])
             return
-        debug_f("schedule", "Scheduling task {}", [t])
-        if t.priority == TaskPriority.high:
-            self.task_list.insert(0, t)
-        elif t.priority == TaskPriority.normal:
-            self.task_list.append(t)
+        debug_f("schedule", "Scheduling task {}", [input])
+        if input.priority == TaskPriority.high:
+            self.task_list.insert(0, input)
+        elif input.priority == TaskPriority.normal:
+            self.task_list.append(input)
             # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
-        elif t.priority == TaskPriority.low:
-            self.task_list.append(t)
+        elif input.priority == TaskPriority.low:
+            self.task_list.append(input)
         else:
             debug_f(
-                "schedule", "Cannot schedule task with unknown priority: {}", [t.priority])
-        self.task_index += 1
+                "schedule", "Cannot schedule task with unknown priority: {}", [input.priority])
+        # self.task_index += 1
 
     def execute_task(self, t: Task):
         if t == None:
