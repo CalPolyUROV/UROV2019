@@ -53,7 +53,9 @@ class Robot(Node):
             debug_f("execute_task", "Executing task: {}", t.val_list)
 
         elif t.task_type == TaskType.cntl_input:
-            debug_f("execute_task", "Executing task: {}", t.val_list)
+            # debug_f("execute_task", "Executing task: {}", t.val_list)
+            # TODO: Store control input locally and schedule tasks to act on data
+            pass
 
         elif t.task_type == TaskType.get_telemetry:
             debug_f("execute_task", "Executing task: {}", t.val_list)
