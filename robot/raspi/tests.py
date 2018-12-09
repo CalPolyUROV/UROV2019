@@ -6,19 +6,20 @@ import serial_coms
 import settings
 from utils import debug, debug_f
 from serial_coms import Packet, make_packet, parse_packet
-from task import Task, TaskPriority, TaskType, decode
+from task import Task, TaskPriority, TaskType
+from task import decode as decode_task
 
 settings.CHANNELS["test"] = False
 
-# JSON test debug channels
-settings.CHANNELS["encode"] = False
-settings.CHANNELS["decode"] = False
+# # JSON test debug channels
+# settings.CHANNELS["encode"] = False
+# settings.CHANNELS["decode"] = False
 
 t1 = Task(TaskType.debug_str, TaskPriority.normal, ["text", 1, 2, "3"])
 data = t1.encode()
-t2 = decode(data)
+t2 = decode_task(data)
 assert t1 == t2  # json test 1
-t3 = decode(b"Garbage data, good luck decoding this")
+t3 = decode_task(b"Garbage data, good luck decoding this")
 assert t3 == None  # json test 2
 
 

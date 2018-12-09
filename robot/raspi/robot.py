@@ -12,7 +12,7 @@ Arduino/Teensy and topside raspberry Pi respectively.
 import settings
 from utils import debug, debug_f, sleep, exit
 from schedule import Schedule
-from task import Task, TaskType, TaskPriority, decode_task
+from task import Task, TaskType, TaskPriority, decode
 from schedule import Node
 import serial_coms
 from serial_coms import SerialConnection
@@ -84,7 +84,7 @@ class Robot(Node):
         # communicate over sockets to generate new tasks based on UI input
         t = Task(TaskType.get_cntl, TaskPriority.high, ["control input pls"])
         data = self.socket_connection.send_data(t.encode())
-        return decode_task(data)
+        return decode(data)
 
     def initial_tasks(self) -> list:
         """ Create a task to establish contact with the Arduino/Teensy
