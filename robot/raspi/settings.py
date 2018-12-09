@@ -3,11 +3,12 @@
 
 # Debug channels
 CHANNELS = {
+    "framework": True,
     "schedule": True,
     "execute_task": True,
-    "controls_reader": False,
-    "sockets": False,
-    "socket_con": False,
+    "controls_reader": True,
+    "sockets": True,
+    "socket_con": True,
     "encode": False,
     "decode": False,
     "serial_finder": False,
@@ -18,6 +19,8 @@ CHANNELS = {
     "test": True,
 }
 
+# Controller
+REQUIRE_CONTROLLER = False  # TODO: Use this value
 # Mapping of pygame joystick output to values we can make sense of
 # "pygame_name":"name_we_use",
 # to drop a value use "pygame_name":None,
@@ -46,6 +49,7 @@ control_mappings = {
     "num_dpad": None,
     "num_axes": None,
 }
+
 
 # Sockets Connection
 USE_SOCKETS = True

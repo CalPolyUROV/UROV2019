@@ -6,15 +6,15 @@ PYTHON_CMD = python3.5
 PYTHON_FLAGS = -B
 PYTHON_VERSION = python_version
 
-ROBOT_SRC = main.py
-SERVER_SRC = topside.py
+MAIN_SRC = main.py
 TEST_SRC = tests.py
+LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_FLAGS) $(MAIN_SRC)
 
-robot: $(ROBOT_SRC)
-	$(PYTHON_CMD) $(PYTHON_FLAGS) $(ROBOT_SRC)
+robot:
+	$(LAUNCH_CMD) robot
 
-server: $(SERVER_SRC)
-	$(PYTHON_CMD) $(PYTHON_FLAGS) $(SERVER_SRC)
+server:
+	$(LAUNCH_CMD) topside
 
 test: $(TEST_SRC)
 	$(PYTHON_CMD) $(PYTHON_FLAGS) $(TEST_SRC)
