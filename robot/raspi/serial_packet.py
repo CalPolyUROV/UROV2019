@@ -50,7 +50,7 @@ class Packet:
     def __repr__(self):
         return "Packet: cmd: {} val1: {} val2: {} seqnum: {} chksum: {}".format(self.cmd, self.val1, self.val2, self.get_seqnum(), self.get_chksum())
 
-    def parse_packet(self, cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
+    def parse_packet(cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
         """Constructor for building packets that have been received, untrusted checksums
         """
         _cmd = int.from_bytes(cmd, byteorder='big')
@@ -58,7 +58,7 @@ class Packet:
         _val2 = int.from_bytes(val2, byteorder='big')
         _seqnum = int.from_bytes(seqnum_chksum, byteorder='big') >> 4
         _chksum = int.from_bytes(seqnum_chksum, byteorder='big') & CHKSUM_MASK
-        p = self.make_packet(_cmd, _val1, _val2, _seqnum, _chksum)
+        p = Packet(_cmd, _val1, _val2, ((_seqnum << 4) + _chksum))
         if(p.isValid()):
             return p
         else:

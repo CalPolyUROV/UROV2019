@@ -5,7 +5,8 @@
 import serial_coms
 import settings
 from utils import debug, debug_f
-from serial_coms import Packet, make_packet, parse_packet
+from serial_packet import Packet 
+from serial_coms import SerialConnection
 from task import Task, TaskPriority, TaskType
 from task import decode as decode_task
 
@@ -27,7 +28,7 @@ assert t3 == None  # json test 2
 settings.CHANNELS["ser_packet"] = False
 
 p1 = Packet(serial_coms.BLINK_CMD, 1, 2, 0b00001111 & (0x80 + 3 + 10))
-p2 = parse_packet(b"\x80", b"\x01", b"\x02", b"\x0d")
+p2 = Packet.parse_packet(b"\x80", b"\x01", b"\x02", b"\x0d")
 assert p1.isValid()  # packet test 1
 assert p2.isValid()  # packet test 2
 debug_f("test", "p1: {}", [p1])
