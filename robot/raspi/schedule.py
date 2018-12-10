@@ -67,10 +67,12 @@ class Schedule:
 
 class Node:
     def __init__(self):
-        pass
+        raise NotImplementedError(
+            "Subclass of Node does not implement __init__()")
 
     def loop(self):
-        pass
+        raise NotImplementedError("Subclass of Node does not implement loop()")
 
     def terminate(self):
-        pass
+        raise NotImplementedError(
+            "Subclass of Node does not implement terminate()")
