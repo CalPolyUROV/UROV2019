@@ -43,6 +43,7 @@ class Robot(Node):
     def loop(self):
         while not self.terminate:
             self.step_task()
+        sleep(1)
         self.scheduler.terminate()
 
     def step_task(self):

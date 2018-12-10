@@ -6,10 +6,6 @@ import settings
 from utils import debug, debug_f
 from task import Task, TaskPriority, TaskType
 
-# Serial imports
-import serial_coms
-from serial_coms import Packet, SerialConnection, find_port
-
 
 class Schedule:
     def __init__(self, initial_tasks: list, handler, task_source):
@@ -26,6 +22,7 @@ class Schedule:
             debug_f("schedule", "Cannot schedule non task object {}", [input])
             return
         debug_f("schedule", "Scheduling task {}", [input])
+
         if input.priority == TaskPriority.high:
             self.task_list.insert(0, input)
         elif input.priority == TaskPriority.normal:
@@ -66,11 +63,6 @@ class Schedule:
                 return None
 
         return self.task_list.pop(0)
-
-    def terminate(self):
-        """Close the sockets connection
-        """
-        self.socket_connection.close_socket()
 
 
 class Node:

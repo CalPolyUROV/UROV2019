@@ -11,7 +11,7 @@ from task import Task, TaskPriority, TaskType
 from task import decode as decode_task
 from controller import simulate_input
 
-settings.CHANNELS["test"] = False
+settings.DEBUG_CHANNELS["test"] = False
 
 # # JSON test debug channels
 # settings.CHANNELS["encode"] = False
@@ -26,7 +26,7 @@ assert t3 == None  # json test 2
 
 
 # Packet test debug channels
-settings.CHANNELS["ser_packet"] = False
+settings.DEBUG_CHANNELS["ser_packet"] = False
 
 p1 = Packet(serial_coms.BLINK_CMD, 1, 2, 0b00001111 & (0x80 + 3 + 10))
 p2 = Packet.parse_packet(b"\x80", b"\x01", b"\x02", b"\x0d")

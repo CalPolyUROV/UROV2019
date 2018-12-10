@@ -39,7 +39,7 @@ By formatting once inside debug_f(), format() is only called if printing is turn
 
 
 def debug(channel: str, message: str):
-    if(settings.CHANNELS[channel]):
+    if(settings.DEBUG_CHANNELS[channel]):
         if(settings.PRINTING):
             # Print message to console
             print("{}:\t{}".format(channel, message))
@@ -50,7 +50,7 @@ def debug(channel: str, message: str):
 
 
 def debug_f(channel: str, message: str, formatting: list):
-    if(settings.CHANNELS[channel]):
+    if(settings.DEBUG_CHANNELS[channel]):
         if(settings.PRINTING):
             # TODO: Do this better
             print("{}:\t{}".format(channel, message.format(*formatting)))
@@ -67,6 +67,8 @@ def log(channel: str, message: str):
 
 def log_f(channel: str, message: str, formatting: list):
     pass
+    # TODO: Implement logging to disk
+
 
 # Simulation tools
 def random_val():

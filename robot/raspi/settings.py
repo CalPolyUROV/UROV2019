@@ -2,20 +2,25 @@
 """
 
 # Debug channels
-CHANNELS = {
+DEBUG_CHANNELS = {
     "framework": True,
-    "schedule": True,
-    "execute_task": True,
-    "controls_reader": True,
+    "schedule": False,
+    "execute_task": False,
+    "controller": True,
+    "simulation": True,
+    "robot_control": True,
+
     "sockets": True,
-    "socket_con": True,
+    "socket_con": False,
     "encode": False,
     "decode": False,
+
     "serial_finder": False,
-    "serial": True,
+    "serial": False,
     "serial_con": True,
     "ser_packet": True,
     "chksum": False,
+
     "test": True,
 }
 
@@ -77,8 +82,9 @@ SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
 PRINTING = True
 LOGGING = False
 
-# Robot
+# Robot selection
 ROBOT_NAME = "Subrina"
+# ROBOT_NAME = "S5"
 
 # -----Do NOT change anything below this line while trying to Configurable-----
 
