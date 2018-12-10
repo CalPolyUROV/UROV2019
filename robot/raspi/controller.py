@@ -6,20 +6,26 @@ import _thread
 
 # Our imports
 import settings
-from utils import debug, debug_f
+from utils import debug, debug_f, random_val
 
 
 class Controller:
     def __init__(self):
         self.joystick_data = {}
-        _thread.start_new_thread(self.initialize, ())
+        if settings.USE_CONTROLLER:
+            _thread.start_new_thread(self.initialize, ())
+        else:
+            debug("controller", "Controller disabled by settings")
 
     def print_data(self, d: dict):
         for val in self.joystick_data:
             print(str(val) + ":\t" + str(self.joystick_data[val]))
 
     def get_input(self):
-        return self.map_data(self.joystick_data)
+        if not settings.SIMULATE_INPUT:
+            return self.map_data(self.joystick_data)
+        else:
+            return simulate_input()
 
     def map_data(self, joystick_data: dict) -> dict:
         control_data = {}
@@ -37,6 +43,9 @@ class Controller:
             return "Key not supplied in mapping: " + k
 
     def initialize(self):
+        if settings.SIMULATE_INPUT:
+            # Shortcircuit and exit thread if actual input will not be used
+            return
         pygame.init()
         # Loop until the user clicks the close button.
         done = False
@@ -89,8 +98,18 @@ class Controller:
         pygame.quit()
         debug("controls_reader", "exited pygame")
 
+def simulate_input() -> dict:
+    # debug("simulation", "Simulating control input")
+    sim_data = {}
+    for k in settings.control_mappings:
+        key = settings.control_mappings[k]
+        if not key == None:
+            debug_f("simulation", "Adding key {}", [key])
+            sim_data[key] = random_val()
+    debug_f("simulation", "Simulated control input:\n{}", [sim_data])
+    return sim_data
 
-def format_controls(data: dict):
+def format_controls(data: dict) -> dict:
     new_data = {}
     for k in data:
         if data[k] != 0:

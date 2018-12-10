@@ -9,6 +9,7 @@ from serial_packet import Packet
 from serial_coms import SerialConnection
 from task import Task, TaskPriority, TaskType
 from task import decode as decode_task
+from controller import simulate_input
 
 settings.CHANNELS["test"] = False
 
@@ -38,3 +39,5 @@ assert p1 == p2  # packet test 3
 p1 = Packet(serial_coms.EST_CON_CMD, 0, 1, 0)
 debug_f("test", "p1: {}", [p1])
 assert not p1.isValid()  # packet test 4
+
+print(simulate_input())

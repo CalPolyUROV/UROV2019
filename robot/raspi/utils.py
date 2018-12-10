@@ -4,6 +4,7 @@ import os  # For exit
 import sys  # For exit
 import time  # For sleep
 import _thread  # For  multi threaded debug
+import random  # Simulated control values
 
 # Our imports
 import settings
@@ -61,7 +62,12 @@ def debug_f(channel: str, message: str, formatting: list):
 
 def log(channel: str, message: str):
     pass
+    # TODO: Implement logging to disk
 
 
 def log_f(channel: str, message: str, formatting: list):
     pass
+
+# Simulation tools
+def random_val():
+    return random.randint(0, 1)

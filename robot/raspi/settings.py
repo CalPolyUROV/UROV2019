@@ -19,8 +19,11 @@ CHANNELS = {
     "test": True,
 }
 
-# Controller
+# XBox Controller
+USE_CONTROLLER = True  # TODO: Use this value
 REQUIRE_CONTROLLER = False  # TODO: Use this value
+SIMULATE_INPUT = True  # TODO: Use this value
+
 # Mapping of pygame joystick output to values we can make sense of
 # "pygame_name":"name_we_use",
 # to drop a value use "pygame_name":None,
