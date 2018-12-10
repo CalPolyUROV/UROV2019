@@ -17,6 +17,7 @@ from schedule import Node
 import serial_coms
 from serial_coms import SerialConnection
 from sockets_client import SocketsClient
+from robot_data import Database
 
 
 class Robot(Node):
@@ -24,6 +25,8 @@ class Robot(Node):
     def __init__(self):
 
         self.terminate = False  # Whether to exit main loop
+        self.database = Database()
+        
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
             debug("schedule", "Using serial as enabled in settings")
@@ -47,18 +50,21 @@ class Robot(Node):
         t = self.scheduler.get_next_task()
         self.scheduler.execute_task(t)
 
-    def execute_task(self, t: Task):
+    def execute_task(self, t: Task) -> list:
         sched_list = []
         if t.task_type == TaskType.debug_str:
             debug_f("execute_task", "Executing task: {}", t.val_list)
 
         elif t.task_type == TaskType.cntl_input:
-            # debug_f("execute_task", "Executing task: {}", t.val_list)
+            debug_f("robot_control", "Processing control input {}", [t.val_list])
             # TODO: Store control input locally and schedule tasks to act on data
             pass
 
         elif t.task_type == TaskType.get_telemetry:
             debug_f("execute_task", "Executing task: {}", t.val_list)
+            t = Task(TaskType.get_cntl, TaskPriority.high, self.robot_data.telemetry_data())
+            data = self.socket_connection.send_data(t.encode())
+            return decode(data)
 
         elif t.task_type == TaskType.serial_est_con:
             if settings.USE_SERIAL:

@@ -20,6 +20,7 @@ class Topside(Node):
 
         self.sockets_server.open_server()
 
+        
         self.xbox_controller = Controller()
         self.task_queue = []
 
@@ -56,7 +57,7 @@ class Topside(Node):
 
         elif (t.task_type == TaskType.get_telemetry):
             debug_f("execute_task", "Executing task: {}", t.val_list)
-            # TODO: handle telemetry data
+            # TODO: Record and display telemetry data
             t = Task(TaskType.get_cntl, TaskPriority.high, [
                 "Automatic control request in response of telemetry data"])
             reply = self(t, task_queue)
