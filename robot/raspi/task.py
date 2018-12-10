@@ -20,6 +20,7 @@ class TaskType(IntEnum):
     serial_est_con = 4
     sockets_connect = 5
     blink_test = 6
+    terminate_robot = 7
 
 
 class TaskPriority(IntEnum):

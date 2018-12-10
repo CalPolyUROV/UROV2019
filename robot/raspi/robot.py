@@ -23,6 +23,7 @@ class Robot(Node):
 
     def __init__(self):
 
+        self.terminate = False  # Whether to exit main loop
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
             debug("schedule", "Using serial as enabled in settings")
@@ -37,8 +38,7 @@ class Robot(Node):
         self.scheduler = Schedule(self.initial_tasks(), self.execute_task, self.get_new_tasks)
 
     def loop(self):
-        terminate = False  # Whether to exit main loop
-        while not terminate:
+        while not self.terminate:
             self.step_task()
         self.scheduler.terminate()
 
@@ -72,6 +72,9 @@ class Robot(Node):
             p = serial_coms.make_packet(
                 serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
             self.serial_connection.send_receive_packet(p)
+        elif t.task_type == TaskType.terminate_robot:
+            debug("robot_control", "Robot {} program terminated by command", settings.ROBOT_NAME)
+            self.terminate = True  # RIP
 
         else:
             debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
@@ -112,3 +115,9 @@ class Robot(Node):
             t = Task(TaskType.serial_est_con, TaskPriority.high, [])
             l.append(t)
         return l
+
+    def terminate(self) -> None:
+        """Close the sockets connection
+        """
+        if settings.USE_SOCKETS:
+            self.socket_connection.close_socket()
