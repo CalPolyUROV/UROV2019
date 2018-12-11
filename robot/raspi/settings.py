@@ -64,10 +64,10 @@ control_mappings = {
 
 # Sockets Connection
 USE_SOCKETS = True
-REQUIRE_SOCKETS = False
-TOPSIDE_IP_ADDRESS =  '192.168.137.50' # "localhost" 
+REQUIRE_SOCKETS = True
+TOPSIDE_IP_ADDRESS =  '192.168.10.10' # "localhost" 
 TOPSIDE_PORT = 9120
-ROBOT_IPADDRESS = "localhost"  # "192.168.137.50"
+ROBOT_IPADDRESS = '192.168.10.11'  # "192.168.137.50"
 SOCKETS_MAX_ATTEMPTS = 2  # Maximum number of times to try creating or opening a socket
 SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
 MAX_SOCKET_SIZE = 2048  # Maximum size for single receiving call
