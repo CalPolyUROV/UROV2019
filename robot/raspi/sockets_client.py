@@ -7,7 +7,7 @@ import socket  # Sockets library
 # Our imports
 import settings
 from utils import sleep, exit, debug, debug_f  # Debug printing and logging
-from task import Task, TaskType, TaskPriority, decode
+from snr import ComsCon, Task, TaskType, TaskPriority, decode
 
 
 class SocketsClient:

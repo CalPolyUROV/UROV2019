@@ -11,6 +11,10 @@ import settings
 
 
 def sleep(time_s: int):
+    """Pauses the execution of the thread
+    Do not use in production
+    """
+    # TODO: prevent use of this via a setting
     time.sleep(time_s)
 
 
@@ -28,11 +32,13 @@ def exit(reason: str):
 """Usage:
 debug("channel", "message")
 debug("channel", object)
-debug_f("channel", "message with brackets: {}, {}", ["list", of_things_to_format_in])
+debug_f("channel", "message with brackets: {}, {}", ["list", of_things_to_format])
 
 equivelant to (don't do the following):
     debug("channel", "message with brackets: {}, {}".format("list", of_things_to_format_in)
+
 By formatting once inside debug_f(), format() is only called if printing is turned on.
+Remember to include [ ] around  
 """
 
 # TODO: Use settings.ROLE for per client and server debugging
@@ -46,6 +52,9 @@ def debug(channel: str, message: str):
         if(settings.LOGGING):
             # TODO: Output stuff to a log file
             pass
+            # Do NOT use printing on another thread because it is so slow 
+            # that thread will pile up and the limit of number of threads will
+            #  be reached
             # _thread.start_new_thread(log, (channel, message))
 
 
@@ -57,9 +66,15 @@ def debug_f(channel: str, message: str, formatting: list):
         if (settings.LOGGING):
             # TODO: Output stuff to a log file
             pass
+            # Do NOT use printing on another thread because it is so slow 
+            # that thread will pile up and the limit of number of threads will
+            #  be reached
             # _thread.start_new_thread(log_f, (channel, message, formatting))
 
 
+# TODO: Add logging to a specific file
+# (such as for logging the port that a sockets connection is on, so that the
+#  value is accessible to the other Pi over a network share)
 def log(channel: str, message: str):
     pass
     # TODO: Implement logging to disk

@@ -7,8 +7,8 @@ import settings
 from utils import debug, debug_f
 from serial_packet import Packet 
 from serial_coms import SerialConnection
-from task import Task, TaskPriority, TaskType
-from task import decode as decode_task
+from snr import Task, TaskPriority, TaskType
+from snr import decode as decode_task
 from controller import simulate_input
 
 settings.DEBUG_CHANNELS["test"] = False

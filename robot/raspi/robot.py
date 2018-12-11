@@ -9,15 +9,14 @@ Arduino/Teensy and topside raspberry Pi respectively.
 """
 
 # Our imports
-import settings
-from utils import debug, debug_f, sleep, exit
-from schedule import Schedule
-from task import Task, TaskType, TaskPriority, decode
-from schedule import Node
+import settings  # Configuration file
+from utils import debug, debug_f, sleep, exit  # Utilities
+from snr import Schedule, Node, Task, TaskType, TaskPriority, decode  # Precursor to SNR lib (Scheduler and RTOS framework)
 import serial_coms
-from serial_coms import SerialConnection
-from sockets_client import SocketsClient
-from robot_data import Database
+from serial_coms import SerialConnection  # Serial connectino to Teensy
+# from spi_coms import SPIConnection  # Not yet implemented
+from sockets_client import SocketsClient # Sockets connection to topside
+from robot_data import Database  # Stores data and preforms calculations
 
 
 class Robot(Node):

@@ -1,37 +1,51 @@
 #!/usr/bin/python3
-"""Test code for surface unit focusing on sockets
+"""Code for surface unit
+
+Implements an SNR Node to use Sockets and a PyGame joystick to sent control data to robot
 """
+
+# System imports
+import socket
 
 # Our imports
 import settings
 from utils import exit, debug, debug_f
-from task import Task, TaskType, TaskPriority
 from sockets_server import SocketsServer
 from controller import Controller
-from schedule import Node
+from snr import Node, Task, TaskType, TaskPriority
 
 
 class Topside(Node):
 
     def __init__(self):
-
-        self.sockets_server = SocketsServer(
-            settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
-
+        # TODO: implement SNR schedule/Node in topside
+        # Create sockets server object
+        self.sockets_server = SocketsServer(settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
+        # TODO: Take IP address and port as command line arg
+        # Open server port
         self.sockets_server.open_server()
+        # TODO: pass sockets server into Node/Schedule
 
-        
+        # TODO: Remotely run client on robot
+
+        # Create controller object
         self.xbox_controller = Controller()
         self.task_queue = []
 
     def loop(self):
         while 1:
+            # Create connection to a specific client
             self.sockets_server.accept_connection()
-            while 1:
-                self.sockets_server.recieve_data(self.task_queue, self.handle_response)
-
-            self.sockets_server.conn.close()
-            self.sockets_server.close()
+            try:
+                while 1:
+                    # Wait until cleint sends data, this is a blcoking call
+                    self.sockets_server.recieve_data(
+                        self.task_queue, self.handle_response)
+            except socket.error:
+                debug_f("sockets_con", "Socket connection died: {}",
+                        [socket.error])
+                self.sockets_server.conn.close()
+                self.sockets_server.close()
 
     def handle_response(self, t: Task, task_queue: list) -> Task:
         debug_f("execute_task", "Executing task: {} which is {}",
@@ -53,7 +67,7 @@ class Topside(Node):
             # if(len(task_queue) > 0):
             #     reply = task_queue.pop(0)
             # else:
-            #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
+                #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
 
         elif (t.task_type == TaskType.get_telemetry):
             debug_f("execute_task", "Executing task: {}", t.val_list)
