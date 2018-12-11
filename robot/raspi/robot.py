@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.5
 """ Code that runs on the Raspberry Pi inside the robot
 
 This is the python program meant to run on the Raspberry Pi 3B+ located on
@@ -30,6 +30,7 @@ class Robot(Node):
         if settings.USE_SERIAL:
             debug("schedule", "Using serial as enabled in settings")
             self.serial_connection = SerialConnection()
+
         if settings.USE_SOCKETS:
             debug("schedule", "Using sockets as enabled in settings")
             self.socket_connection = SocketsClient(
@@ -42,7 +43,7 @@ class Robot(Node):
     def loop(self):
         while not self.terminate:
             self.step_task()
-        sleep(1)
+            sleep(1)
         self.scheduler.terminate()
 
     def step_task(self):

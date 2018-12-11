@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.5
 """Code for surface unit
 
 Implements an SNR Node to use Sockets and a PyGame joystick to sent control data to robot

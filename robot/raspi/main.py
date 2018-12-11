@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.5
 """ Main Python code that runs on the Raspberry Pi 3B inside the robot
 
 This is the python program is meant to run on the Raspberry Pi located on
@@ -13,7 +13,7 @@ import sys  # For command line arguments
 
 # Scheduling imports
 import settings
-from schedule import Schedule, Node
+from snr import Schedule, Node
 from utils import sleep, exit, debug, debug_f
 from robot import Robot
 from topside import Topside

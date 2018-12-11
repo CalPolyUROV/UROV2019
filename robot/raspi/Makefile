@@ -44,7 +44,7 @@ py_build:
 	#tar xf Python-3.6.5.tar.xz
 	#cd Python-3.6.5
 	#./configure --enable-optimizations
-	#make
+	#make -j 4
 	#sudo make altinstall
 
 py_modules: py_setup
