@@ -7,7 +7,7 @@ import sys
 # Our imports
 import settings
 from utils import sleep, debug, debug_f
-from task import Task, TaskType, TaskPriority, decode
+from snr import Task, TaskType, TaskPriority, decode
 
 
 class SocketsServer:

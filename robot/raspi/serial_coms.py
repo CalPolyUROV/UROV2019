@@ -4,14 +4,13 @@ TODO: Add more documentation here
 """
 
 # System imports
-from sys import exit  # End the program when things fail
 import serial  # PySerial library
 
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
-from utils import sleep, debug, debug_f
-from task import Task, TaskPriority, TaskType
+from utils import sleep, debug, debug_f, exit
+from snr import Task, TaskPriority, TaskType
 from serial_packet import Packet
 
 # encoding scheme
@@ -68,7 +67,7 @@ def find_port():
                 # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                 debug_f('serial_finder', "Could not find serial port after {} attempts. Crashing now.", [
                         attempts])
-                exit(1)
+                exit("Could not find port")
             else:
                 debug_f('serial_finder', "Giving up on finding serial port after {} attempts. Not required in settings.", [
                         attempts])
@@ -104,7 +103,7 @@ class SerialConnection:
                     if(settings.REQUIRE_SERIAL):
                         debug_f("serial_con", "Could not open serial port after {} attempts. Crashing now.", [
                                 attempts])
-                        exit(1)
+                        exit("Could not find port")
                     else:
                         debug_f("serial_con", "Giving up on serial connection after {} attempts. Not required in settings.", [
                                 attempts])

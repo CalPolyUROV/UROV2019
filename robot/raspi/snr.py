@@ -11,83 +11,7 @@ import json
 # Our imports
 from utils import debug, debug_f
 from controller import format_controls
-
-
-class Schedule:
-    """ Manages a queue of tasks for a Node object
-
-    A Node object should create a Schedule object and then 
-    step through (step_task()) or loop()
-
-    """
-
-    def __init__(self, initial_tasks: list, handler, task_source):
-        self.task_queue = initial_tasks
-        # self.task_index = 0
-        self.handler = handler
-        self.task_source = task_source
-
-    def schedule_task(self, input: Task or list):
-        """
-        """
-        if isinstance(input, list):
-            for t in input:
-                self.schedule_task(t)
-        elif not isinstance(input, Task):
-            debug_f("schedule", "Cannot schedule non task object {}", [input])
-            return
-        debug_f("schedule", "Scheduling task {}", [input])
-
-        if input.priority == TaskPriority.high:
-            self.task_queue.insert(0, input)  # High priotity at front
-        elif input.priority == TaskPriority.normal:
-            self.task_queue.append(input)  # Normal priotity at end
-            # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
-        elif input.priority == TaskPriority.low:
-            self.task_queue.append(input)  # Normal priotity at end
-        else:
-            debug_f("schedule", "Cannot schedule task with priority: {}", [
-                    input.priority])
-        # self.task_index += 1
-
-    def execute_task(self, t: Task):
-        """Execute the given task
-
-        The handler is provided at construction by the owner of the scheduler object. 
-        Note that the task is pass in and can be provided on the fly rather than needing to be in the queue. 
-        """
-        if t == None:
-            debug("execute_task", "Tried to execute None")
-            return
-        # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
-        # TODO: Write logic choosing a command to send (maybe use a queue)
-        sched_list = self.handler(t)
-        if not (sched_list == None):
-            for t in sched_list:
-                self.schedule_task(t)
-
-    def has_tasks(self) -> bool:
-        """Report whether there are enough tasks left in the queue
-        """
-        return 0 < len(self.task_queue)
-
-    def get_new_tasks(self) -> bool:
-        """Retrieve tasks from constructor supplied source function
-        Task or list of tasks are queued
-        """
-        sched_list = self.task_source()
-        self.schedule_task(sched_list)
-
-    def get_next_task(self) -> Task or None:
-        """Take the next task off the queue
-        """
-        if not self.has_tasks():
-            if not self.get_new_tasks():
-                # TODO: possibly call get_new_tasks()
-                return None
-
-        return self.task_queue.pop(0)
-
+#import snr
 
 class Node:
     """ Implemented by an object which needs to have a queue of tasks that are executed 
@@ -108,8 +32,6 @@ class Node:
         raise NotImplementedError(
             "Subclass of Node does not implement terminate()")
 
-class ComsCon:
-    pass
 
 class TaskType(IntEnum):
     debug_str = 0
@@ -213,3 +135,84 @@ def decode_task(dct: dict) -> Task:
         return Task(task_type, priority, val_list)
     debug_f("decode", "Can't parse JSON from {}", [dct])
     return dct
+
+
+class ComsCon:
+    pass
+
+
+class Schedule:
+    """ Manages a queue of tasks for a Node object
+
+    A Node object should create a Schedule object and then 
+    step through (step_task()) or loop()
+
+    """
+
+    def __init__(self, initial_tasks: list, handler, task_source):
+        self.task_queue = initial_tasks
+        # self.task_index = 0
+        self.handler = handler
+        self.task_source = task_source
+
+    def schedule_task(self, input: Task or list):
+        """
+        """
+        if isinstance(input, list):
+            for t in input:
+                self.schedule_task(t)
+        elif not isinstance(input, Task):
+            debug_f("schedule", "Cannot schedule non task object {}", [input])
+            return
+        debug_f("schedule", "Scheduling task {}", [input])
+
+        if input.priority == TaskPriority.high:
+            self.task_queue.insert(0, input)  # High priotity at front
+        elif input.priority == TaskPriority.normal:
+            self.task_queue.append(input)  # Normal priotity at end
+            # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
+        elif input.priority == TaskPriority.low:
+            self.task_queue.append(input)  # Normal priotity at end
+        else:
+            debug_f("schedule", "Cannot schedule task with priority: {}", [
+                    input.priority])
+        # self.task_index += 1
+
+    def execute_task(self, t: Task):
+        """Execute the given task
+
+        The handler is provided at construction by the owner of the scheduler object. 
+        Note that the task is pass in and can be provided on the fly rather than needing to be in the queue. 
+        """
+        if t == None:
+            debug("execute_task", "Tried to execute None")
+            return
+        # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
+        # TODO: Write logic choosing a command to send (maybe use a queue)
+        sched_list = self.handler(t)
+        if not (sched_list == None):
+            for t in sched_list:
+                self.schedule_task(t)
+
+    def has_tasks(self) -> bool:
+        """Report whether there are enough tasks left in the queue
+        """
+        return 0 < len(self.task_queue)
+
+    def get_new_tasks(self) -> bool:
+        """Retrieve tasks from constructor supplied source function
+        Task or list of tasks are queued
+        """
+        sched_list = self.task_source()
+        self.schedule_task(sched_list)
+
+    def get_next_task(self) -> Task or None:
+        """Take the next task off the queue
+        """
+        if not self.has_tasks():
+            if not self.get_new_tasks():
+                # TODO: possibly call get_new_tasks()
+                return None
+
+        return self.task_queue.pop(0)
+
