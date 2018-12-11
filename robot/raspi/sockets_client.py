@@ -32,7 +32,7 @@ class SocketsClient(ComsCon):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                         debug_f(
                             "sockets", "Could not create socket after {} attempts. Crashing now.", [attempts])
-                        exit(1)
+                        exit("Could not create socket")
                     else:
                         debug_f("sockets", "Giving up on creating socket after {} attempts. Not required in settings.", [
                                 attempts])

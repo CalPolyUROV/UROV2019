@@ -22,9 +22,11 @@ from topside import Topside
 def main():
     settings.ROLE = sys.argv[1]  # Command line argument
 
-    if settings.ROLE == "robot":
+    if settings.ROLE.__eq__("robot"):
+        debug("framework", "Running as robot")
         node = Robot()
-    elif settings.ROLE == "topside":
+    elif settings.ROLE.__eq__("topside"):
+        debug("framework", "Running as server")
         node = Topside()
     else:
         debug_f("framework", "Invalid ROLE {} given as command line arg", [settings.ROLE])
