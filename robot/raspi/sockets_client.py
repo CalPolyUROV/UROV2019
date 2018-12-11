@@ -10,7 +10,7 @@ from utils import sleep, exit, debug, debug_f  # Debug printing and logging
 from snr import ComsCon, Task, TaskType, TaskPriority, decode
 
 
-class SocketsClient:
+class SocketsClient(ComsCon):
     """ Manages sockets network connection to topside raspi
     """
 

@@ -38,4 +38,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
+        # TODO: Send termination signal to robot from server when closing
         exit("Interrupted, exiting")

@@ -1,7 +1,7 @@
 #!/usr/bin/python3.6
-""" Main Python code that runs on the Raspberry Pi 3B inside the robot
+""" Code that runs on the Raspberry Pi inside the robot
 
-This is the python program is meant to run on the Raspberry Pi located on
+This is the python program meant to run on the Raspberry Pi 3B+ located on
 the robot. This program acts as a intermediary between the Raspberry Pi on
 the surface unit and the Arduino/Teensy on the robot. The scheduling module
 used in this program manages the serial and sockets connections to the
@@ -89,6 +89,8 @@ class Robot(Node):
             return []
 
     def get_new_tasks(self) -> Task or list:
+        """Task source function passed to Schedule constructor
+        """
         if not settings.USE_SOCKETS:
             return
 

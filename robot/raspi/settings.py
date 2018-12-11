@@ -1,6 +1,9 @@
 """Configurable settings that apply to the operation of the robot
 """
 
+# TODO: Investigate converting settings values to a dict 
+# (Maybe keeping a per Node settings struct)
+
 # Debug channels
 DEBUG_CHANNELS = {
     "framework": True,
