@@ -7,11 +7,12 @@ Implement a Node class that contains a Schedule object.
 import settings
 from enum import IntEnum  # Used for task properties
 import json
+from typing import Union
 
 # Our imports
-from utils import debug, debug_f
+from utils import debug
 from controller import format_controls
-#import snr
+
 
 class Node:
     """ Implemented by an object which needs to have a queue of tasks that are executed 
@@ -81,26 +82,26 @@ class Task:
     def encode(self) -> bytes:
         """Encoding method used in sending data over sockets
         """
-        debug_f("encode", "Encoding task as JSON bytes: {}", [self])
+        debug("encode", "Encoding task as JSON bytes: {}", [self])
         data = (json.dumps(self, default=encode_task)).encode()
-        debug_f("encode", "Encoded task as bytes: {}", [data])
+        debug("encode", "Encoded task as bytes: {}", [data])
         return data
 
 
 def decode(data: bytes) -> Task:
     """Decoding method used in receiving of data over sockets
     """
-    debug_f(
+    debug(
         "decode", "Trying to decode {}, which is {}", [
             data, data.__class__.__name__]
     )
     try:
         t = decode_task(json.loads(data.decode("utf-8")))
-        debug_f("decode", "Decoded to {}, which is {}",
-                [t, t.__class__.__name__])
+        debug("decode", "Decoded to {}, which is {}",
+              [t, t.__class__.__name__])
         return t
     except:
-        debug_f("decode", "Could not decode {}", [data])
+        debug("decode", "Could not decode {}", [data])
         return None
 
 
@@ -121,19 +122,18 @@ def encode_task(t: Task):
 def decode_task(dct: dict) -> Task:
     """Decoding function that receives a dict from json.loads()
     """
-    debug_f("decode", "JSON gave us {} which is {}",
+    debug("decode_verbose", "JSON gave us {} which is {}",
             [dct, dct.__class__.__name__])
     if dct["__Task__"] == True:
         task_type = TaskType(dct["task_type"])
         priority = TaskPriority(dct["priority"])
         val_list = dct["val_list"]
 
-        debug_f("decode", "\ttype: {}", [task_type])
-        debug_f("decode", "\tpriority: {}", [priority])
-        # debug_f("decode", "\tval_list: {}", val_list)
+        debug("decode_verbose", "\ttype: {}\n\tpriority: {}", [task_type, priority])
+        # debug("decode", "\tval_list: {}", val_list)
 
         return Task(task_type, priority, val_list)
-    debug_f("decode", "Can't parse JSON from {}", [dct])
+    debug("decode", "Can't parse JSON from {}", [dct])
     return dct
 
 
@@ -155,16 +155,16 @@ class Schedule:
         self.handler = handler
         self.task_source = task_source
 
-    def schedule_task(self, input: Task or list):
+    def schedule_task(self, input: Union[Task, list]):
         """
         """
         if isinstance(input, list):
             for t in input:
                 self.schedule_task(t)
         elif not isinstance(input, Task):
-            debug_f("schedule", "Cannot schedule non task object {}", [input])
+            debug("schedule", "Cannot schedule non task object {}", [input])
             return
-        debug_f("schedule", "Scheduling task {}", [input])
+        debug("schedule", "Scheduling task {}", [input])
 
         if input.priority == TaskPriority.high:
             self.task_queue.insert(0, input)  # High priotity at front
@@ -174,7 +174,7 @@ class Schedule:
         elif input.priority == TaskPriority.low:
             self.task_queue.append(input)  # Normal priotity at end
         else:
-            debug_f("schedule", "Cannot schedule task with priority: {}", [
+            debug("schedule", "Cannot schedule task with priority: {}", [
                     input.priority])
         # self.task_index += 1
 
@@ -215,4 +215,3 @@ class Schedule:
                 return None
 
         return self.task_queue.pop(0)
-

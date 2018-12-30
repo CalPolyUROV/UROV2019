@@ -6,7 +6,7 @@ import socket  # Sockets library
 
 # Our imports
 import settings
-from utils import sleep, exit, debug, debug_f  # Debug printing and logging
+from utils import sleep, exit, debug  # Debug printing and logging
 from snr import ComsCon, Task, TaskType, TaskPriority, decode
 
 
@@ -26,22 +26,24 @@ class SocketsClient(ComsCon):
                 # create an INET, STREAMing socket
                 self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 socket_open = True
-            except socket.error:
+            except (Exception) as error:
+                debug("sockets_client", "Create socket failed: {}", [error])
                 if (attempts >= settings.SOCKETS_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SOCKETS):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                        debug_f(
-                            "sockets", "Could not create socket after {} attempts. Crashing now.", [attempts])
+                        debug(
+                            "sockets_client", "Could not create socket after {} attempts.", [attempts])
                         exit("Could not create socket")
                     else:
-                        debug_f("sockets", "Giving up on creating socket after {} attempts. Not required in settings.", [
-                                attempts])
+                        debug("sockets_client", "Giving up on creating socket after {} attempts. Not required in settings.", [
+                            attempts])
                         settings.USE_SOCKETS = False
                         return
                 attempts += 1
-                debug("sockets", "Failed to create socket, trying again.")
-                sleep(1)  # Wait a second before retrying
-        debug("sockets", 'Socket Created')
+                debug("sockets_client", "Trying again.")
+                # Wait a second before retrying
+                sleep(settings.SOCKETS_RETRY_WAIT)
+        debug("sockets_client", 'Socket Created')
 
     # Connect to remote server
     def connect_server(self):
@@ -55,20 +57,21 @@ class SocketsClient(ComsCon):
                 if (attempts >= settings.SOCKETS_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SOCKETS):
                         # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                        debug_f(
-                            "socket_con", "Could not connect to server at {}:{}  after {} attempts. Crashing now.", [self.remote_ip, self.remote_port, attempts])
-                        exit(1)
+                        debug(
+                            "socket_con", "Could not connect to server at {}:{} after {} attempts. Crashing now.", [self.remote_ip, self.remote_port, attempts])
+                        exit("Could not connect to server")
                     else:
-                        debug_f("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
-                                attempts])
+                        debug("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
+                            attempts])
                         settings.USE_SOCKETS = False
                         return
                 attempts += 1
-                debug_f("socket_con", "Failed to connect to server at {}:{}, trying again.", [self.remote_ip, self.remote_port])
+                debug("socket_con", "Failed to connect to server at {}:{}, trying again.", [
+                    self.remote_ip, self.remote_port])
                 # Wait a second before retrying
                 sleep(settings.SOCKETS_RETRY_WAIT)
-        debug_f("socket_con", 'Socket Connected to {}:{}',
-                [self.remote_ip, str(self.remote_port)])
+        debug("socket_con", 'Socket Connected to {}:{}',
+              [self.remote_ip, str(self.remote_port)])
 
     def send_data(self, data: bytes) -> Task:
         if (not settings.USE_SOCKETS):
@@ -81,17 +84,25 @@ class SocketsClient(ComsCon):
             except socket.error:
                 # Send failed
                 debug("socket_con", 'Send failed')
-                exit("Sockets send failed")
+                # exit("Sockets send failed")
+            else:
+                debug("socket_con", 'Message sent successfully')
+                debug("socket_con_verbose", 'Message sent: {}', [data])
 
-            debug_f("socket_con", 'Message send successfully: {}', [data])
-
-            # TODO: Handle loss of connection, attemp to recover 
+            # TODO: Handle loss of connection, attempt to recover
 
             # Now receive data
+            reply = "Data not yet received"
             # BLocking call?
-            reply = self.s.recv(settings.MAX_SOCKET_SIZE)
+            try:
+                reply = self.s.recv(settings.MAX_SOCKET_SIZE)
+            except (ConnectionResetError) as error:
+                debug("sockets_client",
+                      "Lost sockets connection: {}", error.__repr__())
+                # TODO: Handle conection reset here and reestablish connection
 
-            debug_f("socket_con", "reply: {}", [reply])
+            debug("socket_con", "Received reply")
+            debug("socket_con_verbose", "Received reply: {}", [reply])
             return reply
             # sleep(1) # sleep for 1 second
 
