@@ -4,7 +4,7 @@
 # Imports
 import serial_coms
 import settings
-from utils import debug, debug_f
+from utils import debug
 from serial_packet import Packet 
 from serial_coms import SerialConnection
 from snr import Task, TaskPriority, TaskType
@@ -32,12 +32,12 @@ p1 = Packet(serial_coms.BLINK_CMD, 1, 2, 0b00001111 & (0x80 + 3 + 10))
 p2 = Packet.parse_packet(b"\x80", b"\x01", b"\x02", b"\x0d")
 assert p1.isValid()  # packet test 1
 assert p2.isValid()  # packet test 2
-debug_f("test", "p1: {}", [p1])
-debug_f("test", "p2: {}", [p2])
+debug("test", "p1: {}", [p1])
+debug("test", "p2: {}", [p2])
 assert p1 == p2  # packet test 3
 
 p1 = Packet(serial_coms.EST_CON_CMD, 0, 1, 0)
-debug_f("test", "p1: {}", [p1])
+debug("test", "p1: {}", [p1])
 assert not p1.isValid()  # packet test 4
 
 print(simulate_input())

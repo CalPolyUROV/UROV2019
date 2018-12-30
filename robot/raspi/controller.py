@@ -7,7 +7,7 @@ import _thread
 
 # Our imports
 import settings
-from utils import debug, debug_f, random_val
+from utils import debug, random_val
 
 
 class Controller:
@@ -47,7 +47,7 @@ class Controller:
         try:
             return d[k]
         except (KeyError):
-            debug_f("controls_reader", "Unknown control key: ", [k])
+            debug("controls_reader", "Unknown control key: ", [k])
             # TODO: Investigate changing this behavior
             return "Key not supplied in mapping: " + k
 
@@ -121,10 +121,11 @@ def simulate_input() -> dict:
     for k in settings.control_mappings:
         key = settings.control_mappings[k]
         if not key == None:
-            debug_f("simulation", "Adding key {}", [key])
+            # debug("simulation_verbose", "Adding key {}", [key])
             sim_data[key] = random_val()
             # TODO: provide specific data types for relevent keys
-    debug_f("simulation", "Simulated control input:\n{}", [sim_data])
+    debug("simulation", "Simulated control input was applied")
+    debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
     return sim_data
 
 

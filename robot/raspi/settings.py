@@ -1,7 +1,7 @@
 """Configurable settings that apply to the operation of the robot
 """
 
-# TODO: Investigate converting settings values to a dict 
+# TODO: Investigate converting settings values to a dict
 # (Maybe keeping a per Node settings struct)
 
 # Debug channels
@@ -10,13 +10,19 @@ DEBUG_CHANNELS = {
     "schedule": False,
     "execute_task": False,
     "controller": True,
-    "simulation": True,
+    "simulation": False,
+    "simulation_verbose":False,
     "robot_control": True,
+    "robot_control_verbose": False,
 
     "sockets": True,
-    "socket_con": False,
+    "sockets_server": True,
+    "sockets_client": True,
+    "socket_con": True,
+    "socket_con_verbose":False,
     "encode": False,
     "decode": False,
+    "decode_verbose": False,
 
     "serial_finder": False,
     "serial": False,
@@ -30,7 +36,7 @@ DEBUG_CHANNELS = {
 # XBox Controller
 USE_CONTROLLER = True  # TODO: Use this value
 REQUIRE_CONTROLLER = False  # TODO: Use this value
-SIMULATE_INPUT = False  # TODO: Use this value
+SIMULATE_INPUT = True  # TODO: Use this value
 
 # Mapping of pygame joystick output to values we can make sense of
 # "pygame_name":"name_we_use",
@@ -65,11 +71,11 @@ control_mappings = {
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = True
-TOPSIDE_IP_ADDRESS =  '192.168.10.10' # "localhost" 
+TOPSIDE_IP_ADDRESS = "localhost"  # '192.168.10.10'
 TOPSIDE_PORT = 9120
-ROBOT_IPADDRESS = '192.168.10.11'  # "192.168.137.50"
-SOCKETS_MAX_ATTEMPTS = 2  # Maximum number of times to try creating or opening a socket
-SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
+# ROBOT_IPADDRESS = '192.168.10.11'  # "192.168.137.50"
+SOCKETS_MAX_ATTEMPTS = 8  # Maximum number of times to try creating or opening a socket
+SOCKETS_RETRY_WAIT = 1.5  # seconds to wait before retrying sockets connection
 MAX_SOCKET_SIZE = 2048  # Maximum size for single receiving call
 
 

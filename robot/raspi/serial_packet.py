@@ -1,5 +1,5 @@
 
-from utils import debug, debug_f
+from utils import debug
 
 # Bitmask for extracting checksums from seqnum_chksum
 # Do not use directly, implement a checksum verification method
@@ -19,7 +19,7 @@ class Packet:
         self.val2 = val2
         self.seqnum_chksum = seqnum_chksum
 
-        # debug_f("ser_packet", "Constructed: {}", [self])
+        # debug("ser_packet", "Constructed: {}", [self])
 
     def extract_seqnum(self, seqnum_chksum: int) -> int:
         return int.from_bytes(seqnum_chksum, byteorder='big') >> 4
@@ -36,7 +36,7 @@ class Packet:
     def isValid(self) -> bool:
         chksum = self.get_chksum()
         expected = Packet.calc_chksum(self.cmd, self.val1, self.val2, self.get_seqnum())
-        debug_f('chksum', "Packet had chksum of {}, {} was expected", [
+        debug('chksum', "Packet had chksum of {}, {} was expected", [
                 chksum, expected])
         return chksum == expected
 
@@ -62,7 +62,7 @@ class Packet:
         if(p.isValid()):
             return p
         else:
-            debug_f("ser_packet", "read invalid packet {}", [p])
+            debug("ser_packet", "read invalid packet {}", [p])
 
     def calc_chksum(cmd: int, val1: int, val2: int, seqnum: int) -> int:
         sum = (cmd +

@@ -9,7 +9,7 @@ import serial  # PySerial library
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
-from utils import sleep, debug, debug_f, exit
+from utils import sleep, debug, exit
 from snr import Task, TaskPriority, TaskType
 from serial_packet import Packet
 
@@ -57,7 +57,7 @@ def find_port():
             port = serial_finder.find_port(ports)
             if(port == None):
                 raise serial.serialutil.SerialException
-            debug_f("serial_finder", "Using port: {}", [port])
+            debug("serial_finder", "Using port: {}", [port])
             return port
 
         except serial.serialutil.SerialException:
@@ -65,11 +65,11 @@ def find_port():
         if (attempts >= settings.SERIAL_MAX_ATTEMPTS):
             if(settings.REQUIRE_SERIAL):
                 # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                debug_f('serial_finder', "Could not find serial port after {} attempts. Crashing now.", [
+                debug('serial_finder', "Could not find serial port after {} attempts. Crashing now.", [
                         attempts])
                 exit("Could not find port")
             else:
-                debug_f('serial_finder', "Giving up on finding serial port after {} attempts. Not required in settings.", [
+                debug('serial_finder', "Giving up on finding serial port after {} attempts. Not required in settings.", [
                         attempts])
                 settings.USE_SERIAL = False
                 return
@@ -95,17 +95,17 @@ class SerialConnection:
                     stopbits=serial.STOPBITS_ONE,
                     bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
                     timeout=0.1)
-                debug_f('serial_con', "Opened serial connection on {} at baud {}", [
+                debug('serial_con', "Opened serial connection on {} at baud {}", [
                         serial_port, settings.SERIAL_BAUD])
                 return
             except serial.serialutil.SerialException:
                 if (attempts >= settings.SERIAL_MAX_ATTEMPTS):
                     if(settings.REQUIRE_SERIAL):
-                        debug_f("serial_con", "Could not open serial port after {} attempts. Crashing now.", [
+                        debug("serial_con", "Could not open serial port after {} attempts. Crashing now.", [
                                 attempts])
                         exit("Could not find port")
                     else:
-                        debug_f("serial_con", "Giving up on serial connection after {} attempts. Not required in settings.", [
+                        debug("serial_con", "Giving up on serial connection after {} attempts. Not required in settings.", [
                                 attempts])
                         settings.USE_SERIAL = False
                         return
@@ -116,13 +116,13 @@ class SerialConnection:
     # Send a Packet over serial
     def write_packet(self, p) -> None:
         if(not p.isValid()):
-            debug_f("serial_con", "Ignoring sending of invalid packet {}", [p])
+            debug("serial_con", "Ignoring sending of invalid packet {}", [p])
             return
         self.serial_connection.write(p.cmd)
         self.serial_connection.write(p.val1)
         self.serial_connection.write(p.val2)
         self.serial_connection.write(p.seqnum_chksum)
-        debug_f("serial_con", "Sent {}", [p])
+        debug("serial_con", "Sent {}", [p])
         return
 
     # Read in a packet from serial
@@ -133,13 +133,13 @@ class SerialConnection:
         _val1 = self.serial_connection.read(size=1)
         _val2 = self.serial_connection.read(size=1)
         _seqnum_chksum = self.serial_connection.read(size=1)
-        debug_f('ser_packet', "Received: {}{}{}{}", [_cmd, _val1, _val2, _seqnum_chksum])
+        debug('ser_packet', "Received: {}{}{}{}", [_cmd, _val1, _val2, _seqnum_chksum])
         return parse_packet(_cmd, _val1, _val2, _seqnum_chksum)
         # Warning, this will not catch packets with invalid checksums
 
     def send_receive_packet(self, p: Packet) -> Packet:
         if(not settings.USE_SERIAL):
-            debug_f("serial", "Serial is not used, ignoring sending of packet {}", [p])
+            debug("serial", "Serial is not used, ignoring sending of packet {}", [p])
             raise serial.serialutil.SerialException
         # send packet
         self.write_packet(p)
@@ -148,13 +148,13 @@ class SerialConnection:
         if(p == None):
             debug("serial_con", "Received an empty packet")
         else:
-            debug_f("serial_con", "Received {}", [p])  # Debugging
+            debug("serial_con", "Received {}", [p])  # Debugging
             return p
 
     # Send the inital packet and wait for the correct response
     def establish_contact(self):
         p_out = Packet.new_packet(EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
-        debug_f('serial_con', "Establishing connection by sending {}", [p_out])
+        debug('serial_con', "Establishing connection by sending {}", [p_out])
         # Send initial packet and receive response
         p_in = self.send_receive_packet(p_out)
         if((p_in.cmd == EST_CON_ACK) &

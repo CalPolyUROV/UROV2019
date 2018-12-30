@@ -10,7 +10,7 @@ Arduino/Teensy and topside raspberry Pi respectively.
 
 # Our imports
 import settings  # Configuration file
-from utils import debug, debug_f, sleep, exit  # Utilities
+from utils import debug, sleep, exit  # Utilities
 from snr import Schedule, Node, Task, TaskType, TaskPriority, decode  # Precursor to SNR lib (Scheduler and RTOS framework)
 import serial_coms
 from serial_coms import SerialConnection  # Serial connectino to Teensy
@@ -28,11 +28,11 @@ class Robot(Node):
         
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
-            debug("schedule", "Using serial as enabled in settings")
+            debug("serial", "Using serial as enabled in settings")
             self.serial_connection = SerialConnection()
 
         if settings.USE_SOCKETS:
-            debug("schedule", "Using sockets as enabled in settings")
+            debug("sockets", "Using sockets as enabled in settings")
             self.socket_connection = SocketsClient(
                 settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT
             )  # Make sockets client object
@@ -54,15 +54,16 @@ class Robot(Node):
     def execute_task(self, t: Task) -> list:
         sched_list = []
         if t.task_type == TaskType.debug_str:
-            debug_f("execute_task", "Executing task: {}", t.val_list)
+            debug("execute_task", "Executing task: {}", t.val_list)
 
         elif t.task_type == TaskType.cntl_input:
-            debug_f("robot_control", "Processing control input {}", [t.val_list])
+            debug("robot_control", "Processing control input")
+            debug("robot_control_verbose", "Control input {}", [t.val_list])
             # TODO: Store control input locally and schedule tasks to act on data
             pass
 
         elif t.task_type == TaskType.get_telemetry:
-            debug_f("execute_task", "Executing task: {}", t.val_list)
+            debug("execute_task", "Executing task: {}", t.val_list)
             t = Task(TaskType.get_cntl, TaskPriority.high, self.robot_data.telemetry_data())
             data = self.socket_connection.send_data(t.encode())
             return decode(data)
@@ -84,7 +85,7 @@ class Robot(Node):
             self.terminate = True  # RIP
 
         else:
-            debug_f("execute_task", "Unable to handle TaskType: {}", t.task_type)
+            debug("execute_task", "Unable to handle TaskType: {}", t.task_type)
 
         if not isinstance(sched_list, list):
             return []
