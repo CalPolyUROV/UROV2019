@@ -13,12 +13,11 @@ from snr import Task, TaskType, TaskPriority, decode
 class SocketsServer:
     """ Manages sockets server which sends commands to robot
 
-    This module is run by the topside unit under a separate threads
+    This module is run by the topside unit under a separate thread
     TODO: verify this
     """
 
-    def __init__(self, ip_address=settings.TOPSIDE_IP_ADDRESS, port=settings.TOPSIDE_PORT
-                 ):
+    def __init__(self, ip_address=settings.TOPSIDE_IP_ADDRESS, port=settings.TOPSIDE_PORT):
         self.ip_address = ip_address
         self.port = port
         self.bound = False
@@ -34,7 +33,7 @@ class SocketsServer:
                 self.bound = False
                 debug("sockets", "Bind failed: {}", [socket_error])
                 self.s.close()
-                sleep(1)
+                sleep(settings.SOCKETS_RETRY_WAIT)
                 continue
             self.bound = True
 
@@ -43,6 +42,7 @@ class SocketsServer:
 
     def open_server(self):
         self.s.listen(10)
+        # TODO: Investigate this magic int
 
     def accept_connection(self,):
         debug("socket_con", "Socket now listening")

@@ -74,12 +74,13 @@ class Robot(Node):
 
         elif t.task_type == TaskType.sockets_connect:
             if settings.USE_SOCKETS:
-                self.socket_connection.connect_server()
+                self.socket_connection.connect()
 
         elif t.task_type == TaskType.blink_test:
             p = serial_coms.make_packet(
                 serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
             self.serial_connection.send_receive_packet(p)
+
         elif t.task_type == TaskType.terminate_robot:
             debug("robot_control", "Robot {} program terminated by command", settings.ROBOT_NAME)
             self.terminate = True  # RIP

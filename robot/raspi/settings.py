@@ -73,11 +73,14 @@ USE_SOCKETS = True
 REQUIRE_SOCKETS = True
 TOPSIDE_IP_ADDRESS = "localhost"  # '192.168.10.10'
 TOPSIDE_PORT = 9120
-# ROBOT_IPADDRESS = '192.168.10.11'  # "192.168.137.50"
-SOCKETS_MAX_ATTEMPTS = 8  # Maximum number of times to try creating or opening a socket
-SOCKETS_RETRY_WAIT = 1.5  # seconds to wait before retrying sockets connection
+# ROBOT_IPADDRESS = '192.168.10.11'  # "192.168.137.50"  # Not used
+SOCKETS_OPEN_ATTEMPTS = 4  # Maximum number of times to try creating a socket
+SOCKETS_CONNECT_ATTEMPTS = 120  # Maximum number of times to try creating or opening a socket
+SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
 MAX_SOCKET_SIZE = 2048  # Maximum size for single receiving call
-
+# note: SOCKETS_CONNECT_ATTEMPTS * SOCKETS_RETRY_WAIT = timeout for sockets connection
+#     This timeout should be very long to allow the server to open its socket
+#     before the client gives up on connecting to it.
 
 # Serial Connection
 USE_SERIAL = False
