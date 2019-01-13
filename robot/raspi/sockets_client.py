@@ -68,7 +68,8 @@ class SocketsClient(ComsCon):
                 if(settings.REQUIRE_SOCKETS):
                     # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
                     s = "Could not connect to server at {}:{} after {} attempts. Crashing now."
-                    debug("socket_con", s, [self.remote_ip, self.remote_port, attempts])
+                    debug("socket_con", s, [
+                          self.remote_ip, self.remote_port, attempts])
                     exit("Could not connect to server")
                 else:
                     debug("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
@@ -81,8 +82,8 @@ class SocketsClient(ComsCon):
             # Wait a second before retrying
             sleep(settings.SOCKETS_RETRY_WAIT)
         self.socket_connected = True
-        debug("socket_con", 'Socket Connected to {}:{}', [self.remote_ip, str(self.remote_port)])
-
+        debug("socket_con", 'Socket Connected to {}:{}',
+              [self.remote_ip, str(self.remote_port)])
 
     def connect_socket(self) -> bool:
         try:
@@ -110,10 +111,11 @@ class SocketsClient(ComsCon):
         This function must 
         """
         if not settings.USE_SOCKETS:
-            debug("socket_con", "Socket send ignored because settings.SOCKETS_USE = False")
+            debug("socket_con",
+                  "Socket send ignored because settings.SOCKETS_USE = False")
             return
         self.check_connection()
-        
+
         # Send data to remote server
         try:
             # Set the whole string
@@ -121,7 +123,8 @@ class SocketsClient(ComsCon):
         except (OSError, Exception) as error:
             # Send failed
             debug("socket_con", 'Send failed: {}', [error.__repr__()])
-
+            self.close_socket()
+            return Task(TaskType.sockets_connect, TaskPriority.high, [])
             # exit("Sockets send failed")
         else:
             debug("socket_con", 'Message sent successfully')
@@ -137,7 +140,7 @@ class SocketsClient(ComsCon):
         except (ConnectionResetError, Exception) as error:
             self.socket_connected = False
             debug("sockets_client",
-                    "Lost sockets connection: {}", error.__repr__())
+                  "Lost sockets connection: {}", error.__repr__())
             # TODO: Correctly terminate this function here
         else:
             debug("socket_con", "Received reply")
@@ -148,7 +151,8 @@ class SocketsClient(ComsCon):
         try:
             self.s.close()
         except (Exception) as error:
-            debug("sockets_client", "Error closing socket: {}", [error.__repr__()])
+            debug("sockets_client", "Error closing socket: {}",
+                  [error.__repr__()])
         self.socket_open = False
         self.socket_connected = False
         debug("sockets_client", 'Socket closed')

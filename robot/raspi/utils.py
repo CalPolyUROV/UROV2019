@@ -29,6 +29,8 @@ def exit(reason: str):
         os._exit(0)
 
 # TODO: Use settings.ROLE for per client and server debugging
+
+
 def debug(channel: str, *args):
     """Debugging print and logging functions
 
@@ -36,7 +38,7 @@ def debug(channel: str, *args):
         list of arguments to be formatted. Various channels can be toggled on or
         off from settings.DEBUG_CHANNELS: dict. Channels not found in the dict
         while be printed by default.
-    
+
     Usage:
     debug("channel", "message")
     debug("channel", object)
@@ -62,7 +64,7 @@ def debug(channel: str, *args):
     if(settings.LOGGING and channel_active(channel)):
         # TODO: Output stuff to a log file
         pass
-        # Do NOT use printing on another thread because it is so slow 
+        # Do NOT use printing on another thread because it is so slow
         # that thread will pile up and the limit of number of threads will
         #  be reached
 
@@ -74,10 +76,11 @@ def debug(channel: str, *args):
 #     if (settings.LOGGING and channel_active(channel)):
 #         # TODO: Output stuff to a log file
 #         pass
-#         # Do NOT use printing on another thread because it is so slow 
+#         # Do NOT use printing on another thread because it is so slow
 #         # that thread will pile up and the limit of number of threads will
 #         #  be reached
 #         # _thread.start_new_thread(log_f, (channel, message, formatting))
+
 
 def channel_active(channel: str) -> bool:
     """Whether to print or log for a debug channel
@@ -86,11 +89,13 @@ def channel_active(channel: str) -> bool:
     """
     if channel in settings.DEBUG_CHANNELS:
         return settings.DEBUG_CHANNELS[channel]
-    return True # default for unknown channels
+    return True  # default for unknown channels
 
 # TODO: Add logging to a specific file
 # (such as for logging the port that a sockets connection is on, so that the
 #  value is accessible to the other Pi over a network share)
+
+
 def log(channel: str, message: str):
     pass
     # TODO: Implement logging to disk
@@ -104,3 +109,14 @@ def log_f(channel: str, message: str, formatting: list):
 # Simulation tools
 def random_val():
     return random.randint(0, 1)
+
+
+def try_key(d: dict, k: str):
+    """Mapping dict may not contain a key to lookup, handle it
+    """
+    try:
+        return d[k]
+    except (KeyError):
+        debug("controls_reader", "Unknown control key: ", [k])
+        # TODO: Investigate changing this behavior
+        return "Key not supplied in mapping: " + k

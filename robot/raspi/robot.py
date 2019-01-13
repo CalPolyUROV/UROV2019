@@ -11,11 +11,12 @@ Arduino/Teensy and topside raspberry Pi respectively.
 # Our imports
 import settings  # Configuration file
 from utils import debug, sleep, exit  # Utilities
-from snr import Schedule, Node, Task, TaskType, TaskPriority, decode  # Precursor to SNR lib (Scheduler and RTOS framework)
+# Precursor to SNR lib (Scheduler and RTOS framework)
+from snr import Schedule, Node, Task, TaskType, TaskPriority, decode
 import serial_coms
 from serial_coms import SerialConnection  # Serial connectino to Teensy
 # from spi_coms import SPIConnection  # Not yet implemented
-from sockets_client import SocketsClient # Sockets connection to topside
+from sockets_client import SocketsClient  # Sockets connection to topside
 from robot_data import Database  # Stores data and preforms calculations
 
 
@@ -25,7 +26,7 @@ class Robot(Node):
 
         self.terminate = False  # Whether to exit main loop
         self.database = Database()
-        
+
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
             debug("serial", "Using serial as enabled in settings")
@@ -38,7 +39,8 @@ class Robot(Node):
             )  # Make sockets client object
 
         # Make a schedule object
-        self.scheduler = Schedule(self.initial_tasks(), self.execute_task, self.get_new_tasks)
+        self.scheduler = Schedule(
+            self.initial_tasks(), self.execute_task, self.get_new_tasks)
 
     def loop(self):
         while not self.terminate:
@@ -53,41 +55,57 @@ class Robot(Node):
 
     def execute_task(self, t: Task) -> list:
         sched_list = []
+
+        # Debug string command
         if t.task_type == TaskType.debug_str:
             debug("execute_task", "Executing task: {}", t.val_list)
 
+        # Process controls input
         elif t.task_type == TaskType.cntl_input:
             debug("robot_control", "Processing control input")
             debug("robot_control_verbose", "Control input {}", [t.val_list])
-            # TODO: Store control input locally and schedule tasks to act on data
-            pass
+            return self.database.receive_controls(t.val_list)
 
+        # Read sensor data
         elif t.task_type == TaskType.get_telemetry:
             debug("execute_task", "Executing task: {}", t.val_list)
-            t = Task(TaskType.get_cntl, TaskPriority.high, self.robot_data.telemetry_data())
+            t = Task(TaskType.get_cntl, TaskPriority.high,
+                     self.robot_data.telemetry_data())
             data = self.socket_connection.send_data(t.encode())
             return decode(data)
 
+        # Initiate serial connection
         elif t.task_type == TaskType.serial_est_con:
             if settings.USE_SERIAL:
-                sched_list = self.serial_connection.establish_contact()
+                return self.serial_connection.establish_contact()
 
+        # Send serial data
+        elif t.task_type == TaskType.serial_com:
+            if settings.USE_SERIAL:
+                data = t.val_list
+                return self.serial_connection.send_receive_packet(data)
+
+        # Initiate sockets connection
         elif t.task_type == TaskType.sockets_connect:
             if settings.USE_SOCKETS:
                 self.socket_connection.connect()
 
+        # Blink test
         elif t.task_type == TaskType.blink_test:
             p = serial_coms.make_packet(
                 serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
             self.serial_connection.send_receive_packet(p)
 
+        # Terminate robot
         elif t.task_type == TaskType.terminate_robot:
-            debug("robot_control", "Robot {} program terminated by command", settings.ROBOT_NAME)
+            debug("robot_control",
+                  "Robot {} program terminated by command", settings.ROBOT_NAME)
             self.terminate = True  # RIP
 
-        else:
+        else:  # Catch all
             debug("execute_task", "Unable to handle TaskType: {}", t.task_type)
 
+        # Safety catch
         if not isinstance(sched_list, list):
             return []
 

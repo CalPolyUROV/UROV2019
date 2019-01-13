@@ -47,7 +47,9 @@ py_setup: env_setup
 # 	make -j 4
 # 	sudo make altinstall
 
-
 todo:
 	grep --line-number --initial-tab "TODO:" *.py | tr -s [:space:]  > todo.txt
 	cat todo.txt
+
+gource:
+	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm

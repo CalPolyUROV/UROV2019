@@ -14,6 +14,8 @@ DEBUG_CHANNELS = {
     "simulation_verbose":False,
     "robot_control": True,
     "robot_control_verbose": False,
+    "thrust_vec": True,
+    "thrust_vec_verbose":True,
 
     "sockets": True,
     "sockets_server": True,
@@ -35,8 +37,8 @@ DEBUG_CHANNELS = {
 
 # XBox Controller
 USE_CONTROLLER = True  # TODO: Use this value
-REQUIRE_CONTROLLER = False  # TODO: Use this value
-SIMULATE_INPUT = True  # TODO: Use this value
+REQUIRE_CONTROLLER = True  # TODO: Use this value
+SIMULATE_INPUT = False  # TODO: Use this value
 
 # Mapping of pygame joystick output to values we can make sense of
 # "pygame_name":"name_we_use",

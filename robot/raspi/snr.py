@@ -40,9 +40,10 @@ class TaskType(IntEnum):
     cntl_input = 2
     get_telemetry = 3
     serial_est_con = 4
-    sockets_connect = 5
-    blink_test = 6
-    terminate_robot = 7
+    serial_com = 5
+    sockets_connect = 6
+    blink_test = 7
+    terminate_robot = 8
 
 
 class TaskPriority(IntEnum):
@@ -161,6 +162,7 @@ class Schedule:
         if isinstance(input, list):
             for t in input:
                 self.schedule_task(t)
+            return
         elif not isinstance(input, Task):
             debug("schedule", "Cannot schedule non task object {}", [input])
             return

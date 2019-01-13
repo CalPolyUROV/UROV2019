@@ -7,8 +7,7 @@ import _thread
 
 # Our imports
 import settings
-from utils import debug, random_val
-
+from utils import debug, random_val, try_key
 
 class Controller:
     def __init__(self):
@@ -36,20 +35,10 @@ class Controller:
         """
         control_data = {}
         for k in joystick_data:
-            new_key = self.try_key(settings.control_mappings, k)
+            new_key = try_key(settings.control_mappings, k)
             if new_key != None:
                 control_data[new_key] = joystick_data[k]
         return control_data
-
-    def try_key(self, d: dict, k: str):
-        """Mapping dict may not contain a key to lookup, handle it
-        """
-        try:
-            return d[k]
-        except (KeyError):
-            debug("controls_reader", "Unknown control key: ", [k])
-            # TODO: Investigate changing this behavior
-            return "Key not supplied in mapping: " + k
 
     def initialize(self):
         """Function run in separate thread to update control data
