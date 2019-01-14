@@ -10,7 +10,7 @@ import serial  # PySerial library
 import serial_finder  # Identifies serial ports
 import settings
 from utils import sleep, debug, exit
-from snr import Task, TaskPriority, TaskType
+from snr import Task, TaskPriority, TaskType, Transport
 from serial_packet import Packet
 
 # encoding scheme
@@ -78,7 +78,7 @@ def find_port():
         sleep(1)  # Wait a second before retrying
 
 
-class SerialConnection:
+class SerialConnection(Transport):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self, serial_port=None):
         if(serial_port == None):

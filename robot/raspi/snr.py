@@ -124,13 +124,14 @@ def decode_task(dct: dict) -> Task:
     """Decoding function that receives a dict from json.loads()
     """
     debug("decode_verbose", "JSON gave us {} which is {}",
-            [dct, dct.__class__.__name__])
+          [dct, dct.__class__.__name__])
     if dct["__Task__"] == True:
         task_type = TaskType(dct["task_type"])
         priority = TaskPriority(dct["priority"])
         val_list = dct["val_list"]
 
-        debug("decode_verbose", "\ttype: {}\n\tpriority: {}", [task_type, priority])
+        debug("decode_verbose", "\ttype: {}\n\tpriority: {}",
+              [task_type, priority])
         # debug("decode", "\tval_list: {}", val_list)
 
         return Task(task_type, priority, val_list)
@@ -138,8 +139,23 @@ def decode_task(dct: dict) -> Task:
     return dct
 
 
-class ComsCon:
-    pass
+class Transport:
+    """An object belonging to a Node that connects it to other nodes or devices
+    """
+    def __init__(self):
+        raise NotImplementedError(
+            "Subclass of Transport does not implement __init__()")
+
+    def send_and_receive(self, *args) -> Task or []:
+        """The main event done by a Transport object
+        """
+        raise NotImplementedError("Subclass of Transport does not implement send_and_receive()")
+
+    def terminate(self):
+        """Execute actions needed to deconstruction an object that implements a Transport
+        """
+        raise NotImplementedError(
+            "Subclass of Transport does not implement terminate()")
 
 
 class Schedule:
@@ -177,7 +193,7 @@ class Schedule:
             self.task_queue.append(input)  # Normal priotity at end
         else:
             debug("schedule", "Cannot schedule task with priority: {}", [
-                    input.priority])
+                input.priority])
         # self.task_index += 1
 
     def execute_task(self, t: Task):
