@@ -7,10 +7,10 @@ import socket  # Sockets library
 # Our imports
 import settings
 from utils import sleep, exit, debug  # Debug printing and logging
-from snr import ComsCon, Task, TaskType, TaskPriority, decode
+from snr import Transport, Task, TaskType, TaskPriority, decode
 
 
-class SocketsClient(ComsCon):
+class SocketsClient(Transport):
     """ Manages sockets network connection to topside raspi
     """
 
