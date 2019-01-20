@@ -61,9 +61,9 @@ class SocketsClient(Transport):
 
     # Connect to remote server
 
-    def connect_socket(self):
+    def connect(self):
         attempts = 1
-        while(settings.USE_SOCKETS and not self.socket_connected and not self.try_connect()):
+        while(settings.USE_SOCKETS and not self.socket_connected and not self.connect_socket()):
             if (attempts >= settings.SOCKETS_CONNECT_ATTEMPTS):
                 if(settings.REQUIRE_SOCKETS):
                     # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
@@ -85,21 +85,20 @@ class SocketsClient(Transport):
         debug("socket_con", 'Socket Connected to {}:{}',
               [self.remote_ip, str(self.remote_port)])
 
-    def try_connect(self) -> bool:
+    def connect_socket(self) -> bool:
         try:
             self.s.connect((self.remote_ip, self.remote_port))
+            return True
         except (ConnectionRefusedError, Exception) as error:
             s = "Failed to connect to server: {}"
             debug("sockets_client", s, [error.__repr__()])
             return False
-        else:
-            return True
 
     def check_connection(self):
         if not self.socket_open:
             self.open_socket()
         if not self.socket_connected:
-            self.connect_socket()
+            self.connect()
 
     def repair_connection(self):
         self.close()
@@ -109,7 +108,7 @@ class SocketsClient(Transport):
     def send_data(self, data: bytes) -> Task:
         """Main continual entry point for sending data over sockets
 
-        This function must...
+        This function must 
         """
         if not settings.USE_SOCKETS:
             debug("socket_con",
@@ -125,7 +124,7 @@ class SocketsClient(Transport):
             # Send failed
             debug("socket_con", 'Send failed: {}', [error.__repr__()])
             self.close_socket()
-            self.check_connection()
+            return Task(TaskType.sockets_connect, TaskPriority.high, [])
             # exit("Sockets send failed")
         else:
             debug("socket_con", 'Message sent successfully')
@@ -150,8 +149,6 @@ class SocketsClient(Transport):
 
     def close_socket(self):
         try:
-            # Close both (RD, WR) ends of the pipe, then close the socket
-            self.s.shutdown(socket.SHUT_RDWR)
             self.s.close()
         except (Exception) as error:
             debug("sockets_client", "Error closing socket: {}",
