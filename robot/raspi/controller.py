@@ -56,7 +56,7 @@ class Controller:
             if abs(value) < map_list[3]:
                 # value is inside dead zone
                 value = 0
-        return (map_list[0], value)
+        return (map_list[0], int(value))
 
 
     def initialize(self):
