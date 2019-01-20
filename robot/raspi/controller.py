@@ -26,19 +26,38 @@ class Controller:
         """Get mapped input data from instance variable
         """
         if not settings.SIMULATE_INPUT:
-            return self.map_data(self.joystick_data)
+            return self.map_input_dict(self.joystick_data)
         else:
             return simulate_input()
 
-    def map_data(self, joystick_data: dict) -> dict:
+    def map_input_dict(self, joystick_data: dict) -> dict:
         """Convert pygame input names to our names based off settings
         """
         control_data = {}
         for k in joystick_data:
-            new_key = try_key(settings.control_mappings, k)
+            (new_key, new_value) = self.map_input(k, joystick_data[k])
             if new_key != None:
-                control_data[new_key] = joystick_data[k]
+                control_data[new_key] = new_value
         return control_data
+
+    def map_input(self, key: str, value):
+        """Maps an individual KV pair to our controls
+        """
+        map_list = try_key(settings.control_mappings, key)
+        
+        if len(map_list) > 1:
+            # Use scale_factor
+            value = value * map_list[1]
+        if len(map_list) > 2:
+            # Use shift_ammount
+            value = value + map_list[2]
+        if len(map_list) > 3:
+            # Use dead_zone
+            if abs(value) < map_list[3]:
+                # value is inside dead zone
+                value = 0
+        return (map_list[0], value)
+
 
     def initialize(self):
         """Function run in separate thread to update control data

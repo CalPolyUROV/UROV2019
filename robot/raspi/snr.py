@@ -74,8 +74,7 @@ class Task:
     def __repr__(self):
         if self.task_type == TaskType.cntl_input:
             return "Task: type: {}, priority: {}, val_list: {}".format(
-                self.task_type, self.priority, format_controls(self.val_list)
-            )
+                self.task_type, self.priority, self.val_list)
         return "Task: type: {}, priority: {}, val_list: {}".format(
             self.task_type, self.priority, self.val_list
         )
@@ -142,6 +141,7 @@ def decode_task(dct: dict) -> Task:
 class Transport:
     """An object belonging to a Node that connects it to other nodes or devices
     """
+
     def __init__(self):
         raise NotImplementedError(
             "Subclass of Transport does not implement __init__()")
@@ -149,7 +149,8 @@ class Transport:
     def send_and_receive(self, *args) -> Task or []:
         """The main event done by a Transport object
         """
-        raise NotImplementedError("Subclass of Transport does not implement send_and_receive()")
+        raise NotImplementedError(
+            "Subclass of Transport does not implement send_and_receive()")
 
     def terminate(self):
         """Execute actions needed to deconstruction an object that implements a Transport

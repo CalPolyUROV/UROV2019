@@ -30,7 +30,7 @@ def main():
         node = Topside()
     else:
         debug("framework", "Invalid ROLE {} given as command line arg", [
-                settings.ROLE])
+            settings.ROLE])
         exit("Unknown ROLE")
 
     node.loop()
