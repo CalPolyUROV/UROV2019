@@ -36,7 +36,7 @@ class SocketsClient(Transport):
 
     def open_socket(self):
         self.close_socket()
-        
+
         # Attempt to create a socket
         attempts = 1
         while(not self.create_socket()):
@@ -149,6 +149,8 @@ class SocketsClient(Transport):
             return reply
 
     def close_socket(self):
+        if self.s is None:
+            debug("sockets_client", "Tried to close socket but it didn't exist")
         try:
             # Close both (RD, WR) ends of the pipe, then close the socket
             self.s.shutdown(socket.SHUT_RDWR)

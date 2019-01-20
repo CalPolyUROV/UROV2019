@@ -56,6 +56,8 @@ class Controller:
             if abs(value) < map_list[3]:
                 # value is inside dead zone
                 value = 0
+        if value is tuple:
+            value = value[0]
         return (map_list[0], int(round(value)))
 
 
