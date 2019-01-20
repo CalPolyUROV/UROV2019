@@ -73,5 +73,6 @@ class SocketsServer:
         debug("socket_con", 'Sent reply')
 
     def close(self):
+        self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
         debug("socket_con", "Socket closed")
