@@ -23,23 +23,20 @@ class SocketsClient(Transport):
 
         self.check_connection()
 
-        
     def check_connection(self):
         if not self.socket_open:
             self.open_socket()
         if not self.socket_connected:
             self.connect_socket()
 
-            
     def repair_connection(self):
         self.close_socket()
         self.open_socket()
         self.connect_socket()
 
     def open_socket(self):
-        if self.socket_open:
-            # If socket is already open, KILLL it
-            self.close_socket()
+        self.close_socket()
+        
         # Attempt to create a socket
         attempts = 1
         while(not self.create_socket()):
@@ -108,7 +105,6 @@ class SocketsClient(Transport):
             return False
         else:
             return True
-
 
     def send_data(self, data: bytes) -> Task:
         """Main continual entry point for sending data over sockets

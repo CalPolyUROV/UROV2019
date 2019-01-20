@@ -18,6 +18,7 @@ from utils import sleep, exit, debug
 from robot import Robot
 from topside import Topside
 
+node = None
 
 def main():
     settings.ROLE = sys.argv[1]  # Command line argument
@@ -43,4 +44,6 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         # TODO: Send termination signal to robot from server when closing
+        if not node == None:
+            node.terminate()
         exit("Interrupted by user")
