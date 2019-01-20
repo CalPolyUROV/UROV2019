@@ -88,7 +88,7 @@ class Robot(Node):
         # Initiate sockets connection
         elif t.task_type == TaskType.sockets_connect:
             if settings.USE_SOCKETS:
-                self.socket_connection.connect()
+                self.socket_connection.check_connection()
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
