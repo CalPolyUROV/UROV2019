@@ -14,7 +14,7 @@ class SocketsServer:
     """ Manages sockets server which sends commands to robot
 
     This module is run by the topside unit under a separate thread
-    TODO: verify this
+    TODO: verify this threading behavior
     """
 
     def __init__(self, ip_address=settings.TOPSIDE_IP_ADDRESS, port=settings.TOPSIDE_PORT):
@@ -23,22 +23,23 @@ class SocketsServer:
         self.bound = False
 
         while not self.bound:
-            # create socket, use ipv4
-            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
-            debug("sockets", "Socket created")
-            try:
-                self.s.bind((self.ip_address, self.port))
-            except socket.error as socket_error:
-                self.bound = False
-                debug("sockets", "Bind failed: {}", [socket_error])
-                self.s.close()
-                sleep(settings.SOCKETS_RETRY_WAIT)
-                continue
-            self.bound = True
-
+            self.bind_to_port()
         debug("sockets", "Socket bound to {}:{} sucessfully",
-                [self.ip_address, self.port])
+              [self.ip_address, self.port])
+
+    def bind_to_port(self):
+        # create socket, use ipv4
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
+        debug("sockets", "Socket created")
+        try:
+            self.s.bind((self.ip_address, self.port))
+            self.bound = True
+        except socket.error as socket_error:
+            self.bound = False
+            debug("sockets", "Bind failed: {}", [socket_error])
+            self.s.close()
+            sleep(settings.SOCKETS_RETRY_WAIT)
 
     def open_server(self):
         self.s.listen(10)
@@ -50,7 +51,7 @@ class SocketsServer:
         # wait to accept a connection - blocking call
         self.conn, self.addr = self.s.accept()
         debug("socket_con", "Connected with {}:{}",
-                [self.addr[0], self.addr[1]])
+              [self.addr[0], self.addr[1]])
 
         # now keep talking with the client
         # Blocking?
