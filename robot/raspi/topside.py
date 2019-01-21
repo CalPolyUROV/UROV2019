@@ -9,10 +9,10 @@ import socket
 
 # Our imports
 import settings
-from utils import exit, debug
-from sockets_server import SocketsServer
 from controller import Controller
-from snr import Node, Task, TaskType, TaskPriority
+from snr import Node, Task, TaskPriority, TaskType, SomeTasks
+from sockets_server import SocketsServer
+from utils import debug, exit
 
 
 class Topside(Node):

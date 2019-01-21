@@ -3,15 +3,14 @@
 Implement a Node class that contains a Schedule object. 
 """
 
-# Our imports
-import settings
-from enum import IntEnum  # Used for task properties
 import json
-from typing import Union
+from enum import IntEnum  # Used for task properties
+from typing import Callable, List, NewType, Union
 
 # Our imports
-from utils import debug
+import settings
 from controller import format_controls
+from utils import debug
 
 
 class Node:

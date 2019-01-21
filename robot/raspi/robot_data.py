@@ -1,6 +1,6 @@
 import robot_data  # This is weird...
 
-from snr import Task, TaskType, TaskPriority
+from snr import Task, TaskPriority, TaskType
 from utils import debug, try_key
 
 

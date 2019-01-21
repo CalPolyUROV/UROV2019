@@ -13,10 +13,10 @@ import sys  # For command line arguments
 
 # Scheduling imports
 import settings
-from snr import Schedule, Node
-from utils import sleep, exit, debug
 from robot import Robot
+from snr import Node, Scheduler
 from topside import Topside
+from utils import debug, exit, sleep
 
 node = None
 

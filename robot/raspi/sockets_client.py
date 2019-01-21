@@ -6,8 +6,8 @@ import socket  # Sockets library
 
 # Our imports
 import settings
-from utils import sleep, exit, debug  # Debug printing and logging
-from snr import Transport, Task, TaskType, TaskPriority, decode
+from snr import Task, TaskPriority, TaskType, Transport, decode, Handler
+from utils import debug, exit, sleep  # Debug printing and logging
 
 
 class SocketsClient(Transport):
