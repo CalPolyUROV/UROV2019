@@ -87,6 +87,9 @@ class Task:
         return data
 
 
+SomeTasks = NewType("SomeTasks", Task or List[Task])
+Handler = NewType("Handler", Callable[[Task], SomeTasks])
+
 def decode(data: bytes) -> Task:
     """Decoding method used in receiving of data over sockets
     """
@@ -141,11 +144,12 @@ class Transport:
     """An object belonging to a Node that connects it to other nodes or devices
     """
 
-    def __init__(self):
+    def __init__(self, handler: Handler):
+        self.handler = handler
         raise NotImplementedError(
             "Subclass of Transport does not implement __init__()")
 
-    def send_and_receive(self, *args) -> Task or []:
+    def transport_data(self, data) -> SomeTasks:
         """The main event done by a Transport object
         """
         raise NotImplementedError(
@@ -158,7 +162,7 @@ class Transport:
             "Subclass of Transport does not implement terminate()")
 
 
-class Schedule:
+class Scheduler:
     """ Manages a queue of tasks for a Node object
 
     A Node object should create a Schedule object and then 
@@ -166,24 +170,25 @@ class Schedule:
 
     """
 
-    def __init__(self, initial_tasks: list, handler, task_source):
+    def __init__(self, initial_tasks: list, handler: Handler, task_source):
         self.task_queue = initial_tasks
-        # self.task_index = 0
         self.handler = handler
         self.task_source = task_source
 
-    def schedule_task(self, input: Union[Task, list]):
-        """
+    def schedule_task(self, input: SomeTasks):
+        """ Adds a Task or the contents of a list of Tasks to a Scheduler's queue
         """
         if isinstance(input, list):
+            # Recursively handle lists
             for t in input:
                 self.schedule_task(t)
             return
         elif not isinstance(input, Task):
+            # Handle garbage
             debug("schedule", "Cannot schedule non task object {}", [input])
             return
+        # Handle normal tasks
         debug("schedule", "Scheduling task {}", [input])
-
         if input.priority == TaskPriority.high:
             self.task_queue.insert(0, input)  # High priotity at front
         elif input.priority == TaskPriority.normal:
@@ -194,7 +199,6 @@ class Schedule:
         else:
             debug("schedule", "Cannot schedule task with priority: {}", [
                 input.priority])
-        # self.task_index += 1
 
     def execute_task(self, t: Task):
         """Execute the given task
@@ -229,6 +233,7 @@ class Schedule:
         """
         if not self.has_tasks():
             if not self.get_new_tasks():
+                debug("schedule", "Got no task")
                 # TODO: possibly call get_new_tasks()
                 return None
 
