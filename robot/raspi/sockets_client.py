@@ -64,6 +64,10 @@ class SocketsClient(Transport):
         try:
             # create an INET, STREAMing socket
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # Reuse port prior to slow kernel release
+            self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            # Set the timeout on the socket
+            self.s.settimeout(settings.SOCKETS_SERVER_TIMEOUT)
             return True
         except (Exception) as error:
             s = "Failed to create socket: {}"
@@ -98,7 +102,8 @@ class SocketsClient(Transport):
 
     def try_connect(self) -> bool:
         try:
-            self.s.connect((self.remote_ip, self.remote_port))
+            # self.s.connect((self.remote_ip, self.remote_port))
+            self.s = socket.create_connection((self.remote_ip, self.remote_port), settings.SOCKETS_CLIENT_TIMEOUT)
         except (ConnectionRefusedError, Exception) as error:
             s = "Failed to connect to server: {}"
             debug("sockets_client", s, [error.__repr__()])

@@ -30,6 +30,11 @@ class SocketsServer:
     def bind_to_port(self):
         # create socket, use ipv4
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Reuse port prior to slow kernel release
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Set the timeout on the socket
+        self.s.settimeout(settings.SOCKETS_SERVER_TIMEOUT)
+        # Use ethernet port
         # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
         debug("sockets", "Socket created")
         try:
