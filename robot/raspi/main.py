@@ -46,4 +46,5 @@ if __name__ == "__main__":
         # TODO: Send termination signal to robot from server when closing
         if not node == None:
             node.terminate()
+            debug("framework", "Node terminated")
         exit("Interrupted by user")
