@@ -24,7 +24,11 @@ class Robot(Node):
     def __init__(self):
 
         self.terminate = False  # Whether to exit main loop
-        self.database = Database()
+        self.database = Database()  # Handles all the robot's data
+
+        # Make a schedule object
+        self.scheduler = Scheduler(
+            self.initial_tasks(), self.execute_task, self.get_new_tasks)
 
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
@@ -33,13 +37,10 @@ class Robot(Node):
 
         if settings.USE_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
-            self.socket_connection = SocketsClient(
-                settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT
-            )  # Make sockets client object
-
-        # Make a schedule object
-        self.scheduler = Schedule(
-            self.initial_tasks(), self.execute_task, self.get_new_tasks)
+            # Make sockets client object using our implementation
+            self.socket_connection = SocketsClient(self.scheduler.schedule_task,
+                                                   settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT
+                                                   )
 
     def loop(self):
         while not self.terminate:
