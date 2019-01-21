@@ -32,7 +32,6 @@ class Topside(Node):
     def loop(self):
         while 1:
             # Create connection to a specific client
-
             try:
                 self.sockets_server.accept_connection()
                 while 1:
@@ -47,16 +46,15 @@ class Topside(Node):
                 debug("sockets_server", "Restarting sockets server")
                 self.start_sockets_server()
 
-    def handle_response(self, t: Task, task_queue: list) -> Task:
+    def execute_task(self, t: Task) -> SomeTasks:
         debug("execute_task", "Executing task: {} which is {}",
-                [t, t.__class__.__name__])
+              [t, t.__class__.__name__])
         reply = None
 
         if (t.task_type == TaskType.debug_str):
             debug("execute_task", "Debug_str task: {}", [t.val_list])
-            t = Task(TaskType.get_cntl, TaskPriority.high, [
+            reply = Task(TaskType.get_cntl, TaskPriority.high, [
                 "Automatic control request in response of telemetry data"])
-            reply = self(t, task_queue)
 
         elif (t.task_type == TaskType.get_cntl):
             # Handle accumulated commands
@@ -72,13 +70,12 @@ class Topside(Node):
         elif (t.task_type == TaskType.get_telemetry):
             debug("execute_task", "Executing task: {}", t.val_list)
             # TODO: Record and display telemetry data
-            t = Task(TaskType.get_cntl, TaskPriority.high, [
-                "Automatic control request in response of telemetry data"])
-            reply = self(t, task_queue)
+            reply = Task(TaskType.get_cntl, TaskPriority.high, [
+                "Automatic control request in response of telemetry data"]) 
 
         else:
             debug("execute_task", "Unable to handle TaskType: {}, values: {}", [
-                    t.task_type, t.val_list])
+                t.task_type, t.val_list])
             reply = Task(TaskType.cntl_input, TaskPriority.high,
                          ["This is a command"])
 

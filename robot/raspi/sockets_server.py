@@ -24,8 +24,6 @@ class SocketsServer:
 
         while not self.bound:
             self.bind_to_port()
-        debug("sockets", "Socket bound to {}:{} sucessfully",
-              [self.ip_address, self.port])
 
     def bind_to_port(self):
         # create socket, use ipv4
@@ -39,6 +37,7 @@ class SocketsServer:
         debug("sockets", "Socket created")
         try:
             self.s.bind((self.ip_address, self.port))
+            debug("sockets", "Socket bound to {}:{}",[self.ip_address, self.port])
             self.bound = True
         except socket.error as socket_error:
             self.bound = False
@@ -70,14 +69,14 @@ class SocketsServer:
 
         # Decode data into task
         t = decode(data)
-        # debug("socket_con", "Decoded data to task: {}", [t])
         # Handle data and respond
-        reply = handler(t, task_queue)
+        reply = handler(t)
         self.conn.sendall(reply.encode())
-        # debug("socket_con", 'Sent reply: "{}"', [reply])
         debug("socket_con", 'Sent reply')
+        debug("socket_con_verbose", 'Sent reply: "{}"', [reply])
 
-    def close(self):
+    def terminate(self):
         self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
         debug("socket_con", "Socket closed")
+
