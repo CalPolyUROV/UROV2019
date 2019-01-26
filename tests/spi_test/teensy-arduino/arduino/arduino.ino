@@ -10,7 +10,8 @@ void setup() {
   //  dataMode SPI_MODE0
   //    (clock polarity 0, clock phase 0, clock edge 1)
   //    (may need to change)
-  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE3));
+//  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE3));
+  SPI.begin();
   delay(100);
 
   // initialize SS to deselected (active low)
@@ -33,5 +34,5 @@ void loop() {
   Serial.println("disabling SS");
   digitalWrite(SS, HIGH);
   
-  delay(500);  
+  delay(100);  
 }
