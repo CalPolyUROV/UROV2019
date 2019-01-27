@@ -3,124 +3,81 @@
 
 # System imports
 import socket  # Sockets library
+from typing import Callable
 
 # Our imports
 import settings
 from snr import Task, TaskPriority, TaskType, Transport, decode, Handler
-from utils import debug, exit, sleep  # Debug printing and logging
+from utils import debug, exit, sleep, attempt
 
 
 class SocketsClient(Transport):
     """ Manages sockets network connection to topside raspi
     """
 
-    def __init__(self, remote_ip=settings.TOPSIDE_IP_ADDRESS, remote_port=settings.TOPSIDE_PORT):
+    def __init__(self, handler: Handler, remote_ip=settings.TOPSIDE_IP_ADDRESS, remote_port=settings.TOPSIDE_PORT):
         self.remote_ip = remote_ip  # Has defaut value
         self.remote_port = remote_port  # Has default value
+        self.handler = handler
+        self.s = None
+        debug("sockets_status", "Sockets client created")
 
-        self.socket_open = False
-        self.socket_connected = False
-
-        self.check_connection()
-
-    def check_connection(self):
-        if not self.socket_open:
-            self.open_socket()
-        if not self.socket_connected:
-            self.connect_socket()
-
-    def repair_connection(self):
-        self.close_socket()
-        self.open_socket()
-        self.connect_socket()
-
-    def open_socket(self):
+    def transport_data(self, data: bytes) -> None:
+        """Main continual entry point for sending data over sockets
+        """
+        # self.create_socket()
+        self.create_connection()
+        reply = self.send_data(data)
+        self.handler(reply)
         self.close_socket()
 
-        # Attempt to create a socket
-        attempts = 1
-        while(not self.create_socket()):
-            if (attempts >= settings.SOCKETS_MAX_ATTEMPTS):
-                if(settings.REQUIRE_SOCKETS):
-                    # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                    debug(
-                        "sockets_client", "Could not create socket after {} attempts.", [attempts])
-                    exit("Could not create socket")
-                else:
-                    # Sockets connection not required by settings
-                    debug("sockets_client", "Giving up on creating socket after {} attempts. Not required in settings.", [
-                        attempts])
-                    settings.USE_SOCKETS = False
-                    return
-            attempts += 1
-            debug("sockets_client", "Trying again.")
+    def create_connection(self) -> None:
+        """Create socket and connect to server in one function
+        """
+        server_tuple = (self.remote_ip, self.remote_port)
+
+        def try_create_connection() -> bool:
+            try:
+                self.s = socket.create_connection(
+                    server_tuple, settings.SOCKETS_CLIENT_TIMEOUT)
+                # Reuse port prior to slow kernel release
+                self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                return True
+            except (ConnectionRefusedError, Exception) as error:
+                s = "Failed to connect to server: {}"
+                debug("sockets_client", s, [error.__repr__()])
+                return False
+
+        def fail_once() -> None:
+            debug("sockets_warning", "Failed to connect to server at {}:{}, trying again.",
+                  [self.remote_ip, self.remote_port])
             # Wait a second before retrying
             sleep(settings.SOCKETS_RETRY_WAIT)
-        self.socket_open = True
-        self.socket_connected = False
-        debug("sockets_client", 'Socket Created')
 
-    def create_socket(self) -> bool:
-        try:
-            # create an INET, STREAMing socket
-            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # Reuse port prior to slow kernel release
-            self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            # Set the timeout on the socket
-            self.s.settimeout(settings.SOCKETS_SERVER_TIMEOUT)
-            return True
-        except (Exception) as error:
-            s = "Failed to create socket: {}"
-            debug("sockets_client", s, [error.__repr__()])
-            return False
+        def failure(tries: int) -> None:
+            if(settings.REQUIRE_SOCKETS):
+                # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+                s = "Could not connect to server at {}:{} after {} attempts. Crashing now."
+                debug("sockets_critical", s, [
+                    self.remote_ip, self.remote_port, tries])
+                exit("Could not connect to server")
+            else:
+                debug("ssockets_error", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
+                    tries])
+                settings.USE_SOCKETS = False
+                return
 
-    # Connect to remote server
-
-    def connect_socket(self):
-        attempts = 1
-        while(settings.USE_SOCKETS and not self.socket_connected and not self.try_connect()):
-            if (attempts >= settings.SOCKETS_CONNECT_ATTEMPTS):
-                if(settings.REQUIRE_SOCKETS):
-                    # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                    s = "Could not connect to server at {}:{} after {} attempts. Crashing now."
-                    debug("socket_con", s, [
-                          self.remote_ip, self.remote_port, attempts])
-                    exit("Could not connect to server")
-                else:
-                    debug("socket_con", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
-                        attempts])
-                    settings.USE_SOCKETS = False
-                    return
-            attempts += 1
-            debug("socket_con", "Failed to connect to server at {}:{}, trying again.", [
-                self.remote_ip, self.remote_port])
-            # Wait a second before retrying
-            sleep(settings.SOCKETS_RETRY_WAIT)
+        attempt(try_create_connection,
+                settings.SOCKETS_CONNECT_ATTEMPTS, fail_once, failure)
         self.socket_connected = True
-        debug("socket_con", 'Socket Connected to {}:{}',
+        debug("sockets_event", 'Socket Connected to {}:{}',
               [self.remote_ip, str(self.remote_port)])
 
-    def try_connect(self) -> bool:
-        try:
-            # self.s.connect((self.remote_ip, self.remote_port))
-            self.s = socket.create_connection((self.remote_ip, self.remote_port), settings.SOCKETS_CLIENT_TIMEOUT)
-        except (ConnectionRefusedError, Exception) as error:
-            s = "Failed to connect to server: {}"
-            debug("sockets_client", s, [error.__repr__()])
-            return False
-        else:
-            return True
-
     def send_data(self, data: bytes) -> Task:
-        """Main continual entry point for sending data over sockets
-
-        This function must...
-        """
         if not settings.USE_SOCKETS:
-            debug("socket_con",
-                  "Socket send ignored because settings.SOCKETS_USE = False")
+            debug("sockets_warning",
+                  "Send ignored because sockets disabled in settings")
             return
-        self.check_connection()
 
         # Send data to remote server
         try:
@@ -128,41 +85,41 @@ class SocketsClient(Transport):
             self.s.sendall(data)
         except (OSError, Exception) as error:
             # Send failed
-            debug("socket_con", 'Send failed: {}', [error.__repr__()])
-            self.close_socket()
-            self.check_connection()
+            debug("sockets_error", 'Send failed: {}', [error.__repr__()])
+            # self.close_socket()
+            # self.check_connection()
             # exit("Sockets send failed")
         else:
-            debug("socket_con", 'Message sent successfully')
-            debug("socket_con_verbose", 'Message sent: {}', [data])
+            debug("sockets_send", 'Message sent successfully')
+            debug("sockets_send_verbose", 'Message sent: {}', [data])
 
         # TODO: Handle loss of connection, attempt to recover
 
         # Now receive data
         reply = "Data not yet received"
-        # BLocking call?
+        # Blocking call?
         try:
             reply = self.s.recv(settings.MAX_SOCKET_SIZE)
+            debug("sockets_receive", "Received reply")
+            debug("sockets_receive_verbose", "Received reply: {}", [reply])
+            task = decode(reply)
+            return task
         except (ConnectionResetError, Exception) as error:
             self.socket_connected = False
-            debug("sockets_client",
-                  "Lost sockets connection: {}", error.__repr__())
+            debug("sockets_error", "Lost sockets connection: {}",
+                  error.__repr__())
             # TODO: Correctly terminate this function here
-        else:
-            debug("socket_con", "Received reply")
-            debug("socket_con_verbose", "Received reply: {}", [reply])
-            return reply
 
     def close_socket(self):
         if self.s is None:
-            debug("sockets_client", "Tried to close socket but it didn't exist")
+            debug("sockets_warning", "Tried to close socket but it was None")
+            return
         try:
             # Close both (RD, WR) ends of the pipe, then close the socket
             self.s.shutdown(socket.SHUT_RDWR)
             self.s.close()
         except (Exception) as error:
-            debug("sockets_client", "Error closing socket: {}",
+            debug("sockets_error", "Error closing socket: {}",
                   [error.__repr__()])
-        self.socket_open = False
-        self.socket_connected = False
+        self.s = None
         debug("sockets_client", 'Socket closed')
