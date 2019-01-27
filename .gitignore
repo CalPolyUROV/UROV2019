@@ -104,10 +104,4 @@ venv.bak/
 .mypy_cache/
 *.bak
 
-.idea/*
-.vscode/*
-robot/.vscode
-topside/.vscode
-tests/.vscode
-robot/raspi/.vscode
-tests/spi_test/.vscode
+.directory

@@ -1,60 +1,51 @@
-#!/usr/bin/python3
-""" Main Python code that runs on the Raspberry Pi 3B inside the robot
+#!/usr/bin/python3.5
+""" Main Python code that runs on the Raspberry Pi 3 B+ inside the robot and surface unit
 
-This is the python program is meant to run on the Raspberry Pi located on
-the robot. This program acts as a intermediary between the Raspberry Pi on
+This is the python program is meant to run on the Raspberry Pi's located on
+the robot and one the surface unit. This program acts as a intermediary between the Raspberry Pi on
 the surface unit and the Arduino/Teensy on the robot. The scheduling module
 used in this program manages the serial and sockets connections to the
 Arduino/Teensy and topside raspberry Pi respectively.
 """
 
 # System imports
-import os
-import sys
-from time import sleep  # Temporary delay to not make things too fast during testing
+import sys  # For command line arguments
 
 # Scheduling imports
 import settings
-from schedule import Schedule, Task
-
+from robot import Robot
+from snr import Node, Scheduler
+from topside import Topside
+from utils import debug, exit, sleep, print_usage
 
 def main():
-    settings.ROLE = 'robot'
+    if len(sys.argv) < 2:
+        print_usage()
+        exit("Improper usage, consider launching from the Makefile with 'make server' and 'make'")
 
-    # Make a schedule object
-    s = Schedule()
+    settings.ROLE = sys.argv[1]  # Command line argument
 
-    # This  initializes the sockets/networking code
-    # Note: The sockets should not connect to the topside unit until after the
-    #   serial connection has been made.
-    #   (This is arbitrary, but the reasoning is that the robot should enumerate
-    #   its own pieces prior to connecting to the server)
-    #   (however the serial connection uses a handshake/"est_con")
-    s.schedule_initial_tasks()
+    if settings.ROLE.__eq__("robot"):
+        debug("framework", "Running as robot")
+        node = Robot()
+    elif settings.ROLE.__eq__("topside"):
+        debug("framework", "Running as server")
+        node = Topside()
+    else:
+        debug("framework", "Invalid ROLE {} given as command line arg", [
+            settings.ROLE])
+        print_usage()
+        exit("Unknown ROLE")
 
-    seq_num_val = 0
-    terminate = False  # Whether to exit main loop
-    while(not terminate):
-        # Get new tasks if needed
-        # TODO: Integrate this if statement into the get_new_tasks call or a check_for_new_tasks()
-        if (not s.has_tasks()):
-            s.get_new_tasks()
-
-        # Get the next task to execute
-        t = s.get_next_task()
-        s.execute_task(t, seq_num_val)
-        seq_num_val += 1
-        sleep(2)  # Temporary delay to not make things too fast during testing
-
-    s.terminate()
-
-# https://stackoverflow.com/questions/21120947/catching-keyboardinterrupt-in-python-during-program-shutdown
-if __name__ == '__main__':
     try:
-        main()
+        node.loop()
     except KeyboardInterrupt:
-        print('Interrupted, exiting')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+        print()
+        debug("framework", "Interrupted by user, exiting")
+
+    node.terminate()
+    debug("framework", "Node terminated")
+    exit("Ya done now")
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python3 main.py
+python3 main.py robot
 
 # This script should be set to launch on boot
 

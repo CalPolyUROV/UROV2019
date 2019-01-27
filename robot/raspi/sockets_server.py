@@ -3,68 +3,84 @@
 # System imports
 import socket
 import sys
-from time import sleep
 
 # Our imports
 import settings
-from debug import debug, debug_f
-from task import Task, TaskType, TaskPriority, decode
+from snr import Task, TaskPriority, TaskType, decode, Handler
+from utils import debug, sleep
 
 
 class SocketsServer:
     """ Manages sockets server which sends commands to robot
+
+    This module is run by the topside unit under a separate thread
+    TODO: verify this threading behavior
     """
 
-    def __init__(self, ip_address=settings.TOPSIDE_IP_ADDRESS, port=settings.TOPSIDE_PORT):
-        self.ip_address = ip_address
-        self.port = port
+    def __init__(self, handler: Handler, ip_address=settings.TOPSIDE_IP_ADDRESS, port=settings.TOPSIDE_PORT):
+        self.server_tuple = ('', port)
+        self.handler = handler
         self.bound = False
 
         while not self.bound:
-            # create socket, use ipv4
-            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
-            debug("sockets", 'Socket created')
-            try:
-                self.s.bind((self.ip_address, self.port))
-            except socket.error as socket_error:
-                self.bound = False
-                debug_f("sockets", "Bind failed. Error Code: {}",
-                        [socket_error])
-                self.s.close()
-                sleep(1)
-                continue
-            self.bound = True
+            self.bind_to_port()
 
-        debug_f("sockets", 'Socket bound to {}:{} sucessfully',
-                [self.ip_address, self.port])
+    def bind_to_port(self):
+        # create socket, use ipv4
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Reuse port prior to slow kernel release
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Set the timeout on the socket
+        self.s.settimeout(settings.SOCKETS_SERVER_TIMEOUT)
+        # Use ethernet port
+        # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
+        debug("sockets_status", "Socket created")
+        try:
+            self.s.bind(self.server_tuple)
+            debug("sockets_event", "Socket bound to {}",[self.server_tuple])
+            self.bound = True
+        except socket.error as socket_error:
+            self.bound = False
+            debug("sockets_critical", "Bind failed: {}", [socket_error])
+            self.s.close()
+            sleep(settings.SOCKETS_RETRY_WAIT)
 
     def open_server(self):
         self.s.listen(10)
+        # TODO: Investigate this magic int
 
     def accept_connection(self,):
-        debug("socket_con", 'Socket now listening')
+        debug("sockets_status", "Socket now listening")
 
         # wait to accept a connection - blocking call
         self.conn, self.addr = self.s.accept()
-        debug_f("socket_con", 'Connected with {}:{}', [self.addr[0], self.addr[1]])
+        debug("sockets_event", "Connected with {}:{}",
+              [self.addr[0], self.addr[1]])
 
         # now keep talking with the client
         # Blocking?
 
-    def recieve_data(self, task_queue: list, handler):
+    def recieve_data(self) -> None:
         data = self.conn.recv(settings.MAX_SOCKET_SIZE)
-        if (not data):
+        if not data:
+            debug("sockets_snafu", "Received empty data. Socket closed?")
             return
-        debug_f("socket_con", "Received data: {}", [data])
+        debug("sockets_status", "Received data")
+        debug("sockets_verbose", "Received data: {}", [data])
+
         # Decode data into task
         t = decode(data)
-        debug_f("socket_con", "Decoded data to task: {}", [t])
         # Handle data and respond
-        reply = handler(t, task_queue)
-        self.conn.sendall(reply.encode())
-        debug_f("socket_con", "Sent reply: \"{}\"", [reply])
+        reply = self.handler(t)
+        debug("sockets_verbose", "Handled reply: {}", [reply])
+        data = reply.encode()
+        debug("sockets_verbose", "Encoded data: ",[data])
+        self.conn.sendall(data)
+        debug("sockets_status", 'Sent reply')
+        debug("sockets_verbose", 'Sent reply: "{}"', [reply])
 
-    def close(self):
+    def terminate(self):
+        self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
-        debug("socket_con", 'Socket closed')
+        debug("sockets_warn", "Socket closed")
+
