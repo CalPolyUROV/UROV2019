@@ -16,11 +16,13 @@ import settings
 from robot import Robot
 from snr import Node, Scheduler
 from topside import Topside
-from utils import debug, exit, sleep
-
-node = None
+from utils import debug, exit, sleep, print_usage
 
 def main():
+    if len(sys.argv) < 2:
+        print_usage()
+        exit("Improper usage, consider launching from the Makefile with 'make server' and 'make'")
+
     settings.ROLE = sys.argv[1]  # Command line argument
 
     if settings.ROLE.__eq__("robot"):
@@ -32,19 +34,18 @@ def main():
     else:
         debug("framework", "Invalid ROLE {} given as command line arg", [
             settings.ROLE])
+        print_usage()
         exit("Unknown ROLE")
 
-    node.loop()
-    node.terminate()
+    try:
+        node.loop()
+    except KeyboardInterrupt:
+        print()
+        debug("framework", "Interrupted by user, exiting")
 
+    node.terminate()
+    debug("framework", "Node terminated")
+    exit("Ya done now")
 
 if __name__ == "__main__":
-    # https://stackoverflow.com/questions/21120947/catching-keyboardinterrupt-in-python-during-program-shutdown
-    try:
-        main()
-    except KeyboardInterrupt:
-        # TODO: Send termination signal to robot from server when closing
-        if not node == None:
-            node.terminate()
-            debug("framework", "Node terminated")
-        exit("Interrupted by user")
+    main()

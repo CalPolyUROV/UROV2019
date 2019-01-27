@@ -21,6 +21,12 @@ def sleep(time_s: int) -> None:
     time.sleep(time_s)
 
 
+def print_usage() -> None:
+    """Prints a Unix style uasge message on how to start the program
+    """
+    print("usage: python3.5 main.py (robot | topside)")
+
+
 def exit(reason: str) -> None:
     """Kills the program after printing the supplied str reason
     """
