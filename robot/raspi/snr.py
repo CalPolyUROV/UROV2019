@@ -1,6 +1,8 @@
 """ SNR framework for scheduling and task management
 
-Implement a Node class that contains a Schedule object. 
+Scheduler
+Node
+Relay (aka Transport)
 """
 
 import json
@@ -18,8 +20,8 @@ class Node:
     """
 
     def __init__(self):
-        raise NotImplementedError(
-            "Subclass of Node does not implement __init__()")
+        debug("framework", "Empty Node created")
+        raise NotImplementedError("Subclass of Node does not implement __init__()")
 
     def loop(self):
         """The main event loop for a Node object
@@ -29,6 +31,7 @@ class Node:
     def terminate(self):
         """Execute actions needed to deconstruction an object that implements a Node
         """
+        debug("framework", "Empty Node termianted")
         raise NotImplementedError(
             "Subclass of Node does not implement terminate()")
 
@@ -81,9 +84,9 @@ class Task:
     def encode(self) -> bytes:
         """Encoding method used in sending data over sockets
         """
-        debug("encode", "Encoding task as JSON bytes: {}", [self])
+        debug("encode", "Encoding task: {}", [self])
         data = (json.dumps(self, default=encode_task)).encode()
-        debug("encode", "Encoded task as bytes: {}", [data])
+        debug("encode_verbose", "Encoded task as JSON bytes: {}", [data])
         return data
 
 
@@ -124,14 +127,14 @@ def encode_task(t: Task):
 def decode_task(dct: dict) -> Task:
     """Decoding function that receives a dict from json.loads()
     """
-    debug("decode_verbose", "JSON gave us {} which is {}",
-          [dct, dct.__class__.__name__])
+    debug("decode_verbose", "JSON gave us {} {}",
+          [dct.__class__.__name__, dct])
     if dct["__Task__"] == True:
         task_type = TaskType(dct["task_type"])
         priority = TaskPriority(dct["priority"])
         val_list = dct["val_list"]
 
-        debug("decode_verbose", "\ttype: {}\n\tpriority: {}",
+        debug("decode_verbose", "type: {}\tpriority: {}",
               [task_type, priority])
         # debug("decode", "\tval_list: {}", val_list)
 
