@@ -28,20 +28,19 @@ class Topside(Node):
         # Create controller object
         self.xbox_controller = Controller()
         self.task_queue = []
+        debug("framework", "Topside Node created")
 
     def loop(self):
         while 1:
             # Create connection to a specific client
             try:
                 self.sockets_server.accept_connection()
-                while 1:
-                    # Wait until cleint sends data, this is a blcoking call
-                    self.sockets_server.recieve_data(
-                        self.task_queue, self.handle_response)
-            except (OSError, Exception) as err:
-                debug("socket_con", "Socket connection failed: {}", [err])
-                self.sockets_server.conn.close()
-                self.sockets_server.close()
+                # Wait until cleint sends data, this is a blcoking call
+                self.sockets_server.recieve_data()
+            except (socket.timeout, OSError, Exception) as err:
+                debug("sockets_server", "Connection failed: {}", [err.__repr__()])
+                
+                self.sockets_server.terminate()
 
                 debug("sockets_server", "Restarting sockets server")
                 self.start_sockets_server()
@@ -82,12 +81,12 @@ class Topside(Node):
         return reply
 
     def start_sockets_server(self):
-        self.sockets_server = None
-        self.sockets_server = SocketsServer(
-            settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
+        # self.sockets_server = None
+        self.sockets_server = SocketsServer(self.execute_task, settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
         # TODO: Take IP address and port as command line arg
         # Open server port
         self.sockets_server.open_server()
 
     def terminate(self):
-        self.xbox_controller.close()
+        self.xbox_controller.terminate()
+        self.sockets_server.terminate()
