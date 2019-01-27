@@ -9,6 +9,7 @@ import _thread
 import settings
 from utils import debug, random_val, try_key
 
+
 class Controller:
     def __init__(self):
         self.joystick_data = {}
@@ -44,22 +45,39 @@ class Controller:
         """Maps an individual KV pair to our controls
         """
         map_list = try_key(settings.control_mappings, key)
-        
+
+        new_key = map_list[0]
+
+        if value is tuple:
+            debug("control_mappings", "Unwrapping tuple {}", [value])
+            value = value[0]
+            
+        if value is str:
+            debug("control_mappings", "Control value is str {}", [value])
+            exit("Stringtalityyy")
+            
         if len(map_list) > 1:
-            # Use scale_factor
-            value = value * map_list[1]
+            scale_factor = map_list[1]
+            value = value * scale_factor
         if len(map_list) > 2:
-            # Use shift_ammount
-            value = value + map_list[2]
+            shift_ammount = map_list[2]
+            value = value + shift_ammount
         if len(map_list) > 3:
-            # Use dead_zone
-            if abs(value) < map_list[3]:
+            dead_zone =  map_list[3]
+            if abs(value) < dead_zone:
                 # value is inside dead zone
                 value = 0
-        if value is tuple:
-            value = value[0]
-        return (map_list[0], int(round(value)))
+        if value is int:
+            value = int(round(value))
 
+        debug("control_mappings_verbose","Mapped value {}", [value])
+        try:
+            key_val_tuple = (new_key, value)
+        except Exception as error:
+            debug("control_mappings", "Error: {}", [error.__repr__()])
+            exit("Fatalityyyy")
+
+        return key_val_tuple
 
     def initialize(self):
         """Function run in separate thread to update control data
@@ -114,11 +132,11 @@ class Controller:
                 for i in range(self.joystick_data["num_dpad"]):
                     self.joystick_data["dpad"] = joystick.get_hat(i)
 
-    def close():
+    def terminate(self):
         # Close the window and quit.
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
-        debug("controls_reader", "exiting pygame")
+        debug("controls_reader_verbose", "exiting pygame")
         pygame.quit()
         debug("controls_reader", "exited pygame")
 
@@ -129,7 +147,7 @@ def simulate_input() -> dict:
     # debug("simulation", "Simulating control input")
     sim_data = {}
     for k in settings.control_mappings:
-        key = settings.control_mappings[k]
+        key = settings.control_mappings[k][0]
         if not key == None:
             # debug("simulation_verbose", "Adding key {}", [key])
             sim_data[key] = random_val()
