@@ -16,14 +16,14 @@ from serial_coms import SerialConnection  # Serial connection to Teensy
 from snr import Node, Scheduler, Task, TaskPriority, TaskType, decode
 # from spi_coms import SPIConnection  # Not yet implemented
 from sockets_client import SocketsClient  # Sockets connection to topside
-from utils import debug, exit, sleep  # Miscelaneous utilities
+from utils import debug, exit, sleep, debug_delay  # Miscelaneous utilities
 
 
 class Robot(Node):
 
     def __init__(self):
 
-        self.terminate = False  # Whether to exit main loop
+        self.terminate_flag = False  # Whether to exit main loop
         self.database = Database()  # Handles all the robot's data
 
         # Make a schedule object
@@ -43,10 +43,10 @@ class Robot(Node):
                                                    )
 
     def loop(self):
-        while not self.terminate:
+        while not self.terminate_flag:
             self.step_task()
-            # sleep(1)
-        self.scheduler.terminate()
+            debug_delay()
+        # self.terminate()
 
     def step_task(self):
         # Get the next task to execute
@@ -86,9 +86,10 @@ class Robot(Node):
                 return self.serial_connection.send_receive_packet(data)
 
         # Initiate sockets connection
-        elif t.task_type == TaskType.sockets_connect:
-            if settings.USE_SOCKETS:
-                self.socket_connection.check_connection()
+        # (commented out because a socket is created on every send call)
+        # elif t.task_type == TaskType.sockets_connect:
+        #     if settings.USE_SOCKETS:
+        #         self.socket_connection.check_connection()
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
@@ -113,11 +114,12 @@ class Robot(Node):
         """Task source function passed to Schedule constructor
         """
         if not settings.USE_SOCKETS:
+            debug("robot", "Not able to fetch new tasks while sockets diabled")
             return
 
         # communicate over sockets to generate new tasks based on UI input
         t = Task(TaskType.get_cntl, TaskPriority.high, ["control input pls"])
-        data = self.socket_connection.send_data(t.encode())
+        data = self.socket_connection.transport_data(t.encode())
         return decode(data)
 
     def initial_tasks(self) -> list:
@@ -136,9 +138,9 @@ class Robot(Node):
         #   (however the serial connection uses a handshake/"est_con")
 
         l = []
-        if settings.USE_SOCKETS:
-            t = Task(TaskType.sockets_connect, TaskPriority.high, [])
-            l.append(t)
+        # if settings.USE_SOCKETS:
+        #     t = Task(TaskType.sockets_connect, TaskPriority.high, [])
+        #     l.append(t)
 
         if settings.USE_SERIAL:
             t = Task(TaskType.serial_est_con, TaskPriority.high, [])
