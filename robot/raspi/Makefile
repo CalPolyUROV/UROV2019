@@ -47,6 +47,19 @@ py_setup: env_setup
 # 	make -j 4
 # 	sudo make altinstall
 
+build_pygame:
+	# https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=33157
+	sudo apt-get install mercurial 
+	hg clone https://bitbucket.org/pygame/pygame
+	cd pygame
+
+	sudo apt-get install libsdl-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev 
+	sudo apt-get install libsmpeg-dev libportmidi-dev libavformat-dev libswscale-dev
+	sudo apt-get install python3-dev python3-numpy
+
+	python3 setup.py build 
+	sudo python3 setup.py install
+
 todo:
 	grep --line-number --initial-tab "TODO:" *.py | tr -s [:space:]  > todo.txt
 	cat todo.txt
