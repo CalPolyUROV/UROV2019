@@ -53,62 +53,59 @@ class Robot(Node):
         t = self.scheduler.get_next_task()
         self.scheduler.execute_task(t)
 
-    def execute_task(self, t: Task) -> list:
+    def execute_task(self, t: Task) -> None:
         sched_list = []
 
         # Debug string command
         if t.task_type == TaskType.debug_str:
             debug("execute_task", "Executing task: {}", t.val_list)
+            return
 
         # Process controls input
         elif t.task_type == TaskType.cntl_input:
             debug("robot_control", "Processing control input")
             debug("robot_control_verbose", "Control input {}", [t.val_list])
-            return self.database.receive_controls(t.val_list)
+            self.scheduler.schedule_task(self.database.receive_controls(t.val_list))
+            return 
 
         # Read sensor data
         elif t.task_type == TaskType.get_telemetry:
             debug("execute_task", "Executing task: {}", t.val_list)
             t = Task(TaskType.get_cntl, TaskPriority.high,
                      self.robot_data.telemetry_data())
-            data = self.socket_connection.send_data(t.encode())
-            return decode(data)
+            self.socket_connection.send_data(t.encode())
+            return 
 
         # Initiate serial connection
         elif t.task_type == TaskType.serial_est_con:
             if settings.USE_SERIAL:
-                return self.serial_connection.establish_contact()
+                self.scheduler.schedule_task( self.serial_connection.establish_contact())
+                return
 
         # Send serial data
         elif t.task_type == TaskType.serial_com:
             if settings.USE_SERIAL:
                 data = t.val_list
-                return self.serial_connection.send_receive_packet(data)
-
-        # Initiate sockets connection
-        # (commented out because a socket is created on every send call)
-        # elif t.task_type == TaskType.sockets_connect:
-        #     if settings.USE_SOCKETS:
-        #         self.socket_connection.check_connection()
+                self.scheduler.schedule_task(self.serial_connection.send_receive_packet(data))
+                return
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
             p = serial_coms.make_packet(
                 serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
             self.serial_connection.send_receive_packet(p)
+            return
 
         # Terminate robot
         elif t.task_type == TaskType.terminate_robot:
             debug("robot_control",
                   "Robot {} program terminated by command", settings.ROBOT_NAME)
             self.terminate = True  # RIP
+            return
 
         else:  # Catch all
             debug("execute_task", "Unable to handle TaskType: {}", t.task_type)
-
-        # Safety catch
-        if not isinstance(sched_list, list):
-            return []
+            return 
 
     def get_new_tasks(self) -> Task or list:
         """Task source function passed to Schedule constructor
@@ -118,7 +115,7 @@ class Robot(Node):
             return
 
         # communicate over sockets to generate new tasks based on UI input
-        t = Task(TaskType.get_cntl, TaskPriority.high, ["control input pls"])
+        t = Task(TaskType.get_cntl, TaskPriority.high, [])
         data = self.socket_connection.transport_data(t.encode())
         return decode(data)
 

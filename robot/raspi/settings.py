@@ -7,41 +7,30 @@ from enum import IntEnum
 
 
 # Debugging
-# Debugging Levels
-NOTHING = -1
-CRITICAL = 2
-ERROR = 4
-HICCUP = 6
-SNAFU = 8
-WARNING = 10
-STATUS = 12
-VERBOSE = 14
-EVERYTHING = 16
 # TODO: track debugging for server and client separately
 DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
-DEBUG_LOGGING = False
-DEBUG_LEVEL = WARNING  # Not yet used
+DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": True,
-    "schedule": True,
+    "framework": False,
+    "schedule": False,
     "execute_task": False,
 
-    "controller": True,
-    "controls_reader": True,
+    "controller": False,
+    "controls_reader": False,
     "controls_reader_verbose": False,
-    "control_mappings": True,
+    "control_mappings": False,
     "control_mappings_verbose": False,
     "simulation": False,
     "simulation_verbose": False,
 
     "robot": True,
     "robot_control": True,
-    "robot_control_verbose": True,
+    "robot_control_verbose": False,
     "thrust_vec": True,
-    "thrust_vec_verbose": True,
+    "thrust_vec_verbose": False,
 
-    "sockets": True,
+    "sockets": False,
     "sockets_client": True,
     "sockets_error": True,
     "sockets_warning": True,
@@ -111,11 +100,11 @@ control_mappings = {
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = True
-TOPSIDE_IP_ADDRESS = 'localhost'  # '192.168.10.10'
+TOPSIDE_IP_ADDRESS =  '10.0.10.10' # 'localhost' 
 TOPSIDE_PORT = 9120
-SOCKETS_SERVER_TIMEOUT = 30
-SOCKETS_CLIENT_TIMEOUT = 3
-SOCKETS_OPEN_ATTEMPTS = 4  # Maximum number of times to try creating a socket
+SOCKETS_SERVER_TIMEOUT = 120
+SOCKETS_CLIENT_TIMEOUT = 4
+SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
 # Maximum number of times to try creating or opening a socket
 SOCKETS_CONNECT_ATTEMPTS = 120
 SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
