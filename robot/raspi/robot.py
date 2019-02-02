@@ -95,7 +95,7 @@ class Robot(Node):
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
-            p = serial_coms.make_packet(
+            p = self.serial_connection.new_packet(
                 serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
             self.serial_connection.send_receive_packet(p)
             return
@@ -115,8 +115,8 @@ class Robot(Node):
         """Task source function passed to Schedule constructor
         """
         if not settings.USE_SOCKETS:
-            debug("robot", "Not able to fetch new tasks while sockets diabled")
-            return
+            debug("robot", "Sockets disabled, queuing blink task")
+            return Task(TaskType.blink_test, TaskPriority.high, [1, 1])
 
         # communicate over sockets to generate new tasks based on UI input
         t = Task(TaskType.get_cntl, TaskPriority.high, [])

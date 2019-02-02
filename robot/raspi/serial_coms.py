@@ -85,6 +85,7 @@ class SerialConnection(Transport):
             serial_port = find_port()
         attempts = 1
         port_open = False
+        self.next_seqnum = FIRST_SEQNUM
         while(not port_open):
             try:
                 self.serial_connection = serial.Serial(
@@ -126,6 +127,7 @@ class SerialConnection(Transport):
         return
 
     # Read in a packet from serial
+    # TODO: ensure that this effectively recieves data over serial 
     def read_packet(self) -> Packet or None:
         _cmd = self.serial_connection.read(size=1)
         if (_cmd == b''):
@@ -134,6 +136,8 @@ class SerialConnection(Transport):
         _val2 = self.serial_connection.read(size=1)
         _seqnum_chksum = self.serial_connection.read(size=1)
         debug('ser_packet', "Received: {}{}{}{}", [_cmd, _val1, _val2, _seqnum_chksum])
+        # TODO: ensure that chksum is correct
+        get_next_seqnum()
         return parse_packet(_cmd, _val1, _val2, _seqnum_chksum)
         # Warning, this will not catch packets with invalid checksums
 
@@ -171,9 +175,10 @@ class SerialConnection(Transport):
             return [t]
 
 
-    def new_packet(cmd: int, val1: int, val2: int, seqnum: int):
+    def new_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets to send (chksum is created)
         """
+        seqnum = self.get_next_seqnum()
         chksum = Packet.calc_chksum(cmd, val1, val2, seqnum)
         return Packet(cmd, val1, val2, ((seqnum << 4) + chksum))
 
@@ -181,4 +186,8 @@ class SerialConnection(Transport):
         """ Constructor for building packets (chksum is given)
         """
         # chksum = calc_chksum(cmd, val1, val2, seqnum)
-        return Packet(cmd, val1, val2, ((self.next_seqnum() << 4) + chksum))
+        return Packet(cmd, val1, val2, ((self.get_next_seqnum() << 4) + chksum))
+    
+    def get_next_seqnum(self) -> int:
+        self.next_seqnum += 1
+        return self.next_seqnum

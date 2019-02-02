@@ -48,17 +48,17 @@ DEBUG_CHANNELS = {
     "decode": False,
     "decode_verbose": False,
 
-    "serial_finder": False,
-    "serial": False,
-    "serial_con": False,
-    "ser_packet": False,
-    "chksum": False,
+    "serial_finder": True,
+    "serial": True,
+    "serial_con": True,
+    "ser_packet": True,
+    "chksum": True,
 
     "test": True,
 }
 
 # XBox Controller
-USE_CONTROLLER = True  # TODO: Use this value
+USE_CONTROLLER = False  # TODO: Use this value
 REQUIRE_CONTROLLER = True  # TODO: Use this value
 SIMULATE_INPUT = False  # TODO: Use this value
 
@@ -97,7 +97,7 @@ control_mappings = {
 
 
 # Sockets Connection
-USE_SOCKETS = True
+USE_SOCKETS = False
 REQUIRE_SOCKETS = True
 TOPSIDE_IP_ADDRESS = '10.0.10.10'
 TOPSIDE_PORT = 9120
@@ -113,9 +113,9 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 #     before the client gives up on connecting to it.
 
 # Serial Connection
-USE_SERIAL = False
-REQUIRE_SERIAL = False
-SERIAL_BAUD = 19200  # Serial Baudrate
+USE_SERIAL = True
+REQUIRE_SERIAL = False 
+SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
 
 # Robot selection

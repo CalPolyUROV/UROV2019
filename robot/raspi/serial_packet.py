@@ -66,9 +66,9 @@ class Packet:
 
     def calc_chksum(cmd: int, val1: int, val2: int, seqnum: int) -> int:
         sum = (cmd +
-               (val1 * 3) +
-               (val2 * 5) +
-               (seqnum * 7)) & CHKSUM_MASK
+               (int)(val1 * 3) +
+               (int)(val2 * 5) +
+               (int)(seqnum * 7)) & CHKSUM_MASK
         return sum
         # idk, it has primes
         # TODO: Make this better, but it must match on this and the Arduino/Teensy. (Maybe CRC32 or a smaller variant)
