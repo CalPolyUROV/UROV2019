@@ -4,51 +4,68 @@
 
 PYTHON_CMD = python3.5
 PYTHON_FLAGS = -B
-PYTHON_VERSION = python_version
 
 MAIN_SRC = main.py
 TEST_SRC = tests.py
 LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_FLAGS) $(MAIN_SRC)
 
+IP_CLIENT = 10.0.10.11
+USERNAME = ubuntu
+
 robot:
 	$(LAUNCH_CMD) robot
 
-server:
+topside:
 	$(LAUNCH_CMD) topside
+
+debug_robot:
+	$(LAUNCH_CMD) robot -d
+
+debug_topside:
+	$(LAUNCH_CMD) topside -d
+
+ssh:
+	ssh $(USERNAME)@$(IP_CLIENT)
 
 test: $(TEST_SRC)
 	$(PYTHON_CMD) $(PYTHON_FLAGS) $(TEST_SRC)
 
 # Setup environment for development and use
-# Supprts only systems that use the apt package manager and diff
+# Supprts only systems that use the apt package manager
 # Windows and Mac not supported
-env: 
-	$(PYTHON_CMD) --version | diff $(PYTHON_VERSION) -
-
-env_setup: py_modules # env_setup py_setup py_modules
-	sudo apt update
-	sudo apt upgrade
+py_version: 
+	$(PYTHON_CMD) --version | diff python_version -
 	
-py_setup: env_setup
+py_install:
 	# From apt repos: (based on your distro, raspbian will be different)
 	sudo apt update
-	sudo apt install python3.5
-	sudo apt install python3.5-pip
+	sudo apt install python3
 	
-# py_build:
-# 	sudo apt update
-# 	sudo apt upgrade
-# 	sudo apt install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev
-# 	According to https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f
-# 	wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tar.xz
-# 	tar xf Python-3.6.5.tar.xz
-# 	cd Python-3.6.5
-# 	./configure --enable-optimizations
-# 	make -j 4
-# 	sudo make altinstall
+py_build:
+	# According to https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f
+	cd ../../..
+	sudo apt update
+	sudo apt upgrade
+	sudo apt install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev
+	wget https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tar.xz
+	tar xf Python-3.6.5.tar.xz
+	cd Python-3.6.5
+	./configure --enable-optimizations
+	make -j 4
+	sudo make altinstall
 
-build_pygame:
+pip_install:
+	sudo apt install python3-pip
+
+pip_upgrade:
+	$(PYTHON_CMD) -m pip install --upgrade pip --user
+
+pygame_install:
+	$(PYTHON_CMD) -m pip install --upgrade pygame
+
+pygame_build:
 	# https://www.raspberrypi.org/forums/viewtopic.php?f=32&t=33157
+	cd ../../..
 	sudo apt-get install mercurial 
 	hg clone https://bitbucket.org/pygame/pygame
 	cd pygame
