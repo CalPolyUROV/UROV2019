@@ -21,7 +21,7 @@ from utils import debug, exit, sleep, debug_delay  # Miscelaneous utilities
 
 class Robot(Node):
 
-    def __init__(self):
+    def __init__(self, mode: str):
 
         self.terminate_flag = False  # Whether to exit main loop
         self.database = Database()  # Handles all the robot's data
@@ -35,11 +35,15 @@ class Robot(Node):
             debug("serial", "Using serial as enabled in settings")
             self.serial_connection = SerialConnection()
 
+        if mode.__eq__("debug"):
+            settings.TOPSIDE_IP_ADDRESS = "localhost"
+
         if settings.USE_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
             # Make sockets client object using our implementation
             self.socket_connection = SocketsClient(self.scheduler.schedule_task,
-                                                   settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT
+                                                   settings.TOPSIDE_IP_ADDRESS, 
+                                                   settings.TOPSIDE_PORT
                                                    )
 
     def loop(self):

@@ -1,5 +1,5 @@
-controller.py: 77:	 # TODO: Investigate whether this part of the loop is necessary
-controller.py: 136:	 # TODO: provide specific data types for relevent keys
+controller.py: 95:	 # TODO: Investigate whether this part of the loop is necessary
+controller.py: 154:	 # TODO: provide specific data types for relevent keys
 robot_data.py: 12:	 Senors TODO:
 robot_data.py: 20:	 Inputs TODO:
 robot_data.py: 67:	 # TODO: Create task for different control inputs
@@ -12,18 +12,17 @@ serial_finder.py: 3:	# TODO: Find the origin of this code and give credit
 serial_packet.py: 6:	# TODO: verify checksums, probably in read_packet()
 serial_packet.py: 74:	 # TODO: Make this better, but it must match on this and the Arduino/Teensy. (Maybe CRC32 or a smaller variant)
 settings.py: 5:	# TODO: Investigate converting settings values to a dict
-settings.py: 20:	# TODO: track debugging for server and client separately
-settings.py: 64:	USE_CONTROLLER = True # TODO: Use this value
-settings.py: 65:	REQUIRE_CONTROLLER = True # TODO: Use this value
-settings.py: 66:	SIMULATE_INPUT = True # TODO: Use this value
+settings.py: 10:	# TODO: track debugging for server and client separately
+settings.py: 62:	USE_CONTROLLER = True # TODO: Use this value
+settings.py: 63:	REQUIRE_CONTROLLER = True # TODO: Use this value
+settings.py: 64:	SIMULATE_INPUT = False # TODO: Use this value
 snr.py: 199:	 # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
 snr.py: 215:	 # TODO: Send commands to Teensy (In final commands will come from sockets connection OR event loop will get updated values in an RTOS manner)
 snr.py: 216:	 # TODO: Write logic choosing a command to send (maybe use a queue)
 snr.py: 240:	 # TODO: possibly call get_new_tasks()
-sockets_client.py: 68:	 # # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-sockets_client.py: 111:	 # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-sockets_client.py: 147:	 # TODO: Handle loss of connection, attempt to recover
-sockets_client.py: 161:	 # TODO: Correctly terminate this function here
+sockets_client.py: 59:	 # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+sockets_client.py: 96:	 # TODO: Handle loss of connection, attempt to recover
+sockets_client.py: 111:	 # TODO: Correctly terminate this function here
 sockets_server.py: 17:	 TODO: verify this threading behavior
 sockets_server.py: 50:	 # TODO: Investigate this magic int
 topside.py: 21:	 # TODO: implement SNR schedule/Node in topside

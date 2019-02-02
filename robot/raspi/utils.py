@@ -7,7 +7,7 @@ import os  # For exit
 import random  # Simulated control values
 import sys  # For exit
 import time  # For sleep
-from typing import Callable, NewType
+from typing import Callable, NewType, Dict
 import _thread  # For  multi threaded debug
 
 # Our imports
@@ -161,3 +161,17 @@ def attempt(action: Attemptable, tries: int, fail_once: Callable, failure: Calla
         else:
             fail_once()
             attempts += 1
+
+# def switch(input: object, option_action_dict: Dict[object, Callable], default_action: Callable):
+#     if input in option_action_dict:
+#         option_action_dict[input]()
+#     else:
+#         default_action()
+#     return
+
+# def match(input: object, option_a, action_a, option_b: Callable, action_b: Callable):
+#     if input is option_a or input == option_a:
+#         action_a(input)
+#     elif input is option_b or input == option_b:
+#         action_b(input)
+

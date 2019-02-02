@@ -5,7 +5,6 @@ from enum import IntEnum
 # TODO: Investigate converting settings values to a dict
 # (Maybe keeping a per Node settings object)
 
-
 # Debugging
 # TODO: track debugging for server and client separately
 DEBUGGING_DELAY_S = 0
@@ -37,7 +36,7 @@ DEBUG_CHANNELS = {
     "sockets_event": True,
     "sockets_status": True,
     "sockets_verbose": False,
-    
+
     "sockets_send": True,
     "sockets_send_verbose": False,
 
@@ -45,7 +44,7 @@ DEBUG_CHANNELS = {
     "sockets_receive_verbose": False,
 
     "encode": False,
-    "encode_verbose":False,
+    "encode_verbose": False,
     "decode": False,
     "decode_verbose": False,
 
@@ -100,7 +99,7 @@ control_mappings = {
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = True
-TOPSIDE_IP_ADDRESS =  '10.0.10.10' # 'localhost' 
+TOPSIDE_IP_ADDRESS = '10.0.10.10'
 TOPSIDE_PORT = 9120
 SOCKETS_SERVER_TIMEOUT = 120
 SOCKETS_CLIENT_TIMEOUT = 4

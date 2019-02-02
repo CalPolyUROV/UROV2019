@@ -18,7 +18,7 @@ from utils import debug
 class Node:
     """ Implemented by an object which needs to have a queue of tasks that are executed 
     """
-
+    
     def __init__(self):
         debug("framework", "Empty Node created")
         raise NotImplementedError("Subclass of Node does not implement __init__()")

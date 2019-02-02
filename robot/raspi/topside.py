@@ -17,13 +17,16 @@ from utils import debug, exit
 
 class Topside(Node):
 
-    def __init__(self):
+    def __init__(self, mode: str):
         # TODO: implement SNR schedule/Node in topside
+        
+        if mode.__eq__("debug"):
+            settings.TOPSIDE_IP_ADDRESS = "localhost"
+
         # Create sockets server object
         self.start_sockets_server()
-        # TODO: pass sockets server into Node/Schedule
-
-        # TODO: Remotely run client on robot
+        
+        # TODO: Remotely start robot program from topside
 
         # Create controller object
         self.xbox_controller = Controller()

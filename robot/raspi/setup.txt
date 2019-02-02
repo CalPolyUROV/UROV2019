@@ -1,7 +1,31 @@
-1. Use "make env" to set up python, pip, and dependancies
+1. Get python
+    Check version with:
+    "make py_version"
+    If python3.whatever is availble fromthe package manager, try to install with:
+    "make py_install" 
+    If not, build from scratch with:
+    "make py_build"
 
-2. Debug the script...
+2. Install pip
+    Pray that the packagemanager has it
+    "make pip_install"
+    Upgrade pip
+    "make pip_upgrade"
 
-3. ???
+3. Install pygame
+    see if pip will let you have it
+    "make pygame_install"
+    YOLO build it from source
+    "make pygame_build"
 
-4. Profit
+4. Run all the programs
+    To debug topside and robot on one machine:
+        In separate terminals
+        "make topside local_debug"
+        and
+        "make robot local_debug"
+    To run on topside unit and robot:
+        "make topside robot"
+        and 
+        "make robot robot"
+    Use Ctrl+c to exit
