@@ -16,7 +16,7 @@ import settings
 from robot import Robot
 from snr import Node, Scheduler
 from topside import Topside
-from utils import debug, exit, sleep, print_usage, switch
+from utils import debug, exit, sleep, print_usage
 
 
 def main():
