@@ -117,6 +117,7 @@ USE_SERIAL = True
 REQUIRE_SERIAL = False 
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
+SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after failing
 
 # Robot selection
 ROBOT_NAME = "Subrina"

@@ -7,10 +7,60 @@ import sys
 import serial
 from sys import platform
 
-from utils import debug
+from utils import debug, attempt, sleep
+import settings
 
 
-def serial_ports() -> list:
+def get_port_to_use() -> str:
+    """ Finds a serial port for the serial connection
+
+    Calls the serial_finder library to search the operating system for serial ports
+    """
+    port = None
+
+    def try_find_port() -> bool:
+        try:
+            # Get a list of all serial ports
+            debug('serial_finder', "Searching for serial ports")
+            ports = list_ports()
+            debug('serial_finder', "Found ports:")
+            for p in ports:
+                debug('serial_finder', p)
+            # Select the port
+            port = select_port(ports)
+            if(port == None):
+                raise serial.serialutil.SerialException
+            debug("serial_finder", "Using port: {}", [port])
+            return True
+
+        except serial.serialutil.SerialException as error:
+            debug("serial_finder", "Error finding port: {}", [str(error)])
+            return False
+
+    def failure(tries: int):
+        if(settings.REQUIRE_SERIAL):
+                # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+            debug('serial_finder', "Could not find serial port after {} attempts. Crashing now.", [
+                tries])
+            exit("Could not find port")
+        else:
+            debug('serial_finder', "Giving up on finding serial port after {} attempts. Not required in settings.", [
+                tries])
+            settings.USE_SERIAL = False
+
+    def fail_once():
+        debug('serial_finder', "Failed to find serial port, trying again.")
+        sleep(settings.SERIAL_RETRY_WAIT)  # Wait a second before retrying
+
+    attempt(try_find_port,
+            settings.SERIAL_MAX_ATTEMPTS,
+            fail_once,
+            failure)
+
+    return port
+
+
+def list_ports() -> list:
     """ Finds all serial ports and returns a list containing them
 
         :raises EnvironmentError:
@@ -39,8 +89,8 @@ def serial_ports() -> list:
     return result
 
 
-def find_port(ports) -> str or None:
-    """ Finds a port in a list to use and returns itF
+def select_port(ports) -> str or None:
+    """ Selects the apprpriate port from the given list
     """
     if platform == "linux" or platform == "linux2":
         debug("serial_finder", "Linux detected")
