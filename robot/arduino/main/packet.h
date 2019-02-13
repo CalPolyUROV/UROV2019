@@ -1,13 +1,14 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <arduino.h>
+#include "TeensyThreads.h"
 
 #include "defs.h"
+#include "serial.h"
 
 //LUT
 // lookup table for indexes of commands
-// byte cmd_lut[255] = {EST_CMD, SET_MOT_CMD, READ...}
+// u8 cmd_lut[255] = {EST_CMD, SET_MOT_CMD, READ...}
 // currently using switch statement and bodge LUT
 #define EST_CON_CMD 0x10 // establish connection (call)
 #define EST_CON_ACK 0x11 // respond to new connection
@@ -26,25 +27,73 @@
 */
 
 // Magic packet contents to validate est_con packet (arbitrary)
-#define EST_CON_VAL1 B10100101
-#define EST_CON_VAL2 B01011010
+#define EST_CON_VAL1 0xa5
+#define EST_CON_VAL2 0x5a
 
+#define LOWER_NIBBLE_MASK 0x0f
+#define UPPER_NIBBLE_MASK 0xf0
 #define CHKSUM_MASK LOWER_NIBBLE_MASK
 
-#define MAX_SEQNUM B00001111  //upper bound of seqnum, inclusive
-#define FIRST_SEQNUM B00000000 // initial sequence number
-
 struct packet {
-  byte cmd; // the action to be executed on the Arduino/Teensy
-  byte value1, value2; // Data for the action ie which motor PWM timing
-  byte seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
+  u8 cmd; // the action to be executed on the Arduino/Teensy
+  u8 value1, value2; // Data for the action ie which motor PWM timing
+  u8 seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
 
-void wait_for_packet(SERIAL_CLASS *serial);
-void create_packet(struct packet *p, byte cmd, byte value1, byte value2, byte seqnum_nibble);
-int send_packet(SERIAL_CLASS *serial, packet p);
-byte calc_chksum(byte cmd, byte value1, byte value2, byte seqnum_nibble);
-byte extract_chksum(byte seqnum_chksum);
-byte extract_seqnum(byte b);
+// Getter for global sequence number
+u8 get_seqnum_nibble() {
+  return seqnum & LOWER_NIBBLE_MASK;
+}
+
+// Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
+u8 extract_chksum(u8 seqnum_chksum) {
+  return seqnum_chksum & CHKSUM_MASK;
+}
+
+// Bitshift the seqnum_chksum byte right 4 times to leave just the seqnum nibble
+u8 extract_seqnum(u8 b) {
+  return b >> 4; // is this wrong?
+}
+
+// calculate the checksum for values being put into a packet
+u8 calc_chksum(u8 cmd, u8 value1, u8 value2, u8 seqnum_nibble) {
+  return (cmd +
+          (value1 * 3) +
+          (value2 * 5) +
+          (seqnum_nibble * 7))
+         & CHKSUM_MASK;
+}
+
+// Wait for the UART buffer to be filled with a whole packet.
+// This is a blocking operation (i think)
+void wait_for_packet(SERIAL_CLASS *serial) {
+  while (serial->available() < PACKET_LENGTH) {}
+}
+
+// Take values for a packet and place at a pointer, add checksum
+void create_packet(packet *p, u8 cmd, u8 value1, u8 value2, u8 seqnum_nibble) {
+  p->cmd = cmd;
+  p->value1 = value1;
+  p->value2 = value2;
+  p->seqnum_chksum = (seqnum_nibble << 4) +  calc_chksum(cmd, value1, value2, seqnum_nibble);
+}
+
+// Send the packet over a serial interface
+int send_packet(SERIAL_CLASS *serial, packet p) {
+  threads.stop();
+  serial->write(p.cmd);
+  serial->write(p.value1);
+  serial->write(p.value2);
+  serial->write(p.seqnum_chksum);
+  threads.start();
+  return 0;
+}
+
+/* not used right now
+
+  u8 recalc_chksum(struct packet *p) {
+  return calc_chksum(p->cmd, p->value1, p->value2, p->seqnum_chksum >> 4);
+  }
+*/
 
 #endif

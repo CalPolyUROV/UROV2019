@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/sfshaw/arduino-1.8.7/tools/**",
+                "/home/sfshaw/arduino-1.8.7/hardware/arduino/avr/**",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/*",
+                "/home/sfshaw/arduino-1.8.7/hardware/teensy/avr/libraries/**",
+                "/home/sfshaw/arduino-1.8.7/hardware/teensy/avr/libraries/*/*",
+                "/home/sfshaw/arduino-1.8.7/hardware/teensy/avr/cores/teensy3/*"
+            ],
+            "defines": [],
+            "compilerPath": "/home/sfshaw/arduino-1.8.7/hardware/tools/arm/bin/arm-none-eabi-g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "forcedInclude": [
+                "/home/sfshaw/arduino-1.8.7/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ]
+        }
+    ],
+    "version": 4
+}

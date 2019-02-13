@@ -1,3 +1,6 @@
+#ifndef BLINK_H
+#define BLINK_H
+
 #define LED_PIN 13
 #define DELAY 1000
 
@@ -25,3 +28,6 @@ void blink_delay(int ms) {
   delay(ms);
   off();
 }
+
+
+#endif

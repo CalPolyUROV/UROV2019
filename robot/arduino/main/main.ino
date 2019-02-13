@@ -1,25 +1,26 @@
+
+#include <TeensyThreads.h>
+
 #include "settings.h"
 #include "defs.h"
+#include "serial.h"
 #include "packet.h"
 #include "blink.h"
 #include "motors.h"
-#include "TeensyThreads.h"
 
 SERIAL_CLASS *coms_serial; // Main UART coms to on-robot Raspberry Pi
-DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
+// DEBUG_SERIAL_CLASS *debug_serial; // Debug coms to connected PC?
 // Note that these serial objects are pointers so they can be passed around and reassigned easily
 
 // Sequence number keeps track of packet order
 // Do not directly access or modify the global sequence number
 // Always use the inc_seqnum() and get_seqnum_nibble() functions
-uint8_t seqnum;
 
 void setup() {
-
   coms_serial = &Serial; // This is USB serial
   coms_serial->begin(COMS_BAUD);
 
-  debug_serial = coms_serial; // This is USB serial
+  // debug_serial = coms_serial; // This is USB serial
   //debug_serial.begin(DEBUG_BAUD);
   blink_setup();
   blink_std();
@@ -36,7 +37,7 @@ void setup() {
 
 // Motor update thread
 void motorThread() {
-  while(true) {
+  while (true) {
     updateMotors();
     threads.delay(MOTOR_DELTA_MS);
   }
@@ -48,7 +49,7 @@ void loop() {
 
 void communicationThread() {
   packet p;
-  while(true) {
+  while (true) {
     if (get_packet(&p, get_seqnum_nibble())) {
       //error from get_packet()
     }
@@ -58,10 +59,12 @@ void communicationThread() {
       // error from handle_packet()
     }
     inc_seqnum();
+
     //blink_delay(100);
     threads.yield();
   }
 }
+
 
 // Executes the actions for a given packet and sends response packet
 // Returns 0 on success and >0 on failure
@@ -74,7 +77,7 @@ int handle_packet(packet p, byte expect_seqnum_nibble) {
           (extract_seqnum(p.seqnum_chksum) == FIRST_SEQNUM)) {
         create_packet(&response, EST_CON_ACK, p.value1, p.value2, expect_seqnum_nibble);
         break;
-        }
+      }
       // Establish connection packet was not valid
       create_inv_packet(&response, p, expect_seqnum_nibble);
       break;
@@ -134,36 +137,35 @@ int get_packet(packet *p, byte expect_seqnum_nibble) {
   return 0;
 }
 
-// Increment the global sequence number
-void inc_seqnum() {
-  switch (seqnum) {
-    case MAX_SEQNUM:
-      seqnum = FIRST_SEQNUM;
-      break;
-    default:
-      seqnum++;
-      break;
-  }
-}
 
-// Getter for global sequence number
-byte get_seqnum_nibble() {
-  return seqnum & LOWER_NIBBLE_MASK;
-}
-
-// Spit out the CONTENTS of a packet on the debug serial interface
-// Note that this includes nice formatting
-void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
-  if (DEBUG) {
-    serial->print("cmd: ");
-    serial->println(p.cmd);
-    serial->print("value1: ");
-    serial->println(p.value1);
-    serial->print("value2: ");
-    serial->println(p.value2);
-    serial->print("seq_num: ");
-    serial->println(extract_seqnum(p.seqnum_chksum));
-    serial->print("seq_num: ");
-    serial->println(extract_chksum(p.seqnum_chksum));
-  }
-}
+// // Spit out the CONTENTS of a packet on the debug serial interface
+// // Note that this includes nice formatting
+// void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {// Spit out the CONTENTS of a packet on the debug serial interface
+// // Note that this includes nice formatting
+// void debug_packet(DEBUG_SERIAL_CLASS *serial, packet p) {
+//   if (DEBUG) {
+//     serial->print("cmd: ");
+//     serial->println(p.cmd);
+//     serial->print("value1: ");
+//     serial->println(p.value1);
+//     serial->print("value2: ");
+//     serial->println(p.value2);
+//     serial->print("seq_num: ");
+//     serial->println(extract_seqnum(p.seqnum_chksum));
+//     serial->print("seq_num: ");
+//     serial->println(extract_chksum(p.seqnum_chksum));
+//   }
+// }
+//   if (DEBUG) {
+//     serial->print("cmd: ");
+//     serial->println(p.cmd);
+//     serial->print("value1: ");
+//     serial->println(p.value1);
+//     serial->print("value2: ");
+//     serial->println(p.value2);
+//     serial->print("seq_num: ");
+//     serial->println(extract_seqnum(p.seqnum_chksum));
+//     serial->print("seq_num: ");
+//     serial->println(extract_chksum(p.seqnum_chksum));
+//   }
+// }
