@@ -97,7 +97,7 @@ control_mappings = {
 
 
 # Sockets Connection
-USE_SOCKETS = False
+USE_SOCKETS = True
 REQUIRE_SOCKETS = True
 TOPSIDE_IP_ADDRESS = '10.0.10.10'
 TOPSIDE_PORT = 9120

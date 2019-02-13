@@ -95,9 +95,10 @@ class Robot(Node):
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
-            p = self.serial_connection.new_packet(
-                serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
-            self.serial_connection.send_receive_packet(p)
+            if settings.USE_SERIAL:
+                p = self.serial_connection.new_packet(
+                    serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
+                self.serial_connection.send_receive_packet(p)
             return
 
         # Terminate robot
