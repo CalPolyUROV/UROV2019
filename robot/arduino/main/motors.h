@@ -39,25 +39,82 @@ void setMotorTarget(byte motor, byte targetValue) {
 }
 // Updates all motors to move toward their target values
 // Assumes only called after a safe time delay
-void updateMotors() {
-  for (int i = 0; i < NUM_MOTORS; i++) {
-    Motor* motor = &motors[i];
-    // Update current_value to be closer to target value
-    if (motor->target_value < motor->current_value) {
-      motor->current_value -= max(motor->target_value, motor->current_value - MOTOR_JERK_MAX);
+//void updateMotors() {
+//  for (int i = 0; i < NUM_MOTORS; i++) {
+//    Motor *motor = &motors[i];
+//    // Update current_value to be closer to target value
+//    if (motor->target_value < motor->current_value) {
+//      motor->current_value -= max(motor->target_value, motor->current_value - MOTOR_JERK_MAX);
+//    }
+//    else {
+//      motor->current_value -= min(motor->target_value, motor->current_value + MOTOR_JERK_MAX);
+//    }
+//    // Write new current_value out to motor
+//    threads.stop();
+//    motor->servo->write(map(motor->current_value,
+//                            0, motor->direction * 255,
+//                            ESC_MIN_MS, ESC_MAX_MS)
+//    );
+//    threads.start();
+//  }
+//}
+
+void updateMotors()
+{
+  for (int i = 0; i < NUM_MOTORS; i++)
+  {
+    Motor *motor = &motors[i];
+    //checking if the current value is greater than desired value. Means we need to ramp down
+    if (motor->target_value <  motor->current_value)    
+    {
+      // checking if the difference between two values is greater than the desired interval 
+      if ((motor->target_value) - (motor->current_value) > MOTOR_JERK_MAX) 
+      {
+        // if the value of the two is greater than desired we slowly decrease current value by moter jerk max
+        motor->current_value -= MOTOR_JERK_MAX;
+      }
+      else
+      {
+        // if the difference is less than motor jerk max than we can set current equal to target
+        motor->current_value = motor->target_value;
+      }
     }
-    else {
-      motor->current_value -= min(motor->target_value, motor->current_value + MOTOR_JERK_MAX);
+    // if the target value is greater than current then we ramp up 
+    else if ((motor->target_value) > (motor->current_value))
+    {
+      // if the difference between two values is greater than desired motor jerk max, than we slowly ramp up 
+      if ((motor->target_value) - (motor->current_value) > MOTOR_JERK_MAX)
+      {
+        motor->current_value += MOTOR_JERK_MAX;
+      }
+      else
+      {
+        // if the difference between two values is less than motor jerk max than we can just set current to target 
+        motor->current_value = motor->target_value;
+      }
     }
-    // Write new current_value out to motor
+  }
+}
+
+void writeMotors()
+{
+  for (int i = 0; i < NUM_MOTORS; i++)
+  {
+    Motor *motor = &motors[i];
     threads.stop();
     motor->servo->write(map(motor->current_value,
                             0, motor->direction * 255,
                             ESC_MIN_MS, ESC_MAX_MS)
-    );
+                       );
     threads.start();
   }
 }
+
+
+
+
+
+
 
 void motorSetup() {
   // attach motors to pins

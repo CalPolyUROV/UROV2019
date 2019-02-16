@@ -39,7 +39,8 @@ void setup() {
 void motorThread() {
   while (true) {
     updateMotors();
-    threads.delay(MOTOR_DELTA_MS);
+    writeMotors();
+    threads.delay(MOTOR_DELTA_MS); 
   }
 }
 
