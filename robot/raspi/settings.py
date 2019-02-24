@@ -11,12 +11,12 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": False,
+    "framework": True,
     "schedule": False,
     "execute_task": False,
 
-    "controller": False,
-    "controls_reader": False,
+    "controller": True,
+    "controls_reader": True,
     "controls_reader_verbose": False,
     "control_mappings": False,
     "control_mappings_verbose": False,
@@ -34,7 +34,7 @@ DEBUG_CHANNELS = {
     "sockets_error": True,
     "sockets_warning": True,
     "sockets_event": True,
-    "sockets_status": True,
+    "sockets_status": False,
     "sockets_verbose": False,
 
     "sockets_send": True,
@@ -58,7 +58,7 @@ DEBUG_CHANNELS = {
 }
 
 # XBox Controller
-USE_CONTROLLER = False  # TODO: Use this value
+USE_CONTROLLER = True  # TODO: Use this value
 REQUIRE_CONTROLLER = True  # TODO: Use this value
 SIMULATE_INPUT = False  # TODO: Use this value
 
