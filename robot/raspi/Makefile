@@ -60,6 +60,9 @@ pip_install:
 pip_upgrade:
 	$(PYTHON_CMD) -m pip install --upgrade pip --user
 
+pyserial_install:
+	$(PYTHON_CMD) -m pip install --upgrade pyserial
+
 pygame_install:
 	$(PYTHON_CMD) -m pip install --upgrade pygame
 
