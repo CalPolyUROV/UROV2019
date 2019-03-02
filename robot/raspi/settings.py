@@ -16,27 +16,30 @@ DEBUG_CHANNELS = {
     "schedule": False,
     "execute_task": False,
 
-    "controller": False,
-    "controller_verbose": False,
-    "controls_reader": False,
-    "controls_reader_verbose": False,
-    "control_mappings": False,
-    "control_mappings_verbose": False,
+    "controller": True,
+    "controller_event": True,
+    "controller_verbose": True,
+    "controls_reader": True,
+    "controls_reader_verbose": True,
+    "control_mappings": True,
+    "control_mappings_verbose": True,
     "simulation": False,
     "simulation_verbose": False,
 
     "robot": True,
     "robot_control": True,
-    "robot_control_verbose": False,
+    "robot_control_verbose": True,
     "thrust_vec": True,
-    "thrust_vec_verbose": False,
+    "thrust_vec_verbose": True,
 
     "sockets": True,
     "sockets_client": True,
+    "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
     "sockets_event": True,
     "sockets_status": True,
+    "sockets_receive": False,
     "sockets_verbose": False,
 
     "sockets_send": True,
@@ -63,11 +66,11 @@ DEBUG_CHANNELS = {
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = True
+SIMULATE_INPUT = False
 REQUIRE_CONTROLLER = True  # TODO: Use this value
 
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 30
+CONTROLLER_TICK_RATE = 0.5
 
 # Mapping of pygame joystick output to values we can make sense of
 # Examples:
@@ -80,10 +83,10 @@ control_mappings = {
     "number": [None],
     "name": [None],
     "axis_0": ["stick_left_x", 100],
-    "axis_1": ["stick_left_y", 100],
+    "axis_1": ["stick_left_y", -100],
     "axis_2": ["trigger_left", 100],
     "axis_3": ["stick_right_x", 100],
-    "axis_4": ["stick_right_y", 100],
+    "axis_4": ["stick_right_y", -100],
     "axis_5": ["trigger_right", 100],
     "button_0": ["button_a"],
     "button_1": ["button_b"],
