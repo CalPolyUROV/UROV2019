@@ -81,11 +81,11 @@ pygame_build:
 	sudo python3 setup.py install
 
 pygame_build_mac:
-    # https://brysonpayne.com/2015/01/10/setting-up-pygame-on-a-mac/
-    brew install mercurial
-    brew install sdl sdl_image sdl_mixer sdl_ttf portmidi
-    brew install --HEAD smpeg
-    sudo pip3 install hg+http://bitbucket.org/pygame/pygame
+	# https://brysonpayne.com/2015/01/10/setting-up-pygame-on-a-mac/
+	brew install mercurial
+	brew install sdl sdl_image sdl_mixer sdl_ttf portmidi
+	brew install --HEAD smpeg
+	sudo pip3 install hg+http://bitbucket.org/pygame/pygame
 
 todo:
 	grep --line-number --initial-tab "TODO:" *.py | tr -s [:space:]  > todo.txt
