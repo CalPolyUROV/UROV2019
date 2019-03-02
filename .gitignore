@@ -105,3 +105,6 @@ venv.bak/
 *.bak
 
 .directory
+.DS_Store
+.idea
+
