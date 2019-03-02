@@ -21,8 +21,7 @@ class SocketsServer(Server):
     def __init__(self,  server_tuple: (str, int), handler: Handler, get_data: Callable):
         if not settings.USE_SOCKETS:
             return
-        super().__init__(self.loop_handler)
-
+        super().__init__("sockets_server", self.loop_handler)
         self.server_tuple = server_tuple
         self.handler = handler
         self.get_data = get_data
@@ -33,17 +32,17 @@ class SocketsServer(Server):
     def loop_handler(self):
         # Create connection to a specific client
         if not settings.USE_SOCKETS:
-            super().set_terminate_flag()
+            self.set_terminate_flag()
+            debug("sockets_server", "Exiting loop handler, sokcets not enabled in settings")
             return
-
         try:
+            # Blocking call waiting for the client to connet
             self.accept_connection()
-            # Wait until cleint sends data, this is a blcoking call
+            # Send data to the client once it connects
             self.send_data()
         except (socket.timeout, OSError, Exception) as err:
             debug("sockets_server",
                   "Connection failed: {}", [err.__repr__()])
-
             debug("sockets_server", "Restarting sockets server")
             self.close_socket()
             self.initialize_server()
@@ -75,6 +74,14 @@ class SocketsServer(Server):
             self.s.close()
 
     def accept_connection(self):
+        """Block until a client connects
+        Once a clinet connects, the conn instance variable will be set so 
+        send_data() can send data to it specifically. Note that only a single 
+        instance variable conn can exist at once so the old connection is 
+        overwritten on a new connection. The reason that this does not cause
+        issues is that the client closes the old connection before connecting
+        again.
+        """
         debug("sockets_verbose", "Blocking on accept_connection")
         # now keep talking with the client
         self.conn, self.addr = self.s.accept()
@@ -85,6 +92,7 @@ class SocketsServer(Server):
         controls = self.get_data(settings.CONTROLLER_NAME)
         data = json.dumps(controls).encode()
         self.conn.sendall(data)
+        debug("sockets_verbose", "Data sent")
 
     def recieve_data(self):
         data = self.conn.recv(settings.MAX_SOCKET_SIZE)

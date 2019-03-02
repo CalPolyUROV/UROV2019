@@ -128,12 +128,14 @@ class Source:
         self.terminate_flag = False
 
     def loop(self):
+        debug("framework", "Starting source {} thread", [self.name])
         _thread.start_new_thread(self.threaded_loop, ())
 
     def threaded_loop(self):
         while not self.terminate_flag:
             self.loop_handler()
             self.tick()
+        debug("framework", "Source {} ending loop", [self.name])
         exit("Source thread exited by termination")
 
     def get_name(self):
@@ -145,6 +147,7 @@ class Source:
 
     def set_terminate_flag(self):
         self.terminate_flag = True
+        debug("framework", "Terminating source {}", [self.name])
 
     def terminate(self):
         """Execute actions needed to deconstruction an object that implements a Transport
@@ -157,20 +160,25 @@ class Server:
     """An Asynchronous accessor of data for another node
     """
 
-    def __init__(self, loop_handler: Callable):
+    def __init__(self, name: str, loop_handler: Callable):
+        self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False
 
     def loop(self):
+        debug("framework", "Starting server thread: {}", [self.name])
         _thread.start_new_thread(self.threaded_loop, ())
 
     def threaded_loop(self):
         while not self.terminate_flag:
             self.loop_handler()
+        debug("framework", "Server {} ending loop", [self.name])
         exit("Server thread exited by termination")
+        # TODO: Kill just this thread, maybe through join()?
 
     def set_terminate_flag(self):
         self.terminate_flag = True
+        debug("framework", "Terminating server: {}", [self.name])
 
     def terminate(self):
         """Execute actions needed to deconstruction an object that implements a Transport
