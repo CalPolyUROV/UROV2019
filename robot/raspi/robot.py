@@ -40,7 +40,7 @@ class Robot(Node):
             # Make sockets client object using our implementation
             self.socket_connection = SocketsClient(self.schedule_task,
                                                    (settings.TOPSIDE_IP_ADDRESS,
-                                                   settings.TOPSIDE_PORT)
+                                                    settings.TOPSIDE_PORT)
                                                    )
 
         if settings.USE_ROBOT_PI_TEMP_MON:
@@ -52,7 +52,6 @@ class Robot(Node):
               [t, t.__class__.__name__])
         if t is None:
             return None
-
         sched_list = []
 
         # Debug string command
