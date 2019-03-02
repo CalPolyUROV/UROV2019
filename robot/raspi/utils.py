@@ -14,13 +14,6 @@ import _thread  # For  multi threaded debug
 import settings
 
 
-def sleep(time_s: int) -> None:
-    """Pauses the execution of the thread for time_s seconds
-    """
-    # TODO: prevent use of this via a setting
-    time.sleep(time_s)
-
-
 def print_usage() -> None:
     """Prints a Unix style uasge message on how to start the program
     """
@@ -37,11 +30,12 @@ def exit(reason: str) -> None:
         os._exit(0)
     # This point should be unreachable, just die already
 
+
 def debug_delay():
     sleep(settings.DEBUGGING_DELAY_S)
 
 
-def debug(channel: str, *args):
+def debug(channel: str, *args: list):
     """Debugging print and logging functions
 
     Records information for debugging by printing or logging to disk. args is a
@@ -102,9 +96,19 @@ def channel_active(channel: str) -> bool:
         if isinstance(val, bool):
             return val
         else:
-            return  val < settings.DEBUG_LEVEL
+            return val < settings.DEBUG_LEVEL
     return True  # default for unknown channels
 
+
+def sleep(time_s: int) -> None:
+    """Pauses the execution of the thread for time_s seconds
+    """
+    # TODO: prevent use of this via a setting
+    try:
+        time.sleep(time_s)
+    except KeyboardInterrupt:
+        exit("Interrupted by user")
+        # debug("sleep", "{}", [error.__repr__()])
 
 # Simulation tools
 def random_val():
@@ -119,10 +123,10 @@ def try_key(d: dict, k: str):
     """
     try:
         return d[k]
-    except (KeyError):
-        debug("controls_reader", "Unknown control key: ", [k])
+    except KeyError as meh:
+        debug("try_key", "Unknown key: {}", [k])
         # TODO: Investigate changing this behavior
-        return "Key not supplied in mapping: " + k
+        return None
 
 
 Attemptable = NewType("Attemptable", Callable[[None], bool])
@@ -174,4 +178,3 @@ def attempt(action: Attemptable, tries: int, fail_once: Callable, failure: Calla
 #         action_a(input)
 #     elif input is option_b or input == option_b:
 #         action_b(input)
-

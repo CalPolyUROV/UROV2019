@@ -11,11 +11,13 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": False,
+    "framework": True,
+    "datastore": True,
     "schedule": False,
     "execute_task": False,
 
     "controller": False,
+    "controller_verbose": False,
     "controls_reader": False,
     "controls_reader_verbose": False,
     "control_mappings": False,
@@ -29,7 +31,7 @@ DEBUG_CHANNELS = {
     "thrust_vec": True,
     "thrust_vec_verbose": False,
 
-    "sockets": False,
+    "sockets": True,
     "sockets_client": True,
     "sockets_error": True,
     "sockets_warning": True,
@@ -48,6 +50,8 @@ DEBUG_CHANNELS = {
     "decode": False,
     "decode_verbose": False,
 
+    "int_temp_mon": True,
+
     "serial_finder": True,
     "serial": True,
     "serial_con": True,
@@ -58,9 +62,12 @@ DEBUG_CHANNELS = {
 }
 
 # XBox Controller
-USE_CONTROLLER = False  # TODO: Use this value
+USE_CONTROLLER = True
+SIMULATE_INPUT = True
 REQUIRE_CONTROLLER = True  # TODO: Use this value
-SIMULATE_INPUT = False  # TODO: Use this value
+
+CONTROLLER_NAME = "topside_xbox_controller"
+CONTROLLER_TICK_RATE = 30
 
 # Mapping of pygame joystick output to values we can make sense of
 # Examples:
@@ -96,12 +103,14 @@ control_mappings = {
 }
 
 
+THREAD_END_WAIT_S = 2
+
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = True
 TOPSIDE_IP_ADDRESS = '10.0.10.10'
 TOPSIDE_PORT = 9120
-SOCKETS_SERVER_TIMEOUT = 120
+SOCKETS_SERVER_TIMEOUT = 640
 SOCKETS_CLIENT_TIMEOUT = 4
 SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
 # Maximum number of times to try creating or opening a socket
@@ -113,11 +122,16 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 #     before the client gives up on connecting to it.
 
 # Serial Connection
-USE_SERIAL = True
-REQUIRE_SERIAL = False 
+USE_SERIAL = False
+REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
-SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
+SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
 SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after failing
+
+# Temperature Monitor
+USE_TOPSIDE_PI_TEMP_MON = False
+USE_ROBOT_PI_TEMP_MON = False
+INT_TEMP_MON_TICK_RATE = 0.25
 
 # Robot selection
 ROBOT_NAME = "Subrina"

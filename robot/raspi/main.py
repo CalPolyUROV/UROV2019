@@ -1,4 +1,3 @@
-#!/usr/bin/python3.5
 """ Main Python code that runs on the Raspberry Pi 3 B+ inside the robot and surface unit
 
 This is the python program is meant to run on the Raspberry Pi's located on
@@ -14,7 +13,7 @@ from sys import argv  # For command line arguments
 # Scheduling imports
 import settings
 from robot import Robot
-from snr import Node, Scheduler
+from snr import Node
 from topside import Topside
 from utils import debug, exit, sleep, print_usage
 
@@ -43,6 +42,7 @@ def main():
         print_usage()
         exit("Unknown ROLE")
 
+    # Run the node's loop
     try:
         node.loop()
     except KeyboardInterrupt:
