@@ -21,7 +21,7 @@ class Controller(Source):
         super().__init__(name, self.monitor_controller, settings.CONTROLLER_TICK_RATE)
 
         self.store_data = store_data
-
+        self.init_controller()
         self.loop()
 
     def init_controller(self):
@@ -31,16 +31,16 @@ class Controller(Source):
 
     def monitor_controller(self):
         if settings.SIMULATE_INPUT:
-            debug("controller_verbose", "Simulating input")
+            debug("controller_event", "Simulating input")
             controls_dict = simulate_input()
         else:
             debug("controller_verbose", "Reading input")
             joystick_data = self.read_joystick()
-            controls_dict = self.map_input_dict(self.joystick_data)
+            controls_dict = self.map_input_dict(joystick_data)
 
-        debug("controller", "Storing data with key: {}", [super().get_name()])
+        debug("controller_event", "Storing data with key: {}", [self.get_name()])
         debug("controller_verbose", "Data: {}", [controls_dict])
-        self.store_data(super().get_name(), controls_dict)
+        self.store_data(self.get_name(), controls_dict)
 
     def print_data(self, d: dict):
         for val in self.joystick_data:
@@ -50,7 +50,7 @@ class Controller(Source):
         """Convert pygame input names to our names based off settings
         """
         control_data = {}
-        for k in joystick_data:
+        for k in joystick_data.keys():
             (new_key, new_value) = self.map_input(k, joystick_data[k])
             if new_key != None:
                 control_data[new_key] = new_value
@@ -98,6 +98,8 @@ class Controller(Source):
         """Function run in separate thread to update control data
         Updates instance variable without using main thread CPU time
         """
+        if (not settings.USE_CONTROLLER) or settings.SIMULATE_INPUT:
+            return {}
 
         # TODO: Investigate whether this part of the loop is necessary
         for event in pygame.event.get():  # User did something
@@ -140,16 +142,17 @@ class Controller(Source):
             joystick_data["num_dpad"] = joystick.get_numhats()
             for i in range(joystick_data["num_dpad"]):
                 joystick_data["dpad"] = joystick.get_hat(i)
-        return joystick
+        return joystick_data
 
     def terminate(self):
         # Close the window and quit.
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
         debug("controls_reader_verbose", "exiting pygame")
+        settings.USE_CONTROLLER = False
         pygame.quit()
         debug("controls_reader", "exited pygame")
-        super().set_terminate_flag()
+        self.set_terminate_flag()
 
 
 def simulate_input() -> dict:
