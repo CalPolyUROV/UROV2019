@@ -11,24 +11,25 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": True,
+    "framework": False,
     "datastore": True,
     "schedule": False,
     "execute_task": False,
 
     "controller": True,
-    "controller_event": True,
-    "controller_verbose": True,
+    "controller_event": False,
+    "controller_verbose": False,
     "controls_reader": True,
     "controls_reader_verbose": True,
-    "control_mappings": True,
-    "control_mappings_verbose": True,
+    "control_mappings": False,
+    "control_mappings_verbose": False,
     "simulation": False,
     "simulation_verbose": False,
 
     "robot": True,
-    "robot_control": True,
-    "robot_control_verbose": True,
+    "robot_verbose": False,
+    "robot_control": False,
+    "robot_control_verbose": False,
     "thrust_vec": True,
     "thrust_vec_verbose": True,
 
@@ -37,15 +38,14 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": True,
-    "sockets_status": True,
-    "sockets_receive": False,
+    "sockets_event": False,
+    "sockets_status": False,
     "sockets_verbose": False,
 
     "sockets_send": True,
     "sockets_send_verbose": False,
 
-    "sockets_recieve": True,
+    "sockets_receive": False,
     "sockets_receive_verbose": False,
 
     "encode": False,
@@ -70,7 +70,7 @@ SIMULATE_INPUT = False
 REQUIRE_CONTROLLER = True  # TODO: Use this value
 
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 0.5
+CONTROLLER_TICK_RATE = 30
 
 # Mapping of pygame joystick output to values we can make sense of
 # Examples:
