@@ -33,7 +33,8 @@ class SocketsServer(Server):
         # Create connection to a specific client
         if not settings.USE_SOCKETS:
             self.set_terminate_flag()
-            debug("sockets_server", "Exiting loop handler, sokcets not enabled in settings")
+            debug("sockets_server",
+                  "Exiting loop handler, sokcets not enabled in settings")
             return
         try:
             # Blocking call waiting for the client to connet
@@ -82,6 +83,8 @@ class SocketsServer(Server):
         issues is that the client closes the old connection before connecting
         again.
         """
+        if not settings.USE_SOCKETS:
+            return
         debug("sockets_verbose", "Blocking on accept_connection")
         # now keep talking with the client
         self.conn, self.addr = self.s.accept()
@@ -115,6 +118,8 @@ class SocketsServer(Server):
         debug("sockets_verbose", 'Sent reply: "{}"', [reply])
 
     def close_socket(self):
+        if not settings.USE_SOCKETS:
+            return
         try:
             self.s.close()
         except Exception as error:
@@ -123,5 +128,5 @@ class SocketsServer(Server):
 
     def terminate(self):
         self.close_socket()
-        settings.USE_SOCKETS = True
+        settings.USE_SOCKETS = False
         debug("sockets_warn", "Socket closed")

@@ -50,9 +50,11 @@ class Node:
         """ Adds a Task or the contents of a list of Tasks to a Scheduler's queue
         """
         if t is None:
+            debug("schedule", "Cannot schedule None")
             return
         if isinstance(t, list):
             # Recursively handle lists
+            debug("schedule", "Recursively scheduling list of tasks")
             for task in t:
                 self.schedule_task(task)
             return
@@ -91,19 +93,19 @@ class Node:
         """
         return 0 < len(self.task_queue)
 
-    def get_new_tasks(self) -> bool:
+    def schedule_new_tasks(self):
         """Retrieve tasks from constructor supplied source function
         Task or list of tasks are queued
         """
-        if self.task_source is not None:
-            new_tasks = self.task_source()
-            self.schedule_task(new_tasks)
+        new_tasks = self.task_source()
+        debug("framework", "Scheduling new tasks {}", [new_tasks])
+        self.schedule_task(new_tasks)
 
     def get_next_task(self) -> Task or None:
         """Take the next task off the queue
         """
         while not self.has_tasks():
-            self.get_new_tasks()
+            self.schedule_new_tasks()
         return self.task_queue.pop(0)
 
     def store_data(self, key: str, data):

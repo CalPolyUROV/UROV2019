@@ -14,7 +14,7 @@ from robot_data import Database  # Stores data and preforms calculations
 from serial_coms import SerialConnection  # Serial connection to Teensy
 from snr import Node
 from sockets_client import SocketsClient  # Sockets connection to topside
-from task import SomeTasks, Task, TaskPriority, TaskType, decode
+from task import *
 from utils import debug, debug_delay, exit, sleep  # Miscelaneous utilities
 
 
@@ -42,16 +42,13 @@ class Robot(Node):
                                                    (settings.TOPSIDE_IP_ADDRESS,
                                                     settings.TOPSIDE_PORT)
                                                    )
-
         if settings.USE_ROBOT_PI_TEMP_MON:
             self.temp_mon = IntTempMon(
                 "robot_pi_temperature", self.store_data)
 
     def execute_task(self, t: Task or None) -> SomeTasks:
-        debug("execute_task", "Executing task: {} which is {}",
-              [t, t.__class__.__name__])
-        if t is None:
-            return None
+        debug("execute_task", "Executing task: {}", [t])
+
         sched_list = []
 
         # Debug string command
@@ -115,11 +112,12 @@ class Robot(Node):
 
         else:
             debug("robot", "Sockets disabled, queuing blink task")
-            return Task(TaskType.blink_test, TaskPriority.high, [1, 1])
+            t = Task(TaskType.blink_test, TaskPriority.high, [1, 1])
+            sched_list.append(t)
 
         if settings.USE_SERIAL:
-            sched_list.append(
-                Task(TaskType.get_telemetry, TaskPriority.normal, []))
+            t = Task(TaskType.get_telemetry, TaskPriority.normal, [])
+            sched_list.append(t)
 
         return sched_list
 
