@@ -191,31 +191,21 @@ class Controller(Source):
 
 def random_val():
     """Generates random values for simulated control input
+    All values are floats between 0.0 and 1.0. These are transformed to the 
+    correct data type in map_input
     """
-    # TODO: Account for different kinds of input data such as joysticks vs buttons
     return random.random()
 
 
 def simulate_input() -> dict:
     """Provide fake input values for testing purposes
+    Correct data types for key values are transformed to in map_input
     """
-    # debug("simulation", "Simulating control input")
+    debug("simulation", "Simulating control input")
     sim_data = {}
     for key in settings.control_mappings.keys():
-        # key = settings.control_mappings[k][0]
-        # if not key == None:
-        # debug("simulation_verbose", "Adding key {}", [key])
+        debug("simulation_verbose", "Simulating key: {}", [key])
         sim_data[key] = random_val()
-        # TODO: provide specific data types for relevent keys
     debug("simulation", "Simulated control input was applied")
     debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
     return sim_data
-
-
-# def format_controls(data: dict) -> dict:
-#     # Only pass control values that are not zrero
-#     new_data = {}
-#     for k in data:
-#         if data[k] != 0:
-#             new_data[k] = data[k]
-#     return new_data
