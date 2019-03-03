@@ -108,9 +108,10 @@ class Robot(Node):
 
         if settings.USE_SOCKETS:
                 # communicate over sockets to generate new tasks based on UI input
-            t = Task(TaskType.get_cntl, TaskPriority.high, [])
-            data = self.socket_connection.request_data(t.encode())
-            sched_list.append(decode(data))
+            # t = Task(TaskType.get_cntl, TaskPriority.high, [])
+            t = self.socket_connection.request_data()
+            debug("robot_verbose", "Got task {} from sockets connection", [t])
+            sched_list.append(t)
 
         else:
             debug("robot", "Sockets disabled, queuing blink task")

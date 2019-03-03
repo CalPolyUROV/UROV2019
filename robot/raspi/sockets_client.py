@@ -8,7 +8,7 @@ from typing import Callable, Tuple
 # Our imports
 import settings
 from snr import Relay, Handler
-from task import Task, TaskPriority, TaskType, decode
+from task import *
 from utils import debug, exit, sleep, attempt
 
 
@@ -19,18 +19,43 @@ class SocketsClient(Relay):
     def __init__(self, task_scheduler: Handler, server_tuple: Tuple[str, int]):
         super().__init__(self.request_data)
         self.server_tuple = server_tuple
-        self.handler = task_scheduler
+        self.task_scheduler = task_scheduler
         self.s = None
         debug("sockets_status", "Sockets client created")
 
-    def request_data(self, data: bytes):
+    def request_data(self) -> SomeTasks:
         """Main continual entry point for sending data over sockets
         """
         self.create_connection()
         # reply = self.send_data(data)
-        reply = self.receive_data()
+        data_bytes = self.receive_data()
         self.close_socket()
-        self.handler(reply)
+
+        if data_bytes is None:
+            return None
+        data_str = data_bytes.decode()
+        # debug("decode_verbose", "Decoded bytes as {}: {}", [data_str.__class__, data_str])
+        data_dict = json.loads(data_str)
+        debug("decode_verbose", "Decoded control input: {}", [data_dict])
+        data_task = self.data_as_task(data_dict)
+        debug("sockets_receive_verbose", "Got new task: {}", [data_task])
+        return data_task
+
+    def receive_data(self) -> Task:
+        debug("sockets_verbose", "Waiting to receive data immediately upon connection")
+        try:
+            data = self.s.recv(settings.MAX_SOCKET_SIZE)
+            debug("sockets_receive", "Received data")
+            debug("sockets_receive_verbose", "Received data: {}", [data])
+            return data
+        except (ConnectionResetError, Exception) as error:
+            self.socket_connected = False
+            debug("sockets_error", "Lost sockets connection: {}",
+                  error.__repr__())
+            # TODO: Correctly terminate this function here
+
+    def data_as_task(self, controller_data: dict) -> Task:
+        return Task(TaskType.cntl_input, TaskPriority.high, controller_data)
 
     def create_connection(self) -> None:
         """Create socket and connect to server in one function
@@ -76,57 +101,6 @@ class SocketsClient(Relay):
         debug("sockets_event", 'Socket Connected to {}:{}',
               [self.server_tuple[0], str(self.server_tuple[1])])
 
-    def receive_data(self) -> Task:
-        debug("sockets_verbose", "Recieving data immediately upon connection")
-        try:
-            reply = self.s.recv(settings.MAX_SOCKET_SIZE)
-            debug("sockets_receive", "Received data")
-            debug("sockets_receive_verbose", "Received reply: {}", [reply])
-            task = decode(reply)
-            return task
-        except (ConnectionResetError, Exception) as error:
-            self.socket_connected = False
-            debug("sockets_error", "Lost sockets connection: {}",
-                  error.__repr__())
-            # TODO: Correctly terminate this function here
-
-    def send_data(self, data: bytes) -> Task:
-        if not settings.USE_SOCKETS:
-            debug("sockets_warning",
-                  "Send ignored because sockets disabled in settings")
-            return
-
-        # Send data to remote server
-        try:
-            # Set the whole string
-            self.s.sendall(data)
-        except (OSError, Exception) as error:
-            # Send failed
-            debug("sockets_error", 'Send failed: {}', [error.__repr__()])
-            # self.close_socket()
-            # self.check_connection()
-            # exit("Sockets send failed")
-        else:
-            debug("sockets_send", 'Message sent successfully')
-            debug("sockets_send_verbose", 'Message sent: {}', [data])
-
-        # TODO: Handle loss of connection, attempt to recover
-
-        # Now receive data
-        reply = "Data not yet received"
-        # Blocking call?
-        try:
-            reply = self.s.recv(settings.MAX_SOCKET_SIZE)
-            debug("sockets_receive", "Received reply")
-            debug("sockets_receive_verbose", "Received reply: {}", [reply])
-            task = decode(reply)
-            return task
-        except (ConnectionResetError, Exception) as error:
-            self.socket_connected = False
-            debug("sockets_error", "Lost sockets connection: {}",
-                  error.__repr__())
-            # TODO: Correctly terminate this function here
-
     def close_socket(self):
         if self.s is None:
             debug("sockets_warning", "Tried to close socket but it was None")
@@ -139,10 +113,45 @@ class SocketsClient(Relay):
             debug("sockets_error", "Error closing socket: {}",
                   [error.__repr__()])
         self.s = None
-        debug("sockets_client", 'Socket closed')
+        debug("sockets_status", 'Socket closed')
 
     def terminate(self):
         self.close_socket()
         settings.USE_SOCKETS = False
 
-    
+    # def send_data(self, data: bytes) -> Task:
+    #     if not settings.USE_SOCKETS:
+    #         debug("sockets_warning",
+    #               "Send ignored because sockets disabled in settings")
+    #         return
+
+    #     # Send data to remote server
+    #     try:
+    #         # Set the whole string
+    #         self.s.sendall(data)
+    #     except (OSError, Exception) as error:
+    #         # Send failed
+    #         debug("sockets_error", 'Send failed: {}', [error.__repr__()])
+    #         # self.close_socket()
+    #         # self.check_connection()
+    #         # exit("Sockets send failed")
+    #     else:
+    #         debug("sockets_send", 'Message sent successfully')
+    #         debug("sockets_send_verbose", 'Message sent: {}', [data])
+
+    #     # TODO: Handle loss of connection, attempt to recover
+
+    #     # Now receive data
+    #     reply = "Data not yet received"
+    #     # Blocking call?
+    #     try:
+    #         reply = self.s.recv(settings.MAX_SOCKET_SIZE)
+    #         debug("sockets_receive", "Received reply")
+    #         debug("sockets_receive_verbose", "Received reply: {}", [reply])
+    #         task = decode(reply)
+    #         return task
+    #     except (ConnectionResetError, Exception) as error:
+    #         self.socket_connected = False
+    #         debug("sockets_error", "Lost sockets connection: {}",
+    #               error.__repr__())
+    #         # TODO: Correctly terminate this function here

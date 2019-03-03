@@ -1,6 +1,6 @@
 import robot_data  # This is weird...
 
-from snr import Task, TaskPriority, TaskType
+from task import *
 from utils import debug, try_key
 
 
@@ -35,22 +35,26 @@ class Database:
     def telemetry_data(self) -> list:
         return [self.acceleration, self.orientation]
 
-    def receive_controls(self, incoming_controls) -> Task or []:
+    def receive_controls(self, incoming_controls: dict) -> SomeTasks:
         self.previous_cntl_input = self.control_input
         self.control_input = incoming_controls
+        if incoming_controls is None:
+            return None
         return self.process_controls()
 
-    def process_controls(self) -> Task or []:
+    def process_controls(self) -> SomeTasks:
         task_list = []
-        new_data = {}
         # Collect only new control values
-        for k in self.control_input:
-            data = try_key(self.control_input, k)
-            if data != try_key(self.previous_cntl_input, k):
+        for key in self.control_input.keys():
+            old_data = try_key(self.previous_cntl_input, key)
+            data = try_key(self.control_input, key)
+            if data != old_data:
                 # Decide what to do with a control input
-                t = self.handle_control(k, data)
+                t = self.handle_control(key, data)
                 if t is not None:
                     task_list.append(t)
+            else:
+                debug("robot_control_verbose", "Skipping unchanged value: {}", [data])
 
         # Batch thrust controls into a tasks afterwards
         task_list.append(self.handle_throttle())
