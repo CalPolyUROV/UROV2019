@@ -5,11 +5,12 @@ Based on example controller code from https://www.pygame.org/docs/ref/joystick.h
 import pygame
 import _thread
 from typing import Callable
+import random
 
 # Our imports
 import settings
 from snr import Source
-from utils import debug, random_val, try_key, sleep
+from utils import debug, try_key, sleep
 
 
 class Controller(Source):
@@ -28,18 +29,23 @@ class Controller(Source):
         if not settings.SIMULATE_INPUT:
             pygame.init()  # Initialize pygame
             pygame.joystick.init()  # Initialize the joysticks
+        # TODO: Require the user to zero each trigger by depressing it and
+        # releasing it. This is necessary because the triggers start at 50
+        # and are only zeroed after the initial press and release.
 
     def monitor_controller(self):
         if settings.SIMULATE_INPUT:
             debug("controller_event", "Simulating input")
-            controls_dict = simulate_input()
+            joystick_data = simulate_input()
         else:
             debug("controller_verbose", "Reading input")
             joystick_data = self.read_joystick()
-            controls_dict = self.map_input_dict(joystick_data)
+        controls_dict = self.map_input_dict(joystick_data)
 
-        debug("controller_event", "Storing data with key: {}", [self.get_name()])
-        debug("controller_verbose", "Data: {}", [controls_dict])
+        debug("controller_event",
+              "Storing data with key: {}", [self.get_name()])
+        debug("controller_verbose",
+              "\n\tController data:\n\t {}", [controls_dict])
         self.store_data(self.get_name(), controls_dict)
 
     def print_data(self, d: dict):
@@ -71,19 +77,21 @@ class Controller(Source):
             debug("control_mappings", "Control value is str {}", [value])
             exit("Stringtalityyy")
 
+        t = None
         if len(map_list) > 1:
-            scale_factor = map_list[1]
-            value = value * scale_factor
+            t = map_list[1]
         if len(map_list) > 2:
-            shift_ammount = map_list[2]
-            value = value + shift_ammount
+            scale_factor = map_list[2]
+            value = value * scale_factor
         if len(map_list) > 3:
-            dead_zone = map_list[3]
+            shift_ammount = map_list[3]
+            value = value + shift_ammount
+        if len(map_list) > 4:
+            dead_zone = map_list[4]
             if abs(value) < dead_zone:
                 # value is inside dead zone
                 value = 0
-        if value is int:
-            value = int(round(value))
+        value = self.cast(value, t)
 
         debug("control_mappings_verbose", "Mapped value {}", [value])
         try:
@@ -93,6 +101,22 @@ class Controller(Source):
             exit("Fatalityyyy")
 
         return key_val_tuple
+
+    def cast(self, value: object, t: type)-> object:
+        if t is None:
+            return value
+        elif t is int:
+            return int(value)
+        elif t is bool:
+            return value != 0
+        elif t is tuple:
+            if value is tuple:
+                return value
+            elif value.__class__ is float:
+                return (int((value * 4) - 2), int((value * - 4) + 2))
+            else:
+                debug("control_mappings_verbose", "Trying to cast {}: {} as tuple", [value.__class__, value])
+                return value
 
     def read_joystick(self) -> dict:
         """Function run in separate thread to update control data
@@ -155,17 +179,24 @@ class Controller(Source):
         self.set_terminate_flag()
 
 
+def random_val():
+    """Generates random values for simulated control input
+    """
+    # TODO: Account for different kinds of input data such as joysticks vs buttons
+    return random.random()
+
+
 def simulate_input() -> dict:
     """Provide fake input values for testing purposes
     """
     # debug("simulation", "Simulating control input")
     sim_data = {}
-    for k in settings.control_mappings:
-        key = settings.control_mappings[k][0]
-        if not key == None:
-            # debug("simulation_verbose", "Adding key {}", [key])
-            sim_data[key] = random_val()
-            # TODO: provide specific data types for relevent keys
+    for key in settings.control_mappings.keys():
+        # key = settings.control_mappings[k][0]
+        # if not key == None:
+        # debug("simulation_verbose", "Adding key {}", [key])
+        sim_data[key] = random_val()
+        # TODO: provide specific data types for relevent keys
     debug("simulation", "Simulated control input was applied")
     debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
     return sim_data

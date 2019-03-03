@@ -4,7 +4,6 @@ Attempts to document propper usage of such functions
 
 # System imports
 import os  # For exit
-import random  # Simulated control values
 import sys  # For exit
 import time  # For sleep
 from typing import Callable, NewType, Dict
@@ -109,13 +108,6 @@ def sleep(time_s: int) -> None:
     except KeyboardInterrupt:
         exit("Interrupted by user")
         # debug("sleep", "{}", [error.__repr__()])
-
-# Simulation tools
-def random_val():
-    """Generates random values for simulated control input
-    """
-    # TODO: Account for different kinds of input data such as joysticks vs buttons
-    return random.randint(0, 1)
 
 
 def try_key(d: dict, k: str):
