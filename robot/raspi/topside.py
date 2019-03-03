@@ -1,7 +1,7 @@
-#!/usr/bin/python3.5
-"""Code for surface unit
+"""Node for surface unit
 
-Implements an SNR Node to use Sockets and a PyGame joystick to sent control data to robot
+Implements an Node to use Sockets and a PyGame joystick to sent control data 
+to robot
 """
 
 # System imports
@@ -10,86 +10,89 @@ import socket
 # Our imports
 import settings
 from controller import Controller
-from snr import Node, Task, TaskPriority, TaskType, SomeTasks
+from snr import Node
+from task import Task, TaskPriority, TaskType, SomeTasks
 from sockets_server import SocketsServer
-from utils import debug, exit
+from utils import debug, exit, sleep
+from internal_temp import IntTempMon
 
 
 class Topside(Node):
 
     def __init__(self, mode: str):
-        # TODO: implement SNR schedule/Node in topside
-        
+        super().__init__(self.execute_task, self.get_new_tasks)
+
         if mode.__eq__("debug"):
             settings.TOPSIDE_IP_ADDRESS = "localhost"
 
-        # Create sockets server object
-        self.start_sockets_server()
-        
         # TODO: Remotely start robot program from topside
 
+        # Create sockets server object
+        server_tuple = (settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
+        self.sockets_server = SocketsServer(
+            server_tuple, self.execute_task, self.get_data)
         # Create controller object
-        self.xbox_controller = Controller()
-        self.task_queue = []
+        self.xbox_controller = Controller(
+            settings.CONTROLLER_NAME, super().store_data)
+        # Start local temperature monitor
+        if settings.USE_TOPSIDE_PI_TEMP_MON:
+            self.int_temp_mon = IntTempMon(
+                "topside_pi_temperature", super().store_data)
+
         debug("framework", "Topside Node created")
 
-    def loop(self):
-        while 1:
-            # Create connection to a specific client
-            try:
-                self.sockets_server.accept_connection()
-                # Wait until cleint sends data, this is a blcoking call
-                self.sockets_server.recieve_data()
-            except (socket.timeout, OSError, Exception) as err:
-                debug("sockets_server", "Connection failed: {}", [err.__repr__()])
-                
-                self.sockets_server.terminate()
-
-                debug("sockets_server", "Restarting sockets server")
-                self.start_sockets_server()
-
     def execute_task(self, t: Task) -> SomeTasks:
-        debug("execute_task", "Executing task: {} which is {}",
-              [t, t.__class__.__name__])
-        reply = None
+        debug("execute_task", "Executing task: {} ", [t])
+
+        sched_list = []
 
         if (t.task_type == TaskType.debug_str):
             debug("execute_task", "Debug_str task: {}", [t.val_list])
-            reply = Task(TaskType.get_cntl, TaskPriority.high, [
-                "Automatic control request in response of telemetry data"])
+            # reply = Task(TaskType.get_cntl, TaskPriority.high, [
+            #     "Automatic control request in response of telemetry data"])
 
-        elif (t.task_type == TaskType.get_cntl):
-            # Handle accumulated commands
+        # elif (t.task_type == TaskType.get_cntl):
+        #     # Handle accumulated commands
 
-            reply = Task(TaskType.cntl_input, TaskPriority.high,
-                         self.xbox_controller.get_input())
-            # Previous test code:
-            # if(len(task_queue) > 0):
-            #     reply = task_queue.pop(0)
-            # else:
-            #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
+        #     sched_list.append(Task(TaskType.cntl_input, TaskPriority.high,
+        #                            self.get_controller_data()))
+        #     # Previous test code:
+        #     # if(len(task_queue) > 0):
+        #     #     reply = task_queue.pop(0)
+        #     # else:
+        #     #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
 
         elif (t.task_type == TaskType.get_telemetry):
-            debug("execute_task", "Executing task: {}", t.val_list)
             # TODO: Record and display telemetry data
-            reply = Task(TaskType.get_cntl, TaskPriority.high, [
-                "Automatic control request in response of telemetry data"]) 
+            # t = Task(TaskType.get_cntl, TaskPriority.high, [
+            #          "Automatic control request in response of telemetry data"])
+            # sched_list.append(t)
+            pass
 
         else:
             debug("execute_task", "Unable to handle TaskType: {}, values: {}", [
                 t.task_type, t.val_list])
-            reply = Task(TaskType.cntl_input, TaskPriority.high,
-                         ["This is a command"])
+            # reply = Task(TaskType.cntl_input, TaskPriority.high, ["This is a command"])
 
-        return reply
+        return sched_list
 
-    def start_sockets_server(self):
-        # self.sockets_server = None
-        self.sockets_server = SocketsServer(self.execute_task, settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
-        # TODO: Take IP address and port as command line arg
-        # Open server port
-        self.sockets_server.open_server()
+    def get_new_tasks(self) -> SomeTasks:
+        # update_ui = Task(TaskType.update_ui, TaskPriority.high, [])
+        # get_telemetry = Task(TaskType.get_telemetry, TaskPriority.normal, [])
+        # task_list = [get_telemetry]
+        # return task_list
+        return None
 
     def terminate(self):
-        self.xbox_controller.terminate()
-        self.sockets_server.terminate()
+        super().set_terminate_flag()
+
+        if settings.USE_CONTROLLER:
+            self.xbox_controller.terminate()
+
+        if settings.USE_SOCKETS:
+            self.sockets_server.terminate()
+
+        if settings.USE_TOPSIDE_PI_TEMP_MON:
+            self.int_temp_mon.terminate()
+
+        sleep(settings.THREAD_END_WAIT_S)

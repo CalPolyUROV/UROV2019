@@ -4,7 +4,6 @@ Attempts to document propper usage of such functions
 
 # System imports
 import os  # For exit
-import random  # Simulated control values
 import sys  # For exit
 import time  # For sleep
 from typing import Callable, NewType, Dict
@@ -12,13 +11,6 @@ import _thread  # For  multi threaded debug
 
 # Our imports
 import settings
-
-
-def sleep(time_s: int) -> None:
-    """Pauses the execution of the thread for time_s seconds
-    """
-    # TODO: prevent use of this via a setting
-    time.sleep(time_s)
 
 
 def print_usage() -> None:
@@ -37,11 +29,8 @@ def exit(reason: str) -> None:
         os._exit(0)
     # This point should be unreachable, just die already
 
-def debug_delay():
-    sleep(settings.DEBUGGING_DELAY_S)
 
-
-def debug(channel: str, *args):
+def debug(channel: str, *args: list):
     """Debugging print and logging functions
 
     Records information for debugging by printing or logging to disk. args is a
@@ -102,27 +91,35 @@ def channel_active(channel: str) -> bool:
         if isinstance(val, bool):
             return val
         else:
-            return  val < settings.DEBUG_LEVEL
+            return val < settings.DEBUG_LEVEL
     return True  # default for unknown channels
 
 
-# Simulation tools
-def random_val():
-    """Generates random values for simulated control input
+def sleep(time_s: int):
+    """Pauses the execution of the thread for time_s seconds
     """
-    # TODO: Account for different kinds of input data such as joysticks vs buttons
-    return random.randint(0, 1)
+    if settings.DISABLE_SLEEP:
+        debug("sleep", "Sleep disabled, not sleeping")
+        return
+    try:
+        time.sleep(time_s)
+    except KeyboardInterrupt:
+        debug("sleep", "Interupted by user")
+        exit("Interrupted by user")
 
 
-def try_key(d: dict, k: str):
-    """Mapping dict may not contain a key to lookup, handle it
+def debug_delay():
+    sleep(settings.DEBUGGING_DELAY_S)
+
+
+def try_key(d: dict, k: str) -> object or None:
+    """Access the value of a key in a dict, return None if not found
     """
     try:
         return d[k]
-    except (KeyError):
-        debug("controls_reader", "Unknown control key: ", [k])
-        # TODO: Investigate changing this behavior
-        return "Key not supplied in mapping: " + k
+    except KeyError as meh:
+        debug("try_key", "Unknown key: {}", [k])
+        return None
 
 
 Attemptable = NewType("Attemptable", Callable[[None], bool])
@@ -161,17 +158,3 @@ def attempt(action: Attemptable, tries: int, fail_once: Callable, failure: Calla
         else:
             fail_once()
             attempts += 1
-
-# def switch(input: object, option_action_dict: Dict[object, Callable], default_action: Callable):
-#     if input in option_action_dict:
-#         option_action_dict[input]()
-#     else:
-#         default_action()
-#     return
-
-# def match(input: object, option_a, action_a, option_b: Callable, action_b: Callable):
-#     if input is option_a or input == option_a:
-#         action_a(input)
-#     elif input is option_b or input == option_b:
-#         action_b(input)
-

@@ -106,3 +106,6 @@ venv.bak/
 
 .directory
 .DS_Store
+.idea
+
+robot/raspi/todo.txt
