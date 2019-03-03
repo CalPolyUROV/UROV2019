@@ -125,47 +125,36 @@ class Controller(Source):
         if (not settings.USE_CONTROLLER) or settings.SIMULATE_INPUT:
             return {}
 
-        # TODO: Investigate whether this part of the loop is necessary
-        for event in pygame.event.get():  # User did something
-            if event.type == pygame.QUIT:  # If user clicked close
-                done = True  # Flag that we are done so we exit this loop
-            # Possible joystick actions: JOYAXISMOTION JOYBALLMOTION JOYBUTTONDOWN JOYBUTTONUP JOYHATMOTION
-            if event.type == pygame.JOYBUTTONDOWN:
-                # print("Joystick button pressed.")
-                pass
-            if event.type == pygame.JOYBUTTONUP:
-                # print("Joystick button released.")
-                pass
+        pygame.event.get()
 
         # Get count of joysticks
-        joystick_count = pygame.joystick.get_count()
+        i = pygame.joystick.get_count() - 1
 
         joystick_data = {}
 
-        # For each joystick:
-        for i in range(joystick_count):
-            joystick = pygame.joystick.Joystick(i)
-            joystick.init()
-            # Get the index of which joystick in the event that multiple are connected
-            joystick_data["number"] = i
-            # Get the name from the OS for the controller/joystick
-            joystick_data["name"] = joystick.get_name()
+        joystick = pygame.joystick.Joystick(i)
+        joystick.init()
+        # Get the index of which joystick in the event that multiple are connected
+        joystick_data["number"] = i
+        # Get the name from the OS for the controller/joystick
+        joystick_data["name"] = joystick.get_name()
 
-            # Enumerate number floating point values
-            joystick_data["num_axes"] = joystick.get_numaxes()
-            for i in range(joystick_data["num_axes"]):
-                joystick_data["axis_" + str(i)] = joystick.get_axis(i)
+        # Enumerate number floating point values
+        joystick_data["num_axes"] = joystick.get_numaxes()
+        for i in range(joystick_data["num_axes"]):
+            joystick_data["axis_" + str(i)] = joystick.get_axis(i)
 
-            # Enumerate number of buttons
-            joystick_data["num_buttons"] = joystick.get_numbuttons()
-            for i in range(joystick_data["num_buttons"]):
-                joystick_data["button_" +
-                              str(i)] = joystick.get_button(i)
-            # Hat switch. All or nothing for direction, not like joysticks.
-            # Value comes back in an array.
-            joystick_data["num_dpad"] = joystick.get_numhats()
-            for i in range(joystick_data["num_dpad"]):
-                joystick_data["dpad"] = joystick.get_hat(i)
+        # Enumerate number of buttons
+        joystick_data["num_buttons"] = joystick.get_numbuttons()
+        for i in range(joystick_data["num_buttons"]):
+            joystick_data["button_" +
+                          str(i)] = joystick.get_button(i)
+        # Hat switch. All or nothing for direction, not like joysticks.
+        # Value comes back in an array.
+        joystick_data["num_dpad"] = joystick.get_numhats()
+        for j in range(joystick_data["num_dpad"]):
+            joystick_data["dpad"] = joystick.get_hat(j)
+
         return joystick_data
 
     def terminate(self):
