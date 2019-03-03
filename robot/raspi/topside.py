@@ -42,34 +42,32 @@ class Topside(Node):
         debug("framework", "Topside Node created")
 
     def execute_task(self, t: Task) -> SomeTasks:
-        debug("execute_task", "Executing task: {} which is {}",
-              [t, t.__class__.__name__])
-        if t is None:
-            return None
+        debug("execute_task", "Executing task: {} ", [t])
 
         sched_list = []
 
         if (t.task_type == TaskType.debug_str):
             debug("execute_task", "Debug_str task: {}", [t.val_list])
-            reply = Task(TaskType.get_cntl, TaskPriority.high, [
-                "Automatic control request in response of telemetry data"])
+            # reply = Task(TaskType.get_cntl, TaskPriority.high, [
+            #     "Automatic control request in response of telemetry data"])
 
-        elif (t.task_type == TaskType.get_cntl):
-            # Handle accumulated commands
+        # elif (t.task_type == TaskType.get_cntl):
+        #     # Handle accumulated commands
 
-            sched_list.append(Task(TaskType.cntl_input, TaskPriority.high,
-                                   self.get_controller_data()))
-            # Previous test code:
-            # if(len(task_queue) > 0):
-            #     reply = task_queue.pop(0)
-            # else:
-            #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
+        #     sched_list.append(Task(TaskType.cntl_input, TaskPriority.high,
+        #                            self.get_controller_data()))
+        #     # Previous test code:
+        #     # if(len(task_queue) > 0):
+        #     #     reply = task_queue.pop(0)
+        #     # else:
+        #     #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
 
         elif (t.task_type == TaskType.get_telemetry):
-            debug("execute_task", "Executing task: {}", t.val_list)
             # TODO: Record and display telemetry data
-            sched_list.append(Task(TaskType.get_cntl, TaskPriority.high, [
-                "Automatic control request in response of telemetry data"]))
+            # t = Task(TaskType.get_cntl, TaskPriority.high, [
+            #          "Automatic control request in response of telemetry data"])
+            # sched_list.append(t)
+            pass
 
         else:
             debug("execute_task", "Unable to handle TaskType: {}, values: {}", [
@@ -80,9 +78,10 @@ class Topside(Node):
 
     def get_new_tasks(self) -> SomeTasks:
         # update_ui = Task(TaskType.update_ui, TaskPriority.high, [])
-        get_telemetry = Task(TaskType.get_telemetry, TaskPriority.normal, [])
-        task_list = [get_telemetry]
-        return task_list
+        # get_telemetry = Task(TaskType.get_telemetry, TaskPriority.normal, [])
+        # task_list = [get_telemetry]
+        # return task_list
+        return None
 
     def terminate(self):
         super().set_terminate_flag()
