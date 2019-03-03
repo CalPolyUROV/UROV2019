@@ -3,6 +3,8 @@ import robot_data  # This is weird...
 from task import *
 from utils import debug, try_key
 
+# TODO: Split this class into robot_processing and return data storing to datastore.py
+
 
 class Database:
     """Stores data for the robot
@@ -97,6 +99,7 @@ class Database:
             debug("thrust_vec_verbose", "X set to {}", [self.throttle['x']])
         # Left trigger to robot descend (z axis)
         if "trigger_left" in key:
+            # TODO: Disnetangle the two triggers for Z movement
             self.throttle['z'] = 0 - val
             # Left trigger value is inverted to thrust downward
             debug("thrust_vec_verbose", "Z set to {}", [self.throttle['z']])
