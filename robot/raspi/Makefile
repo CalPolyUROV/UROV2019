@@ -88,7 +88,7 @@ pygame_build_mac:
 	sudo pip3 install hg+http://bitbucket.org/pygame/pygame
 
 todo:
-	grep --line-number --initial-tab "TODO:" *.py | tr -s [:space:]  > todo.txt
+	grep --line-number --initial-tab "# TODO:" *.py | tr -s [:space:]  > todo.txt
 	cat todo.txt
 
 gource:
