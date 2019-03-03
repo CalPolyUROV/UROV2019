@@ -137,6 +137,7 @@ SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after fa
 USE_TOPSIDE_PI_TEMP_MON = False
 USE_ROBOT_PI_TEMP_MON = False
 INT_TEMP_MON_TICK_RATE = 0.25
+INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
 ROBOT_NAME = "Subrina"
