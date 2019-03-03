@@ -2,6 +2,7 @@
 Based on example controller code from https://www.pygame.org/docs/ref/joystick.html
 """
 # Sytem imports
+print("Importing pygame:")
 import pygame
 import _thread
 from typing import Callable
@@ -10,8 +11,7 @@ import random
 # Our imports
 import settings
 from snr import Source
-from utils import debug, try_key, sleep
-
+from utils import debug, try_key, sleep, exit
 
 class Controller(Source):
     def __init__(self, name: str, store_data: Callable):
@@ -26,9 +26,30 @@ class Controller(Source):
         self.loop()
 
     def init_controller(self):
-        if not settings.SIMULATE_INPUT:
+        if settings.USE_CONTROLLER and not settings.SIMULATE_INPUT:
             pygame.init()  # Initialize pygame
             pygame.joystick.init()  # Initialize the joysticks
+        else:
+            debug("controller", "Not using pygame and XBox controller")
+            return
+
+        pygame.event.get()
+        num_controllers = pygame.joystick.get_count()
+
+        if num_controllers > 0:
+            debug("controller", "Controllers found: {}", [num_controllers])
+            debug(
+                "controller", "Warning: disconnecting the controller will crash the topside program")
+            # TODO: Handle pygame's segfault when the controller disconnects
+        elif settings.REQUIRE_CONTROLLER:
+            s = "Controller required by settings, {} found"
+            debug("controller_error", s, [num_controllers])
+            exit("Required XBox controller absent")
+        else:
+            debug("controller", "Controller not found but not required, skipping")
+            settings.USE_CONTROLLER = False
+            return
+
         # TODO: Require the user to zero each trigger by depressing it and
         # releasing it. This is necessary because the triggers start at 50
         # and are only zeroed after the initial press and release.
