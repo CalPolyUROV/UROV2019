@@ -16,7 +16,7 @@ class Datastore:
             old_page = self.database[key]
             self.database[key + "_previous"] = old_page
         except KeyError:
-            debug("data_store", "Adding new key: {}", [key])
+            debug("datastore_event", "Adding new key: {}", [key])
 
         self.database[key] = Page(data)
 
@@ -32,7 +32,7 @@ class Datastore:
         page = try_key(self.database, key)
 
         if page is None:
-            debug("datastore", "Page for {} was empty", [key])
+            debug("datastore_event", "Page for {} was empty", [key])
             return None
         return page.data
 
@@ -42,5 +42,5 @@ class Datastore:
         try:
             self.database[key].fresh = False
         except KeyError:
-            debug("datastore", "Cannot mark unfresh, key not found")
+            debug("datastore_error", "Cannot mark unfresh, key not found")
         return self.get(key)
