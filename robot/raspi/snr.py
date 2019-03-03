@@ -6,6 +6,7 @@ Relay (aka Transport)
 """
 # System imports
 from typing import Callable, List, NewType, Union
+from collections import deque
 import _thread
 
 # Our imports
@@ -20,7 +21,7 @@ class Node:
     """
 
     def __init__(self, task_handler: Handler, task_source: TaskSource):
-        self.task_queue = []
+        self.task_queue = deque()
         self.data = Datastore()
         self.task_handler = task_handler
         self.task_source = task_source
@@ -66,12 +67,12 @@ class Node:
         # Handle normal tasks
         debug("schedule", "Scheduling task {}", [t])
         if t.priority == TaskPriority.high:
-            self.task_queue.insert(0, t)  # High priotity at front
+            self.task_queue.append(t)  # High priotity at front (right)
         elif t.priority == TaskPriority.normal:
-            self.task_queue.append(t)  # Normal priotity at end
+            self.task_queue.appendleft(t)  # Normal priotity at end (left)
             # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
         elif t.priority == TaskPriority.low:
-            self.task_queue.append(t)  # Normal priotity at end
+            self.task_queue.appendleft(t)  # Normal priotity at end (left)
         else:
             debug("schedule", "Cannot schedule task with priority: {}", [
                 t.priority])
@@ -106,7 +107,7 @@ class Node:
         """
         while not self.has_tasks():
             self.schedule_new_tasks()
-        return self.task_queue.pop(0)
+        return self.task_queue.pop()
 
     def store_data(self, key: str, data):
         self.data.store(key, data)
