@@ -1,22 +1,32 @@
 """Configurable settings that apply to the operation of the robot
+
+Note: settings exists per imported "namespace" such that each file that 
+imports settings has its own copy and changes do not propagate to other 
+copies. In other words, if a setting here is changed from inside a specific 
+file, it will not be updated for other files.
 """
 from enum import IntEnum
 
-# TODO: Investigate converting settings values to a dict
+# TODO: Investigate converting settings values to an object
 # (Maybe keeping a per Node settings object)
 
-# Debugging
-# TODO: track debugging for server and client separately
+# Debugging printing and logging
+# TODO: Track debugging for server and client separately
 DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
     "framework": False,
-    "datastore": True,
     "schedule": False,
     "execute_task": False,
 
+    "datastore": True,
+    "datastore_error": True,
+    "datastore_event": False,
+    "datastore_verbose": False,
+
     "controller": True,
+    "controller_error": True,
     "controller_event": False,
     "controller_verbose": False,
     "controls_reader": True,
@@ -61,25 +71,29 @@ DEBUG_CHANNELS = {
     "ser_packet": True,
     "chksum": True,
 
+    "sleep": True,
+
+    "try_key": False,
+
     "test": True,
 }
 
 # XBox Controller
 USE_CONTROLLER = True
 SIMULATE_INPUT = False
-REQUIRE_CONTROLLER = True  # TODO: Use this value
-
+REQUIRE_CONTROLLER = False
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 30
+CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
 
-# Mapping of pygame joystick output to values we can make sense of
-# Examples:
-# "pygame_name":["name_we_use"],
-# "pygame_name":["name_we_use", cast_type],
-# "pygame_name":["name_we_use", cast_type, scale_factor],
-# "pygame_name":["name_we_use", cast_type, scale_factor, shift_ammount],
-# "pygame_name":["name_we_use", cast_type, scale_factor, shift_ammount, dead_zone],
-# to drop a value use "pygame_name":None,
+'''Mapping of pygame joystick output to values we can make sense of
+Examples:
+"pygame_name": ["name_we_use"],
+"pygame_name": ["name_we_use", cast_type],
+"pygame_name": ["name_we_use", cast_type, scale_factor],
+"pygame_name": ["name_we_use", cast_type, scale_factor, shift_ammount],
+"pygame_name": ["name_we_use", cast_type, scale_factor, shift_ammount, dead_zone],
+to drop a value use "pygame_name": [None],
+'''
 control_mappings = {
     "number": [None],
     "name": [None],
@@ -122,9 +136,10 @@ SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
 SOCKETS_CONNECT_ATTEMPTS = 120
 SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
 MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
-# note: SOCKETS_CONNECT_ATTEMPTS * SOCKETS_RETRY_WAIT = timeout for sockets connection
-#     This timeout should be very long to allow the server to open its socket
-#     before the client gives up on connecting to it.
+'''Note: SOCKETS_CONNECT_ATTEMPTS * SOCKETS_RETRY_WAIT = timeout for sockets connection
+    This timeout should be very long to allow the server to open its socket
+    before the client gives up on connecting to it.
+'''
 
 # Serial Connection
 USE_SERIAL = False
@@ -136,7 +151,7 @@ SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after fa
 # Temperature Monitor
 USE_TOPSIDE_PI_TEMP_MON = False
 USE_ROBOT_PI_TEMP_MON = False
-INT_TEMP_MON_TICK_RATE = 0.25
+INT_TEMP_MON_TICK_RATE = 0.25  # Hz (Readings per second)
 INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
