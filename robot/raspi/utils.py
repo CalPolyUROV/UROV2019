@@ -30,10 +30,6 @@ def exit(reason: str) -> None:
     # This point should be unreachable, just die already
 
 
-def debug_delay():
-    sleep(settings.DEBUGGING_DELAY_S)
-
-
 def debug(channel: str, *args: list):
     """Debugging print and logging functions
 
@@ -99,25 +95,30 @@ def channel_active(channel: str) -> bool:
     return True  # default for unknown channels
 
 
-def sleep(time_s: int) -> None:
+def sleep(time_s: int):
     """Pauses the execution of the thread for time_s seconds
     """
-    # TODO: prevent use of this via a setting
+    if settings.DISABLE_SLEEP:
+        debug("sleep", "Sleep disabled, not sleeping")
+        return
     try:
         time.sleep(time_s)
     except KeyboardInterrupt:
+        debug("sleep", "Interupted by user")
         exit("Interrupted by user")
-        # debug("sleep", "{}", [error.__repr__()])
 
 
-def try_key(d: dict, k: str):
-    """Mapping dict may not contain a key to lookup, handle it
+def debug_delay():
+    sleep(settings.DEBUGGING_DELAY_S)
+
+
+def try_key(d: dict, k: str) -> object or None:
+    """Access the value of a key in a dict, return None if not found
     """
     try:
         return d[k]
     except KeyError as meh:
         debug("try_key", "Unknown key: {}", [k])
-        # TODO: Investigate changing this behavior
         return None
 
 
@@ -157,16 +158,3 @@ def attempt(action: Attemptable, tries: int, fail_once: Callable, failure: Calla
         else:
             fail_once()
             attempts += 1
-
-# def switch(input: object, option_action_dict: Dict[object, Callable], default_action: Callable):
-#     if input in option_action_dict:
-#         option_action_dict[input]()
-#     else:
-#         default_action()
-#     return
-
-# def match(input: object, option_a, action_a, option_b: Callable, action_b: Callable):
-#     if input is option_a or input == option_a:
-#         action_a(input)
-#     elif input is option_b or input == option_b:
-#         action_b(input)

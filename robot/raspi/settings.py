@@ -108,6 +108,7 @@ control_mappings = {
 
 
 THREAD_END_WAIT_S = 2
+DISABLE_SLEEP = False
 
 # Sockets Connection
 USE_SOCKETS = True
