@@ -20,6 +20,8 @@ DEBUG_CHANNELS = {
     "schedule": False,
     "execute_task": False,
 
+    "clui": True,
+
     "datastore": True,
     "datastore_error": True,
     "datastore_event": False,
@@ -77,6 +79,11 @@ DEBUG_CHANNELS = {
 
     "test": True,
 }
+
+# Command Line User Interface
+USE_TOPSIDE_CLUI = True
+TOPSIDE_CLUI_NAME = "topside_clui"
+TOPSIDE_UI_TICK_RATE = 24 # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True

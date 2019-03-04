@@ -11,6 +11,7 @@ from task import Task, TaskPriority, TaskType, SomeTasks
 from sockets_server import SocketsServer
 from utils import debug, exit, sleep
 from internal_temp import IntTempMon
+from topside_clui import TopsideClui
 
 
 class Topside(Node):
@@ -34,6 +35,8 @@ class Topside(Node):
         # Start XBox controller endpoint
         self.xbox_controller = Controller(
             settings.CONTROLLER_NAME, super().store_data)
+        # Start CLUI endpoint
+        self.clui = TopsideClui(settings.TOPSIDE_CLUI_NAME, super().get_data)
         # Start local temperature monitor endpoint
         if settings.USE_TOPSIDE_PI_TEMP_MON:
             self.int_temp_mon = IntTempMon(
