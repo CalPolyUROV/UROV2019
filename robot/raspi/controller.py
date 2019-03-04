@@ -22,6 +22,7 @@ class Controller(Source):
         super().__init__(name, self.monitor_controller, settings.CONTROLLER_TICK_RATE)
 
         self.store_data = store_data
+        
         self.init_controller()
         self.loop()
 
@@ -60,7 +61,11 @@ class Controller(Source):
             joystick_data = simulate_input()
         else:
             debug("controller_verbose", "Reading input")
-            joystick_data = self.read_joystick()
+            try:
+                joystick_data = self.read_joystick()
+            except pygame.error as error:
+                debug("controller_error", "{}, simulating input", [error.__repr__()])
+                joystick_data = simulate_input()
         controls_dict = self.map_input_dict(joystick_data)
 
         debug("controller_event",
