@@ -1,8 +1,4 @@
-"""Node for surface unit
 
-Implements an Node to use Sockets and a PyGame joystick to sent control data 
-to robot
-"""
 
 # System imports
 import socket
@@ -18,7 +14,11 @@ from internal_temp import IntTempMon
 
 
 class Topside(Node):
+    """Node for surface unit
 
+    Implements an Node to use Sockets and a PyGame joystick to sent control 
+    data to robot and show telemetry data from robot
+    """
     def __init__(self, mode: str):
         super().__init__(self.execute_task, self.get_new_tasks)
 
@@ -30,8 +30,8 @@ class Topside(Node):
         # Create sockets server object
         server_tuple = (settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
         self.sockets_server = SocketsServer(
-            server_tuple, self.execute_task, self.get_data)
         # Create controller object
+            server_tuple, self.get_data)
         self.xbox_controller = Controller(
             settings.CONTROLLER_NAME, super().store_data)
         # Start local temperature monitor
@@ -43,45 +43,24 @@ class Topside(Node):
 
     def execute_task(self, t: Task) -> SomeTasks:
         debug("execute_task", "Executing task: {} ", [t])
-
         sched_list = []
 
         if (t.task_type == TaskType.debug_str):
             debug("execute_task", "Debug_str task: {}", [t.val_list])
-            # reply = Task(TaskType.get_cntl, TaskPriority.high, [
-            #     "Automatic control request in response of telemetry data"])
-
-        # elif (t.task_type == TaskType.get_cntl):
-        #     # Handle accumulated commands
-
-        #     sched_list.append(Task(TaskType.cntl_input, TaskPriority.high,
-        #                            self.get_controller_data()))
-        #     # Previous test code:
-        #     # if(len(task_queue) > 0):
-        #     #     reply = task_queue.pop(0)
-        #     # else:
-        #     #     reply = Task(TaskType.blink_test, TaskPriority.normal, [200, 0])
-
+            
         elif (t.task_type == TaskType.get_telemetry):
-            # TODO: Record and display telemetry data
-            # t = Task(TaskType.get_cntl, TaskPriority.high, [
-            #          "Automatic control request in response of telemetry data"])
-            # sched_list.append(t)
+            # TODO: Implement sockets client on topside to query server on robot for data
             pass
 
         else:
             debug("execute_task", "Unable to handle TaskType: {}, values: {}", [
                 t.task_type, t.val_list])
-            # reply = Task(TaskType.cntl_input, TaskPriority.high, ["This is a command"])
-
+           
         return sched_list
 
     def get_new_tasks(self) -> SomeTasks:
-        # update_ui = Task(TaskType.update_ui, TaskPriority.high, [])
-        # get_telemetry = Task(TaskType.get_telemetry, TaskPriority.normal, [])
-        # task_list = [get_telemetry]
-        # return task_list
-        return None
+        get_telemetry = Task(TaskType.get_telemetry, TaskPriority.normal, [])
+        return get_telemetry
 
     def terminate(self):
         super().set_terminate_flag()

@@ -2,7 +2,6 @@
 """
 # System imports
 import socket
-import sys
 import json
 
 # Our imports
@@ -18,12 +17,11 @@ class SocketsServer(Server):
     """Asynchronous sockets server which sends commands to robot
     """
 
-    def __init__(self,  server_tuple: (str, int), handler: Handler, get_data: Callable):
+    def __init__(self,  server_tuple: (str, int), get_data: Callable):
         if not settings.USE_SOCKETS:
             return
         super().__init__("sockets_server", self.loop_handler)
         self.server_tuple = server_tuple
-        self.handler = handler
         self.get_data = get_data
 
         self.initialize_server()
@@ -96,26 +94,6 @@ class SocketsServer(Server):
         data = json.dumps(controls).encode()
         self.conn.sendall(data)
         debug("sockets_verbose", "Data sent")
-
-    def recieve_data(self):
-        data = self.conn.recv(settings.MAX_SOCKET_SIZE)
-        if not data:
-            debug("sockets_error", "Received empty data. Socket closed?")
-            return
-        debug("sockets_status", "Received data")
-        debug("sockets_verbose", "Received data: {}", [data])
-
-        # Decode data into task
-        t = decode(data)
-        debug("sockets_verbose", "Decoded recived data, handling")
-        # Handle data and respond
-        reply = self.handler(t)
-        debug("sockets_verbose", "Handled reply: {}", [reply])
-        data = reply.encode()
-        debug("sockets_verbose", "Encoded data: ", [data])
-        self.conn.sendall(data)
-        debug("sockets_status", 'Sent reply')
-        debug("sockets_verbose", 'Sent reply: "{}"', [reply])
 
     def close_socket(self):
         if not settings.USE_SOCKETS:
