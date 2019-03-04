@@ -81,7 +81,7 @@ DEBUG_CHANNELS = {
 }
 
 # Command Line User Interface
-USE_TOPSIDE_CLUI = True
+USE_TOPSIDE_CLUI = False
 TOPSIDE_CLUI_NAME = "topside_clui"
 TOPSIDE_UI_TICK_RATE = 24 # Hz (Times per second)
 
@@ -90,7 +90,7 @@ USE_CONTROLLER = True
 SIMULATE_INPUT = False
 REQUIRE_CONTROLLER = False
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
+CONTROLLER_TICK_RATE = 24  # Hz (Times per second)
 
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
