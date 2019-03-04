@@ -27,14 +27,14 @@ class Topside(Node):
 
         # TODO: Remotely start robot program from topside
 
-        # Create sockets server object
+        # Start sockets server endpoint
         server_tuple = (settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
         self.sockets_server = SocketsServer(
-        # Create controller object
             server_tuple, self.get_data)
+        # Start XBox controller endpoint
         self.xbox_controller = Controller(
             settings.CONTROLLER_NAME, super().store_data)
-        # Start local temperature monitor
+        # Start local temperature monitor endpoint
         if settings.USE_TOPSIDE_PI_TEMP_MON:
             self.int_temp_mon = IntTempMon(
                 "topside_pi_temperature", super().store_data)

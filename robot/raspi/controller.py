@@ -10,10 +10,10 @@ import random
 
 # Our imports
 import settings
-from snr import Source
+from snr import AsyncEndpoint
 from utils import debug, try_key, sleep, exit
 
-class Controller(Source):
+class Controller(AsyncEndpoint):
     def __init__(self, name: str, store_data: Callable):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")

@@ -6,21 +6,21 @@ import json
 
 # Our imports
 import settings
-from snr import Server
+from snr import AsyncEndpoint
 from task import *
 from utils import debug, sleep
 
 MAX_CONNECTIONS = 10
 
 
-class SocketsServer(Server):
+class SocketsServer(AsyncEndpoint):
     """Asynchronous sockets server which sends commands to robot
     """
 
     def __init__(self,  server_tuple: (str, int), get_data: Callable):
         if not settings.USE_SOCKETS:
             return
-        super().__init__("sockets_server", self.loop_handler)
+        super().__init__("sockets_server", self.loop_handler, 0)
         self.server_tuple = server_tuple
         self.get_data = get_data
 

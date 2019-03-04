@@ -5,8 +5,7 @@ from typing import Callable
 
 import settings
 from utils import sleep, debug
-from snr import Source
-from datastore import Datastore
+from snr import AsyncEndpoint
 
 CMD = "vcgencmd measure_temp"
 INVALID_VALUE = -2
@@ -24,8 +23,8 @@ def measure_temp() -> int:
         return INVALID_VALUE
 
 
-class IntTempMon(Source):
-    """Threaded Source class for internal Raspberry Pi temperature monitoring
+class IntTempMon(AsyncEndpoint):
+    """AsyncEndpoint for internal Raspberry Pi temperature monitoring
 
     Settings toggle of this class' use must be done in the calling class 
     because topside and robot toggles for this device are separate

@@ -99,7 +99,7 @@ class Node:
         Task or list of tasks are queued
         """
         new_tasks = self.task_source()
-        debug("framework", "Scheduling new tasks {}", [new_tasks])
+        debug("schedule", "Scheduling new tasks {}", [new_tasks])
         self.schedule_task(new_tasks)
 
     def get_next_task(self) -> Task or None:
@@ -116,30 +116,34 @@ class Node:
         return self.data.get(key)
 
 
-class Source:
-    """An Asynchronous source of data for a node
+class AsyncEndpoint:
+    """An Asynchronous endpoint of data for a node
 
-    A source is owned by a node, and runs a handler provided to it by the
-    node. The handler stores the received data in the node's database and
-    marks it as fresh. 
+    An AsyncEndpoint is part of a node, and runs in its own thread. An 
+    endpoint may produce data to be stored in the Node or retreive data from 
+    the Node. The endpoint has its loop handler function run according to its 
+    tick_rate (Hz).
     """
 
     def __init__(self, name: str, loop_handler: Callable, tick_rate: int):
         self.name = name
-        self.delay = 1.0 / tick_rate
         self.loop_handler = loop_handler
         self.terminate_flag = False
+        if tick_rate == 0:
+            self.delay = 0
+        else:
+            self.delay = 1.0 / tick_rate
 
     def loop(self):
-        debug("framework", "Starting source {} thread", [self.name])
+        debug("framework", "Starting async endpoint {} thread", [self.name])
         _thread.start_new_thread(self.threaded_loop, ())
 
     def threaded_loop(self):
         while not self.terminate_flag:
             self.loop_handler()
             self.tick()
-        debug("framework", "Source {} ending loop", [self.name])
-        exit("Source thread exited by termination")
+        debug("framework", "Async endpoint {} exited loop", [self.name])
+        exit("Endpoint thread exited by termination")
 
     def get_name(self):
         return self.name
@@ -157,37 +161,6 @@ class Source:
         """
         raise NotImplementedError(
             "Subclass of Source does not implement terminate()")
-
-
-class Server:
-    """An Asynchronous accessor of data for another node
-    """
-
-    def __init__(self, name: str, loop_handler: Callable):
-        self.name = name
-        self.loop_handler = loop_handler
-        self.terminate_flag = False
-
-    def loop(self):
-        debug("framework", "Starting server thread: {}", [self.name])
-        _thread.start_new_thread(self.threaded_loop, ())
-
-    def threaded_loop(self):
-        while not self.terminate_flag:
-            self.loop_handler()
-        debug("framework", "Server {} ending loop", [self.name])
-        exit("Server thread exited by termination")
-        # TODO: Kill just this thread, maybe through join()?
-
-    def set_terminate_flag(self):
-        self.terminate_flag = True
-        debug("framework", "Terminating server: {}", [self.name])
-
-    def terminate(self):
-        """Execute actions needed to deconstruction an object that implements a Transport
-        """
-        raise NotImplementedError(
-            "Subclass of Server does not implement terminate()")
 
 
 class Relay:
