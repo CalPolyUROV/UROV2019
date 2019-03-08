@@ -90,7 +90,7 @@ class SocketsServer(AsyncEndpoint):
     def send_data(self):
         """Automatically send controls data as soon as the client connects.
         """
-        controls = self.get_data(settings.CONTROLLER_NAME)
+        controls = self.get_data()
         data = json.dumps(controls).encode()
         self.conn.sendall(data)
         debug("sockets_verbose", "Data sent")

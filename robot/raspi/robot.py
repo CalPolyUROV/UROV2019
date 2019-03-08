@@ -15,13 +15,14 @@ from serial_coms import SerialConnection  # Serial connection to Teensy
 from snr import Node
 from sockets_client import SocketsClient  # Sockets connection to topside
 from task import *
-from utils import debug, debug_delay, exit, sleep  # Miscelaneous utilities
+from utils import debug, exit, sleep, debug_delay  # Miscelaneous utilities
 
 
 class Robot(Node):
 
     def __init__(self, mode: str):
-        super().__init__(self.execute_task, self.get_new_tasks)
+        super().__init__(self.handle_task, self.get_new_tasks)
+        self.mode = mode
 
         self.database = Database()  # Handles all the robot's data
 
@@ -43,11 +44,11 @@ class Robot(Node):
                                                     settings.TOPSIDE_PORT)
                                                    )
         if settings.USE_ROBOT_PI_TEMP_MON:
-            self.temp_mon = IntTempMon(
-                "robot_pi_temperature", self.store_data)
+            self.temp_mon = IntTempMon(settings.ROBOT_INT_TEMP_NAME,
+                                       self.store_temperature_data)
 
-    def execute_task(self, t: Task or None) -> SomeTasks:
-        debug("execute_task", "Executing task: {}", [t])
+    def handle_task(self, t: Task or None) -> SomeTasks:
+        debug("execute_task_verbose", "Executing task: {}", [t])
 
         sched_list = []
 
@@ -59,7 +60,7 @@ class Robot(Node):
         elif t.task_type == TaskType.cntl_input:
             debug("robot_control", "Processing control input")
             debug("robot_control_verbose", "Control input {}", [t.val_list])
-            sched_list.append(self.database.receive_controls(t.val_list))
+            sched_list = self.database.receive_controls(t.val_list)
 
         # Read sensor data
         elif t.task_type == TaskType.get_telemetry:
@@ -146,3 +147,6 @@ class Robot(Node):
             pass
 
         super().set_terminate_flag()
+
+    def store_int_temp_data(self, int_temp: float):
+        self.store_data(settings.ROBOT_INT_TEMP_NAME, int_temp)

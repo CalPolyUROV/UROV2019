@@ -84,6 +84,7 @@ DEBUG_CHANNELS = {
 USE_TOPSIDE_CLUI = False
 TOPSIDE_CLUI_NAME = "topside_clui"
 TOPSIDE_UI_TICK_RATE = 24 # Hz (Times per second)
+UI_DATA_KEY = "UI_data"
 
 # XBox Controller
 USE_CONTROLLER = True
@@ -158,6 +159,8 @@ SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after fa
 # Temperature Monitor
 USE_TOPSIDE_PI_TEMP_MON = False
 USE_ROBOT_PI_TEMP_MON = False
+TOPSIDE_INT_TEMP_NAME = "topside_int_temp_mon"
+ROBOT_INT_TEMP_NAME = "robot_int_temp_mon"
 INT_TEMP_MON_TICK_RATE = 0.25  # Hz (Readings per second)
 INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 

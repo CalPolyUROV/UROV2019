@@ -49,7 +49,7 @@ class IntTempMon(AsyncEndpoint):
         """Main entry point called during loop"""
         self.queue_reading(measure_temp())
         avg = self.compute_avg()
-        self.store_data(self.name, avg)  # Send data to Node's datastore
+        self.store_data(avg)  # Send data to Node's datastore
         debug("int_temp_mon", "Temperature: {}'C", [avg])
 
     def queue_reading(self, new_val: int):

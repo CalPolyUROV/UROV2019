@@ -7,7 +7,7 @@ from typing import Callable
 # Our imports
 import settings
 from snr import AsyncEndpoint
-from utils import debug
+from utils import debug, try_key
 
 
 class TopsideClui(AsyncEndpoint):
@@ -25,11 +25,11 @@ class TopsideClui(AsyncEndpoint):
         pass
 
     def refresh_ui(self):
-        controller_data = self.get_data(settings.CONTROLLER_NAME)
-        if controller_data is not None:
-            button_a = controller_data["button_a"]
-        else:
-            button_a = ""
+        ui_data = self.get_data()
+        if ui_data is None:
+            debug("CLUI", "Data for UI is None, not refreshing")
+            return
+        button_a = try_key(ui_data, "button_a")
         bottom_line = "button_a: " + str(button_a)
         print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + bottom_line, end='', flush=True)
 

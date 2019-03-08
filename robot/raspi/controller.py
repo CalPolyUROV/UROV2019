@@ -72,7 +72,7 @@ class Controller(AsyncEndpoint):
               "Storing data with key: {}", [self.get_name()])
         debug("controller_verbose",
               "\n\tController data:\n\t {}", [controls_dict])
-        self.store_data(self.get_name(), controls_dict)
+        self.store_data(controls_dict)
 
     def print_data(self, d: dict):
         for val in self.joystick_data:
