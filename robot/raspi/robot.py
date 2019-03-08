@@ -50,9 +50,12 @@ class Robot(Node):
 
         sched_list = []
 
-        # Debug string command
-        if t.task_type == TaskType.debug_str:
-            debug("execute_task", "Executing task: {}", t.val_list)
+        # Get controls input
+        if t.task_type == TaskType.get_cntl:
+            # t = self.socket_connection.request_data()
+            # debug("robot_verbose", "Got task {} from sockets connection", [t])
+            # sched_list.append(t)
+            pass
 
         # Process controls input
         elif t.task_type == TaskType.cntl_input:
@@ -62,29 +65,23 @@ class Robot(Node):
 
         # Read sensor data
         elif t.task_type == TaskType.get_telemetry:
-            debug("execute_task", "Executing task: {}", t.val_list)
-            t = Task(TaskType.get_cntl, TaskPriority.high,
-                     self.robot_data.telemetry_data())
-            self.socket_connection.send_data(t.encode())
-
-        # Initiate serial connection
-        elif t.task_type == TaskType.serial_est_con:
-            if settings.USE_SERIAL:
-                sched_list.append(self.serial_connection.establish_contact())
+            debug("execute_task", "Executing task: {}", [t.val_list])
+            # TODO: Read sensor values by serial connection and store in datastore
 
         # Send serial data
         elif t.task_type == TaskType.serial_com:
-            if settings.USE_SERIAL:
-                data = t.val_list
-                sched_list.append(
-                    self.serial_connection.send_receive_packet(data))
+            debug("serial", "Executing serial com task: {}", [t.val_list])
+            t = self.serial_connection.send_receive(
+                t.val_list[0], t.val_list[1::])
+            sched_list = append_task(t, sched_list)
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
-            if settings.USE_SERIAL:
-                p = self.serial_connection.new_packet(
-                    serial_coms.BLINK_CMD, t.val_list[0], t.val_list[1])
-                self.serial_connection.send_receive_packet(p)
+            self.serial_connection.send_receive("blink", t.val_list)
+
+        # Debug string command
+        elif t.task_type == TaskType.debug_str:
+            debug("execute_task", "Executing task: {}", t.val_list)
 
         # Terminate robot
         elif t.task_type == TaskType.terminate_robot:
@@ -95,6 +92,8 @@ class Robot(Node):
         else:  # Catch all
             debug("execute_task", "Unable to handle TaskType: {}", t.task_type)
 
+        if self.mode.__eq__("debug"):
+            debug_delay()
         return sched_list
 
     def get_new_tasks(self) -> SomeTasks:
@@ -103,8 +102,8 @@ class Robot(Node):
         sched_list = []
 
         if settings.USE_SOCKETS:
-                # communicate over sockets to generate new tasks based on UI input
-            # t = Task(TaskType.get_cntl, TaskPriority.high, [])
+            # t = Task(TaskType.get_cntl, TaskPriority.low, [])
+
             t = self.socket_connection.request_data()
             debug("robot_verbose", "Got task {} from sockets connection", [t])
             sched_list.append(t)
@@ -116,9 +115,7 @@ class Robot(Node):
 
         if settings.USE_SERIAL:
             t = Task(TaskType.get_telemetry, TaskPriority.normal, [])
-            sched_list.append(t)
-
-        return sched_list
+            # sched_list.append(t)
 
         return sched_list
 

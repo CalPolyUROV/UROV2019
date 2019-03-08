@@ -22,7 +22,7 @@ class Topside(Node):
     """
 
     def __init__(self, mode: str):
-        super().__init__(self.execute_task, self.get_new_tasks)
+        super().__init__(self.handle_task, self.get_new_tasks)
 
         if mode.__eq__("debug"):
             settings.TOPSIDE_IP_ADDRESS = "localhost"
@@ -47,8 +47,8 @@ class Topside(Node):
 
         debug("framework", "Topside Node created")
 
-    def execute_task(self, t: Task) -> SomeTasks:
-        debug("execute_task", "Executing task: {} ", [t])
+    def handle_task(self, t: Task) -> SomeTasks:
+        debug("execute_task_verbose", "Executing task: {} ", [t])
         sched_list = []
 
         if (t.task_type == TaskType.debug_str):
