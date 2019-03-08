@@ -1,27 +1,27 @@
 
-from enum import IntEnum
+from enum import Enum
 from typing import NewType, Callable, List, Union
 import json
 
 from utils import debug
 
 
-class TaskType(IntEnum):
-    debug_str = 0
-    cntl_input = 1
-    get_telemetry = 2
-    serial_est_con = 3
-    serial_com = 4
-    sockets_connect = 5
-    blink_test = 6
-    update_ui = 7
-    terminate_robot = 8
+class TaskType(Enum):
+    debug_str = "debug_str"
+    get_cntl = "get_cntl"
+    cntl_input = "cntl_input"
+    get_telemetry = "get_telemetry"
+    serial_est_con = "serial_est_con"
+    serial_com = "serial_com"
+    blink_test = "blink_test"
+    update_ui = "update_ui"
+    terminate_robot = "terminate_robot"
 
 
-class TaskPriority(IntEnum):
-    high = 2
-    normal = 1
-    low = 0
+class TaskPriority(Enum):
+    high = 3
+    normal = 2
+    low = 1
 
 
 class Task:
