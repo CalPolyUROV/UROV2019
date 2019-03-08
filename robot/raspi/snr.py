@@ -31,6 +31,7 @@ class Node:
     def loop(self):
         while not self.terminate_flag:
             self.step_task()
+            debug("schedule", "Task queue: \n{}", [self.repr_task_queue()])
         self.terminate()
 
     def set_terminate_flag(self):
@@ -55,8 +56,9 @@ class Node:
             return
         if isinstance(t, list):
             # Recursively handle lists
-            debug("schedule", "Recursively scheduling list of tasks")
+            debug("schedule_verbose", "Recursively scheduling list of {} tasks", [len(t)])
             for task in t:
+                # debug("schedule_verbose", "Recursively scheduling {}", [task])
                 self.schedule_task(task)
             return
         elif not isinstance(t, Task):
@@ -65,7 +67,7 @@ class Node:
             return
 
         # Handle normal tasks
-        debug("schedule", "Scheduling task {}", [t])
+        debug("schedule_verbose", "Scheduling task {}", [t])
         if t.priority == TaskPriority.high:
             self.task_queue.append(t)  # High priotity at front (right)
         elif t.priority == TaskPriority.normal:
@@ -77,7 +79,7 @@ class Node:
             debug("schedule", "Cannot schedule task with priority: {}", [
                 t.priority])
 
-    def execute_task(self, t: Task or None) -> SomeTasks:
+    def execute_task(self, t: Task or None):
         """Execute the given task
 
         The handler is provided at construction by the owner of the scheduler object. 
@@ -87,26 +89,30 @@ class Node:
             debug("execute_task", "Tried to execute None")
             return
         task_result = self.task_handler(t)
+        if task_result is not None:
+            debug("schedule_verbose", "Task execution resulted in {} new tasks", [len(task_result)])
         self.schedule_task(task_result)
 
     def has_tasks(self) -> bool:
         """Report whether there are enough tasks left in the queue
         """
-        return 0 < len(self.task_queue)
+        return len(self.task_queue) > 0
 
     def schedule_new_tasks(self):
         """Retrieve tasks from constructor supplied source function
         Task or list of tasks are queued
         """
         new_tasks = self.task_source()
-        debug("schedule", "Scheduling new tasks {}", [new_tasks])
+        debug("schedule_verbose", "Scheduling new tasks {}", [new_tasks])
         self.schedule_task(new_tasks)
 
     def get_next_task(self) -> Task or None:
         """Take the next task off the queue
         """
         while not self.has_tasks():
+            debug("schedule_verbose", "Ran out of tasks, getting more")
             self.schedule_new_tasks()
+        debug("schedule_verbose", "Popping task, {} remaining", [len(self.task_queue) - 1])
         return self.task_queue.pop()
 
     def store_data(self, key: str, data):
