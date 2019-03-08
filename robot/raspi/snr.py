@@ -160,13 +160,13 @@ class AsyncEndpoint:
 
     def set_terminate_flag(self):
         self.terminate_flag = True
-        debug("framework", "Terminating source {}", [self.name])
+        debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
         """Execute actions needed to deconstruction an object that implements a Transport
         """
         raise NotImplementedError(
-            "Subclass of Source does not implement terminate()")
+            "Subclass of endpoint does not implement terminate()")
 
 
 class Relay:
