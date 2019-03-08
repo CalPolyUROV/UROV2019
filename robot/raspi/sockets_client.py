@@ -116,5 +116,5 @@ class SocketsClient(Relay):
         debug("sockets_status", 'Socket closed')
 
     def terminate(self):
-        self.close_socket()
+        # self.close_socket()
         settings.USE_SOCKETS = False

@@ -80,6 +80,9 @@ class Topside(Node):
         if settings.USE_TOPSIDE_PI_TEMP_MON:
             self.int_temp_mon.terminate()
 
+        if settings.USE_TOPSIDE_CLUI:
+            self.ui.terminate()
+
         sleep(settings.THREAD_END_WAIT_S)
 
     def store_int_temp_data(self, int_temp: float):

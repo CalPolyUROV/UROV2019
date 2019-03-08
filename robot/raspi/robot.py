@@ -146,7 +146,7 @@ class Robot(Node):
             # Is terminating serial connection needed?
             pass
 
-        super().set_terminate_flag()
+        self.set_terminate_flag()
 
     def store_int_temp_data(self, int_temp: float):
         self.store_data(settings.ROBOT_INT_TEMP_NAME, int_temp)
