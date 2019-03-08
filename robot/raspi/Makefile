@@ -3,11 +3,11 @@
 # 	binary and rename a copy of it to python3.exe
 
 PYTHON_CMD = python3.5
-PYTHON_FLAGS = -B
+# PYTHON_FLAGS = -B
 
 MAIN_SRC = main.py
 TEST_SRC = tests.py
-LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_FLAGS) $(MAIN_SRC)
+LAUNCH_CMD = $(PYTHON_CMD) $(MAIN_SRC)
 
 IP_CLIENT = 10.0.10.11
 USERNAME = ubuntu
@@ -28,7 +28,7 @@ ssh:
 	ssh $(USERNAME)@$(IP_CLIENT)
 
 test: $(TEST_SRC)
-	$(PYTHON_CMD) $(PYTHON_FLAGS) $(TEST_SRC)
+	$(PYTHON_CMD) $(TEST_SRC)
 
 # Setup environment for development and use
 # Supprts only systems that use the apt package manager
@@ -90,6 +90,9 @@ pygame_build_mac:
 todo:
 	grep --line-number --initial-tab "# TODO:" *.py | tr -s [:space:]  > todo.txt
 	cat todo.txt
+
+clean:
+	rm -rf __pycache__
 
 gource:
 	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm
