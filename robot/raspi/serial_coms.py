@@ -5,13 +5,15 @@ TODO: Add more documentation here
 
 # System imports
 import serial  # PySerial library
+from serial.serialutil import SerialException, portNotOpenError
 
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
 from utils import sleep, debug, exit, attempt
-from snr import Task, TaskPriority, TaskType, Relay
-from serial_packet import Packet
+from snr import Relay
+from task import *
+from serial_packet import Packet, parse_packet
 
 # encoding scheme
 ENCODING = 'ascii'
@@ -21,9 +23,9 @@ FIRST_SEQNUM = 0
 
 """ List of codes for each command
 """
-# TODO: Move list to external file (maybe .txt or .csv),
-#       write script to place in Arduino source and python source
-#       will not be needed on topside Pi, only on robot
+# TODO: Move command list to external file (maybe .txt or .csv),
+#       write script to generate in Arduino source and python
+#       source will not be needed on topside Pi, only on robot
 EST_CON_CMD = 0x10  # cmd of initial packet
 EST_CON_ACK = 0x11  # cmd for response to initial packet
 SET_MOT_CMD = 0x20  # set motor (call)
@@ -42,8 +44,8 @@ class SerialConnection(Relay):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self):
         debug("serial", "Finding serial port")
-        self.serial_port = serial_finder.get_port_to_use()
-        
+        serial_finder.get_port_to_use(self.set_port)
+        debug("serial", "Selected port {}", [self.serial_port])
         self.next_seqnum = FIRST_SEQNUM
 
         def fail_once():
@@ -61,8 +63,12 @@ class SerialConnection(Relay):
                 settings.USE_SERIAL = False
 
         attempt(self.try_open_serial,
-                      settings.SERIAL_MAX_ATTEMPTS,
-                      fail_once, failure)
+                settings.SERIAL_MAX_ATTEMPTS,
+                fail_once, failure)
+
+    def set_port(self, port: str):
+        debug("serial", "Setting port to {}", [port])
+        self.serial_port = port
 
     def try_open_serial(self):
         try:
@@ -73,11 +79,15 @@ class SerialConnection(Relay):
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
-                timeout=0.1)
-            debug('serial_con', "Opened serial connection on {} at baud {}", [
-                self.serial_port, settings.SERIAL_BAUD])
-            return True
-        except serial.serialutil.SerialException:
+                timeout=settings.SERIAL_TIMEOUT)
+            if self.serial_connection.is_open:
+                debug('serial_con', "Opened serial connection on {} at baud {}", [
+                    self.serial_port, settings.SERIAL_BAUD])
+                return True
+            else:
+                return False
+        except serial.serialutil.SerialException as error:
+            debug("serial_con", "Error opening port: {}", [error.__repr__()])
             return False
 
     def send_receive_packet(self, p: Packet) -> Packet:

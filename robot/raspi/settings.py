@@ -155,6 +155,7 @@ REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
 SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after failing
+SERIAL_TIMEOUT = 10
 
 # Temperature Monitor
 USE_TOPSIDE_PI_TEMP_MON = False
