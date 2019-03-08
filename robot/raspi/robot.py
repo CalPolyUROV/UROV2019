@@ -26,8 +26,6 @@ class Robot(Node):
 
         self.database = Database()  # Handles all the robot's data
 
-        self.schedule_task(self.initial_tasks())
-
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
             debug("serial", "Using serial as enabled in settings")
@@ -122,18 +120,6 @@ class Robot(Node):
 
         return sched_list
 
-    def initial_tasks(self) -> list:
-        """ Create a task to establish contact with the Arduino/Teensy
-
-        These tasks will be executed in reverse order? shown here because high
-        priority tasks are individually scheduled to the front of the queue
-        (Please confirm this logic)
-        """
-        sched_list = []
-
-        if settings.USE_SERIAL:
-            sched_list.append(
-                Task(TaskType.serial_est_con, TaskPriority.high, []))
         return sched_list
 
     def terminate(self) -> None:
