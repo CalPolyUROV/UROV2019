@@ -27,11 +27,11 @@ class Controller(AsyncEndpoint):
         self.loop()
 
     def init_controller(self):
-        if settings.USE_CONTROLLER and not settings.SIMULATE_INPUT:
+        if not settings.SIMULATE_INPUT:
             pygame.init()  # Initialize pygame
             pygame.joystick.init()  # Initialize the joysticks
         else:
-            debug("controller", "Not using pygame and XBox controller")
+            debug("controller", "Simulating input without pygame and XBox controller")
             return
 
         pygame.event.get()
@@ -211,6 +211,5 @@ def simulate_input() -> dict:
     for key in settings.control_mappings.keys():
         debug("simulation_verbose", "Simulating key: {}", [key])
         sim_data[key] = random_val()
-    debug("simulation", "Simulated control input was applied")
     debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
     return sim_data
