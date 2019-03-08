@@ -140,7 +140,7 @@ class Robot(Node):
         """Close the sockets connection
         """
         if settings.USE_SOCKETS:
-            self.socket_connection.close_socket()
+            self.socket_connection.terminate()
 
         if settings.USE_SERIAL:
             # Is terminating serial connection needed?

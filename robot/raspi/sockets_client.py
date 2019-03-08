@@ -109,11 +109,11 @@ class SocketsClient(Relay):
             # Close both (RD, WR) ends of the pipe, then close the socket
             self.s.shutdown(socket.SHUT_RDWR)
             self.s.close()
+            debug("sockets_status", 'Socket closed')
         except (Exception) as error:
             debug("sockets_error", "Error closing socket: {}",
                   [error.__repr__()])
         self.s = None
-        debug("sockets_status", 'Socket closed')
 
     def terminate(self):
         # self.close_socket()
