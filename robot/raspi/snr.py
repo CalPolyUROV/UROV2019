@@ -121,6 +121,11 @@ class Node:
     def get_data(self, key: str):
         return self.data.get(key)
 
+    def repr_task_queue(self) -> str:
+        s = ""
+        for t in self.task_queue:
+            s = s + "\n\t" + str(t)
+        return s
 
 class AsyncEndpoint:
     """An Asynchronous endpoint of data for a node
