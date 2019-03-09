@@ -31,16 +31,15 @@ class Robot(Node):
             debug("serial", "Using serial as enabled in settings")
             self.serial_connection = SerialConnection()
 
-        if mode.__eq__("debug"):
-            settings.TOPSIDE_IP_ADDRESS = "localhost"
-
         if settings.USE_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
+            if self.mode.__eq__("debug"):
+                settings.TOPSIDE_IP_ADDRESS = "localhost"
+
             # Make sockets client object using our implementation
             self.socket_connection = SocketsClient(self.schedule_task,
                                                    (settings.TOPSIDE_IP_ADDRESS,
-                                                    settings.TOPSIDE_PORT)
-                                                   )
+                                                    settings.TOPSIDE_PORT))
         if settings.USE_ROBOT_PI_TEMP_MON:
             self.temp_mon = IntTempMon(settings.ROBOT_INT_TEMP_NAME,
                                        self.store_temperature_data)
