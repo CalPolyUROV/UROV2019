@@ -126,7 +126,7 @@ class Robot(Node):
             self.socket_connection.terminate()
 
         if settings.USE_SERIAL:
-            # Is terminating serial connection needed?
+            self.serial_connection.terminate()
             pass
 
         self.set_terminate_flag()

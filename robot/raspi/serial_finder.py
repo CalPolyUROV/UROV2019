@@ -6,17 +6,18 @@ import glob
 import sys
 import serial
 from sys import platform
+from typing import Callable
 
 from utils import debug, attempt, sleep
 import settings
 
 
-def get_port_to_use() -> str:
+def get_port_to_use(set_port: Callable) -> str:
     """ Finds a serial port for the serial connection
 
     Calls the serial_finder library to search the operating system for serial ports
     """
-    port = None
+    # port = None
 
     def try_find_port() -> bool:
         try:
@@ -28,6 +29,7 @@ def get_port_to_use() -> str:
                 debug('serial_finder', p)
             # Select the port
             port = select_port(ports)
+            set_port(port)
             if(port == None):
                 raise serial.serialutil.SerialException
             debug("serial_finder", "Using port: {}", [port])
@@ -57,7 +59,7 @@ def get_port_to_use() -> str:
             fail_once,
             failure)
 
-    return port
+    # return port
 
 
 def list_ports() -> list:
@@ -96,7 +98,7 @@ def select_port(ports) -> str or None:
         debug("serial_finder", "Linux detected")
         for p in ports:
             # return '/dev/ttyS0'  # If using raspi GPIO for serial, just pick this port
-            if "USB" in p:
+            if ("USB" in p) or ("ACM" in p):
                 return p
 
     elif platform == "darwin":

@@ -6,6 +6,7 @@ TODO: Add more documentation here
 # System imports
 import serial  # PySerial library
 from serial.serialutil import SerialException, portNotOpenError
+import struct
 
 # Our imports
 import serial_finder  # Identifies serial ports
@@ -83,6 +84,9 @@ class SerialConnection(Relay):
             if self.serial_connection.is_open:
                 debug('serial_con', "Opened serial connection on {} at baud {}", [
                     self.serial_port, settings.SERIAL_BAUD])
+                sleep(0.5)
+                while self.serial_connection.in_waiting > 0:
+                    self.serial_connection.read()
                 return True
             else:
                 return False
@@ -90,75 +94,137 @@ class SerialConnection(Relay):
             debug("serial_con", "Error opening port: {}", [error.__repr__()])
             return False
 
+    # Send and receive data over serial
+    def send_receive(self, cmd_type: str, data: list) -> SomeTasks:
+        t = []
+        if not settings.USE_SERIAL:
+            debug("serial",
+                  "Serial is not used, ignoring sending of packet {}", [p])
+            return None
+        elif cmd_type.__eq__("blink"):
+            p = self.new_packet(BLINK_CMD, data[0], data[1])
+            self.send_receive_packet(p)
+        elif cmd_type.__eq__("set_motor"):
+            (dir, throttle) = SerialConnection.translate_motor(
+                data[0], data[1])
+            p = self.new_packet(SET_MOT_CMD, dir, throttle)
+            self.send_receive_packet(p)
+        elif cmd_type.__eq__("read_sensor"):
+            pass
+        else:
+            debug("serial", "Type of serial command {} not recognized",
+                  [cmd_type])
+            return None
+        return t
+
+    # Send and receive a serial packet
     def send_receive_packet(self, p: Packet) -> Packet:
         if(not settings.USE_SERIAL):
-            debug(
-                "serial", "Serial is not used, ignoring sending of packet {}", [p])
+            debug("serial",
+                  "Serial is not used, ignoring sending of packet {}", [p])
             raise serial.serialutil.SerialException
         # send packet
         self.write_packet(p)
         # Recieve a packet from the Arduino/Teensy
-        p = self.read_packet()
-        if(p == None):
+        p_recv = self.read_packet()
+        if(p_recv == None):
             debug("serial_con", "Received an empty packet")
+        elif p.weak_eq(p_recv):
+            debug("serial_con", "Received echo packet")
         else:
-            debug("serial_con", "Received {}", [p])  # Debugging
-            return p
+            debug("serial_con", "Received {}", [p_recv])  # Debugging
+        return p
 
     # Send a Packet over serial
-    def write_packet(self, p) -> None:
-        if(not p.isValid()):
+
+    def write_packet(self, p):
+        if not p.isValid():
             debug("serial_con", "Ignoring sending of invalid packet {}", [p])
             return
-        self.serial_connection.write(p.cmd)
-        self.serial_connection.write(p.val1)
-        self.serial_connection.write(p.val2)
-        self.serial_connection.write(p.seqnum_chksum)
+        if not self.serial_connection.is_open:
+            debug("serial_con", "Aborting send, Serial is not open: {}",
+                  [self.serial_connection])
+            return
+        
+        data_bytes = struct.pack("BBBB", p.cmd, p.val1, p.val2, 0)
+        expected_size = struct.calcsize("BBBB")
+        debug("serial_con", "Trying to send packet of expected size {}", [expected_size])
+        sent_bytes = 0
+        try:
+            sent_bytes += self.serial_connection.write(data_bytes)
+            self.serial_connection.flush()
+        except serial.serialutil.SerialException as error:
+            # error = "  :(  "
+            debug("serial_con", "Error sending packet: {}", [error.__repr__()])
+            return
+        debug("serial_con", "{} bytes sent", [sent_bytes])
+
         debug("serial_con", "Sent {}", [p])
         return
 
     # Read in a packet from serial
     # TODO: ensure that this effectively recieves data over serial
     def read_packet(self) -> Packet or None:
-        _cmd = self.serial_connection.read(size=1)
-        if (_cmd == b''):
-            _cmd = self.serial_connection.read(size=1)
-        _val1 = self.serial_connection.read(size=1)
-        _val2 = self.serial_connection.read(size=1)
-        _seqnum_chksum = self.serial_connection.read(size=1)
-        debug('ser_packet', "Received: {}{}{}{}", [
+        if not self.serial_connection.is_open:
+            debug("serial_con", "Aborting read, Serial is not open: {}",
+                  [self.serial_connection])
+            return None
+        debug("serial_verbose", "Waiting for bytes, {} ready", [
+              self.serial_connection.in_waiting])
+        while 3 > self.serial_connection.in_waiting:
+            sleep(0.4)
+        debug("serial_verbose", "Reading, {} bytes ready", [self.serial_connection.in_waiting])
+        try:
+            recv_bytes = self.serial_connection.read(size=4)
+        except Exception as error:
+            debug("serial_receive", "Error reading serial: {}",
+                  [error.__repr__()])
+        debug("serial_verbose", "Read bytes from serial")
+        _cmd = recv_bytes[0]
+        _val1 = recv_bytes[1]
+        _val2 = recv_bytes[2]
+        _seqnum_chksum = recv_bytes[3]
+        # _cmd = self.serial_connection.read(size=1)
+        # # if (_cmd == b''):
+        # #     _cmd = self.serial_connection.read(size=1)
+        # _val1 = self.serial_connection.read(size=1)
+        # _val2 = self.serial_connection.read(size=1)
+        # _seqnum_chksum = self.serial_connection.read(size=1)
+        debug('serial_con', "Received: {}:{}:{}:{}", [
               _cmd, _val1, _val2, _seqnum_chksum])
         # TODO: ensure that chksum is correct
-        get_next_seqnum()
-        return parse_packet(_cmd, _val1, _val2, _seqnum_chksum)
-        # Warning, this will not catch packets with invalid checksums
+        self.get_next_seqnum()
+        p = parse_packet(_cmd, _val1, _val2, _seqnum_chksum)
 
-    # Send the inital packet and wait for the correct response
-    def establish_contact(self):
-        p_out = Packet.new_packet(
-            EST_CON_CMD, EST_CON_VAL1, EST_CON_VAL2, FIRST_SEQNUM)
-        debug('serial_con', "Establishing connection by sending {}", [p_out])
-        # Send initial packet and receive response
-        p_in = self.send_receive_packet(p_out)
-        if((p_in.cmd == EST_CON_ACK) &
-           (p_in.val1 == EST_CON_VAL1) &
-           (p_in.val2 == EST_CON_VAL2)):
-            # good
-            debug("serial_con", "Sucessfully established contact over serial")
-            return []
+        if(p.isValid()):
+            return p
         else:
-            # bad
-            debug("serial_con", "Response to initial contact was not satisfactory")
-            # TODO: Add logic to retry this a few times
-            t = Task(TaskType.serial_est_con, TaskPriority.high, [])
-            return [t]
+            # debug("ser_packet", "Whoa! Read invalid packet {}", [p])
+            return p
+
+    motor_translate_dict = {"x": 1,
+                            "y": 2,
+                            "z": 3,
+                            "yaw": 4,
+                            "pitch": 5,
+                            "roll": 6}
+
+    def translate_motor(motor_str: str, speed: int) -> (int, int):
+        mapped_speed = speed + 100
+        motor_int = SerialConnection.motor_translate_dict[motor_str]
+        return (motor_int, mapped_speed)
 
     def new_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets to send (chksum is created)
         """
+        debug("ser_packet", "Preparing packet: cmd: {}, val1: {}, val2: {}", [
+              cmd, val1, val2])
+        # debug("ser_packet", "Prepared packet: cmd: {}, val1: {}, val2: {}", [
+            #   cmd, val1, val2])
         seqnum = self.get_next_seqnum()
         chksum = Packet.calc_chksum(cmd, val1, val2, seqnum)
-        return Packet(cmd, val1, val2, ((seqnum << 4) + chksum))
+
+        return Packet(cmd, val1, val2, (seqnum << 4) + chksum)
 
     def make_packet(self, cmd: int, val1: int, val2: int, chksum: int):
         """ Constructor for building packets (chksum is given)
@@ -169,3 +235,11 @@ class SerialConnection(Relay):
     def get_next_seqnum(self) -> int:
         self.next_seqnum += 1
         return self.next_seqnum
+
+    def terminate(self):
+        debug("serial_con", "Closing serial connection")
+        settings.USE_SERIAL = False
+        self.serial_connection.flush()
+        self.serial_connection.close()
+        debug("serial_con", "Closed serial connection")
+

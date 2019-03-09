@@ -7,15 +7,18 @@
 */
 
 #define LED_PIN 13
-// set this to the hardware serial port you wish to use
-#define HWSERIAL Serial1
+
+char cmd;
+char val1;
+char val2;
+char zero;
 
 void setup() {
 
   pinMode(LED_PIN, OUTPUT);
   on();
   Serial.begin(9600);
-//  get_AT_cmd();
+  //  get_AT_cmd();
   off();
 }
 
@@ -27,32 +30,18 @@ void off() {
   digitalWrite(LED_PIN, LOW); // turn the LED off by making the voltage LOW
 }
 
-void get_AT_cmd()
-{
-  byte incomingByte;
-  if (Serial.available() > 2) {
-    on();
-    incomingByte = Serial.read();
-    incomingByte = Serial.read();
-    incomingByte = Serial.read();
-    Serial.println("Got AT command");
-  }
-}
 void loop() {
-  int incomingByte;
 
   if (Serial.available() > 3) {
     on();
-    incomingByte = Serial.read();
-    Serial.print(incomingByte);
-    incomingByte = Serial.read();
-    Serial.print(incomingByte);
-    incomingByte = Serial.read();
-    Serial.print(incomingByte);
-    incomingByte = Serial.read();
-    Serial.print(incomingByte);
-//    Serial.println();
-//  delay(100);
+    cmd = Serial.read();
+    val1 = Serial.read();
+    val2 = Serial.read();
+    zero = Serial.read();
+    Serial.print(cmd);
+    Serial.print(val1);
+    Serial.print(val2);
+    Serial.print(0);
     off();
   }
 }

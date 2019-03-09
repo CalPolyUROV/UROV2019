@@ -16,15 +16,17 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": False,
+    "framework": True,
     "schedule": False,
-    "execute_task": False,
+    "schedule_verbose": False,
+    "execute_task": True,
+    "execute_task_verbose": False,
 
     "clui": True,
 
     "datastore": True,
     "datastore_error": True,
-    "datastore_event": False,
+    "datastore_event": True,
     "datastore_verbose": False,
 
     "controller": True,
@@ -35,15 +37,20 @@ DEBUG_CHANNELS = {
     "controls_reader_verbose": False,
     "control_mappings": False,
     "control_mappings_verbose": False,
-    "simulation": False,
+    "simulation": True,
     "simulation_verbose": False,
 
     "robot": True,
     "robot_verbose": False,
-    "robot_control": False,
+
+    "robot_control": True,
     "robot_control_verbose": False,
+
     "thrust_vec": True,
-    "thrust_vec_verbose": True,
+    "thrust_vec_verbose": False,
+
+    "throttle": True,
+    "throttle_verbose": False,
 
     "sockets": True,
     "sockets_client": True,
@@ -69,6 +76,7 @@ DEBUG_CHANNELS = {
 
     "serial_finder": True,
     "serial": True,
+    "serial_verbose": True,
     "serial_con": True,
     "ser_packet": True,
     "chksum": True,
@@ -83,15 +91,15 @@ DEBUG_CHANNELS = {
 # Command Line User Interface
 USE_TOPSIDE_CLUI = False
 TOPSIDE_CLUI_NAME = "topside_clui"
-TOPSIDE_UI_TICK_RATE = 24 # Hz (Times per second)
 UI_DATA_KEY = "UI_data"
+TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = False
+SIMULATE_INPUT = True
 REQUIRE_CONTROLLER = False
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 24  # Hz (Times per second)
+CONTROLLER_TICK_RATE = 0.25  # Hz (Times per second)
 
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
@@ -132,6 +140,7 @@ control_mappings = {
 THREAD_END_WAIT_S = 2
 DISABLE_SLEEP = False
 
+
 # Sockets Connection
 USE_SOCKETS = True
 REQUIRE_SOCKETS = True
@@ -150,12 +159,12 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 '''
 
 # Serial Connection
-USE_SERIAL = False
-REQUIRE_SERIAL = False
+USE_SERIAL = True
+REQUIRE_SERIAL = True
 SERIAL_BAUD = 9600  # Serial Baudrate
-SERIAL_MAX_ATTEMPTS = 2  # Maximum number of times to try openeing a serial port
-SERIAL_RETRY_WAIT = 1  # Time to wait before retrying serial connection after failing
-SERIAL_TIMEOUT = 10
+SERIAL_MAX_ATTEMPTS = 3  # Maximum number of times to try openeing a serial port
+SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection after failing
+SERIAL_TIMEOUT = 4
 
 # Temperature Monitor
 USE_TOPSIDE_PI_TEMP_MON = False

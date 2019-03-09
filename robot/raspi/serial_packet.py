@@ -35,10 +35,17 @@ class Packet:
 
     def isValid(self) -> bool:
         chksum = self.get_chksum()
-        expected = Packet.calc_chksum(self.cmd, self.val1, self.val2, self.get_seqnum())
+        expected = Packet.calc_chksum(
+            self.cmd, self.val1, self.val2, self.get_seqnum())
         debug('chksum', "Packet had chksum of {}, {} was expected", [
-                chksum, expected])
+            chksum, expected])
         return chksum == expected
+
+    def weak_eq(self, other) -> bool:
+        return ((self.__class__ == other.__class__) and
+                (self.cmd == other.cmd) and
+                (self.val1 == other.val1) and
+                (self.val2 == other.val2))
 
     def __eq__(self, other) -> bool:
         return ((self.__class__ == other.__class__) and
@@ -50,20 +57,6 @@ class Packet:
     def __repr__(self):
         return "Packet: cmd: {} val1: {} val2: {} seqnum: {} chksum: {}".format(self.cmd, self.val1, self.val2, self.get_seqnum(), self.get_chksum())
 
-    def parse_packet(cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
-        """Constructor for building packets that have been received, untrusted checksums
-        """
-        _cmd = int.from_bytes(cmd, byteorder='big')
-        _val1 = int.from_bytes(val1, byteorder='big')
-        _val2 = int.from_bytes(val2, byteorder='big')
-        _seqnum = int.from_bytes(seqnum_chksum, byteorder='big') >> 4
-        _chksum = int.from_bytes(seqnum_chksum, byteorder='big') & CHKSUM_MASK
-        p = Packet(_cmd, _val1, _val2, ((_seqnum << 4) + _chksum))
-        if(p.isValid()):
-            return p
-        else:
-            debug("ser_packet", "read invalid packet {}", [p])
-
     def calc_chksum(cmd: int, val1: int, val2: int, seqnum: int) -> int:
         sum = (cmd +
                (int)(val1 * 3) +
@@ -73,3 +66,19 @@ class Packet:
         # idk, it has primes
         # TODO: Make this better, but it must match on this and the Arduino/Teensy. (Maybe CRC32 or a smaller variant)
 
+
+def parse_packet(cmd: bytes, val1: bytes, val2: bytes, seqnum_chksum: bytes):
+    """Constructor for building packets that have been received, untrusted checksums
+    """
+    debug("ser_packet",
+          "Parsing packet: cmd: {}, val1: {}, val2: {}",
+          [cmd, val1, val2])
+    # cmd = int.from_bytes(cmd, byteorder='big')
+    # val1 = int.from_bytes(val1, byteorder='big')
+    # val2 = int.from_bytes(val2, byteorder='big')
+    # seqnum = int.from_bytes(seqnum_chksum, byteorder='big') >> 4
+    # chksum = int.from_bytes(seqnum_chksum, byteorder='big') & CHKSUM_MASK
+    seqnum = seqnum_chksum >> 4
+    chksum = seqnum_chksum & CHKSUM_MASK
+    p = Packet(cmd, val1, val2, ((seqnum << 4) + chksum))
+    return p
