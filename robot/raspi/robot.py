@@ -72,7 +72,8 @@ class Robot(Node):
             debug("serial", "Executing serial com task: {}", [t.val_list])
             t = self.serial_connection.send_receive(
                 t.val_list[0], t.val_list[1::])
-            sched_list = append_task(t, sched_list)
+            for new_task in t:
+                sched_list.append(new_task)
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
