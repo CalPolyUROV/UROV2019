@@ -96,10 +96,10 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = True
-REQUIRE_CONTROLLER = False
+SIMULATE_INPUT = False
+REQUIRE_CONTROLLER = True
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 0.25  # Hz (Times per second)
+CONTROLLER_TICK_RATE = 10 # Hz (Times per second)
 
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
