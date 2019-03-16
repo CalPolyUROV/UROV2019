@@ -1,7 +1,7 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include "TeensyThreads.h"
+//#include "TeensyThreads.h"
 
 #include "defs.h"
 #include "serial.h"
@@ -39,21 +39,21 @@ struct packet {
   u8 value1, value2; // Data for the action ie which motor PWM timing
   u8 seqnum_chksum; // first 4 bits used for sequence number, second 4 used for checksum
 };
-
-// Getter for global sequence number
-u8 get_seqnum_nibble() {
-  return seqnum & LOWER_NIBBLE_MASK;
-}
+//
+//// Getter for global sequence number
+//u8 get_seqnum_nibble() {
+//  return seqnum & LOWER_NIBBLE_MASK;
+//}
 
 // Mask off the first 4 bits of the seqnum_chksum byte to get the chksum nibble
-u8 extract_chksum(u8 seqnum_chksum) {
-  return seqnum_chksum & CHKSUM_MASK;
-}
+//u8 extract_chksum(u8 seqnum_chksum) {
+//  return seqnum_chksum & CHKSUM_MASK;
+//}
 
 // Bitshift the seqnum_chksum byte right 4 times to leave just the seqnum nibble
-u8 extract_seqnum(u8 b) {
-  return b >> 4; // is this wrong?
-}
+//u8 extract_seqnum(u8 b) {
+//  return b >> 4; // is this wrong?
+//}
 
 // calculate the checksum for values being put into a packet
 u8 calc_chksum(u8 cmd, u8 value1, u8 value2, u8 seqnum_nibble) {
@@ -64,30 +64,17 @@ u8 calc_chksum(u8 cmd, u8 value1, u8 value2, u8 seqnum_nibble) {
          & CHKSUM_MASK;
 }
 
-// Wait for the UART buffer to be filled with a whole packet.
-// This is a blocking operation (i think)
-void wait_for_packet(SERIAL_CLASS *serial) {
-  while (serial->available() < PACKET_LENGTH) {}
-}
+
 
 // Take values for a packet and place at a pointer, add checksum
 void create_packet(packet *p, u8 cmd, u8 value1, u8 value2, u8 seqnum_nibble) {
   p->cmd = cmd;
   p->value1 = value1;
   p->value2 = value2;
-  p->seqnum_chksum = (seqnum_nibble << 4) +  calc_chksum(cmd, value1, value2, seqnum_nibble);
+  p->seqnum_chksum = '0'; //(seqnum_nibble << 4) +  calc_chksum(cmd, value1, value2, seqnum_nibble);
 }
 
-// Send the packet over a serial interface
-int send_packet(SERIAL_CLASS *serial, packet p) {
-  threads.stop();
-  serial->write(p.cmd);
-  serial->write(p.value1);
-  serial->write(p.value2);
-  serial->write(p.seqnum_chksum);
-  threads.start();
-  return 0;
-}
+
 
 /* not used right now
 

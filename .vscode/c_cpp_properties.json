@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "$HOME/arduino-1.8.7/**",
+                "$HOME/Arduino/**"
+            ],
+            "defines": [],
+            "compilerPath": "$HOME/arduino-1.8.7/hardware/tools/avr/bin/",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
