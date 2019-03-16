@@ -51,7 +51,7 @@ class SerialConnection(Relay):
 
         def fail_once():
             debug("serial_con", "Failed to open serial port, trying again.")
-            sleep(1)  # Wait a second before retrying
+            # sleep(1)  # Wait a second before retrying
 
         def failure(tries: int):
             if(settings.REQUIRE_SERIAL):
@@ -72,6 +72,7 @@ class SerialConnection(Relay):
         self.serial_port = port
 
     def try_open_serial(self):
+        sleep(settings.SERIAL_SETUP_WAIT_PRE)
         try:
             self.serial_connection = serial.Serial(
                 port=self.serial_port,
@@ -81,10 +82,11 @@ class SerialConnection(Relay):
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS,   # eight bits of information per pulse/packet
                 timeout=settings.SERIAL_TIMEOUT)
+            # self.serial_connection.open()
             if self.serial_connection.is_open:
                 debug('serial_con', "Opened serial connection on {} at baud {}", [
                     self.serial_port, settings.SERIAL_BAUD])
-                sleep(0.5)
+                sleep(settings.SERIAL_SETUP_WAIT_POST)
                 while self.serial_connection.in_waiting > 0:
                     self.serial_connection.read()
                 return True
@@ -145,19 +147,36 @@ class SerialConnection(Relay):
             debug("serial_con", "Aborting send, Serial is not open: {}",
                   [self.serial_connection])
             return
-        
-        data_bytes = struct.pack("BBBB", p.cmd, p.val1, p.val2, 0)
-        expected_size = struct.calcsize("BBBB")
+        # debug("serial_con", "{}", [self.serial_connection])
+        packed_format = "BBBB"
+        data_bytes = struct.pack(packed_format, p.cmd, p.val1, p.val2, 0)
+        expected_size = struct.calcsize(packed_format)
+        byte_format = "B"
+        cmd_byte = struct.pack(byte_format, p.cmd)
+        val1_byte = struct.pack(byte_format, p.val1)
+        val2_byte = struct.pack(byte_format, p.val2)
+        zero_byte = struct.pack(byte_format, 0)
+        # expected_size = struct.calcsize(byte_format) * 4
         debug("serial_con", "Trying to send packet of expected size {}", [expected_size])
         sent_bytes = 0
         try:
             sent_bytes += self.serial_connection.write(data_bytes)
-            self.serial_connection.flush()
+
+            # sent_bytes += self.serial_connection.write(cmd_byte)
+            # # sleep(0.5)
+            # sent_bytes += self.serial_connection.write(val1_byte)
+            # # sleep(0.5)
+            # sent_bytes += self.serial_connection.write(val2_byte)
+            # # sleep(0.5)
+            # sent_bytes += self.serial_connection.write(zero_byte)
+            debug("serial_con", "Out-waiting: {}", [self.serial_connection.out_waiting])
+            # sleep(0.5)
+            # self.serial_connection.flush()
+            # sleep(0.5)
         except serial.serialutil.SerialException as error:
-            # error = "  :(  "
             debug("serial_con", "Error sending packet: {}", [error.__repr__()])
             return
-        debug("serial_con", "{} bytes sent", [sent_bytes])
+        # debug("serial_con", "{} bytes sent: {}{}{}{}", [sent_bytes, cmd_byte, val1_byte, val2_byte, zero_byte])
 
         debug("serial_con", "Sent {}", [p])
         return
@@ -169,10 +188,20 @@ class SerialConnection(Relay):
             debug("serial_con", "Aborting read, Serial is not open: {}",
                   [self.serial_connection])
             return None
+        
+        # debug("serial_con", "{}", [self.serial_connection])
         debug("serial_verbose", "Waiting for bytes, {} ready", [
               self.serial_connection.in_waiting])
+        tries = 0
         while 3 > self.serial_connection.in_waiting:
-            sleep(0.4)
+            # self.serial_connection.write(b'\0x00')
+            tries = tries + 1
+            debug("serial_verbose", "waiting... {} of 4", [self.serial_connection.in_waiting])
+            if tries > settings.SERIAL_MAX_ATTEMPTS:
+                debug("serial_con", "No reponse from device")
+                return None
+            # sleep(0.5)
+
         debug("serial_verbose", "Reading, {} bytes ready", [self.serial_connection.in_waiting])
         try:
             recv_bytes = self.serial_connection.read(size=4)
@@ -184,12 +213,6 @@ class SerialConnection(Relay):
         _val1 = recv_bytes[1]
         _val2 = recv_bytes[2]
         _seqnum_chksum = recv_bytes[3]
-        # _cmd = self.serial_connection.read(size=1)
-        # # if (_cmd == b''):
-        # #     _cmd = self.serial_connection.read(size=1)
-        # _val1 = self.serial_connection.read(size=1)
-        # _val2 = self.serial_connection.read(size=1)
-        # _seqnum_chksum = self.serial_connection.read(size=1)
         debug('serial_con', "Received: {}:{}:{}:{}", [
               _cmd, _val1, _val2, _seqnum_chksum])
         # TODO: ensure that chksum is correct
@@ -239,7 +262,7 @@ class SerialConnection(Relay):
     def terminate(self):
         debug("serial_con", "Closing serial connection")
         settings.USE_SERIAL = False
-        self.serial_connection.flush()
+        # self.serial_connection.flush()
         self.serial_connection.close()
         debug("serial_con", "Closed serial connection")
 

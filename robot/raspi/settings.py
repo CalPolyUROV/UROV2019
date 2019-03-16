@@ -96,10 +96,10 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = True
+SIMULATE_INPUT = False
 REQUIRE_CONTROLLER = False
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 0.25  # Hz (Times per second)
+CONTROLLER_TICK_RATE = 10  # Hz (Times per second)
 
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
@@ -162,9 +162,11 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 USE_SERIAL = True
 REQUIRE_SERIAL = True
 SERIAL_BAUD = 9600  # Serial Baudrate
-SERIAL_MAX_ATTEMPTS = 3  # Maximum number of times to try openeing a serial port
+SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection after failing
 SERIAL_TIMEOUT = 4
+SERIAL_SETUP_WAIT_PRE = 1
+SERIAL_SETUP_WAIT_POST = 1
 
 # Temperature Monitor
 USE_TOPSIDE_PI_TEMP_MON = False
