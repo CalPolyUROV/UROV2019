@@ -1,11 +1,10 @@
 """Configurable settings that apply to the operation of the robot
 
-Note: settings exists per imported "namespace" such that each file that 
-imports settings has its own copy and changes do not propagate to other 
-copies. In other words, if a setting here is changed from inside a specific 
-file, it will not be updated for other files.
+Note: settings exists per imported "namespace" such that each file
+that imports settings has its own copy and changes do not propagate to
+other copies. In other words, if a setting here is changed from inside
+a specific file, it will not be updated for other files.
 """
-from enum import IntEnum
 
 # TODO: Investigate converting settings values to an object
 # (Maybe keeping a per Node settings object)
@@ -13,11 +12,12 @@ from enum import IntEnum
 # Debugging printing and logging
 # TODO: Track debugging for server and client separately
 DEBUGGING_DELAY_S = 0
+DEBUG_LEVEL = 0  # Only used for integer channel values
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
     "framework": True,
-    "schedule": False,
+    "schedule": True,
     "schedule_verbose": False,
     "execute_task": True,
     "execute_task_verbose": False,
@@ -33,7 +33,7 @@ DEBUG_CHANNELS = {
     "controller_error": True,
     "controller_event": False,
     "controller_verbose": False,
-    "controls_reader": False,
+    "controls_reader": True,
     "controls_reader_verbose": False,
     "control_mappings": False,
     "control_mappings_verbose": False,
@@ -99,7 +99,7 @@ USE_CONTROLLER = True
 SIMULATE_INPUT = False
 REQUIRE_CONTROLLER = True
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 20 # Hz (Times per second)
+CONTROLLER_TICK_RATE = 20  # Hz (Times per second)
 
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
@@ -107,7 +107,8 @@ Examples:
 "pygame_name": ["name_we_use", cast_type],
 "pygame_name": ["name_we_use", cast_type, scale_factor],
 "pygame_name": ["name_we_use", cast_type, scale_factor, shift_ammount],
-"pygame_name": ["name_we_use", cast_type, scale_factor, shift_ammount, dead_zone],
+"pygame_name": ["name_we_use", cast_type, scale_factor, shift_ammount,
+                 dead_zone],
 to drop a value use "pygame_name": [None],
 '''
 control_mappings = {
@@ -153,7 +154,8 @@ SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
 SOCKETS_CONNECT_ATTEMPTS = 120
 SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
 MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
-'''Note: SOCKETS_CONNECT_ATTEMPTS * SOCKETS_RETRY_WAIT = timeout for sockets connection
+'''Note: SOCKETS_CONNECT_ATTEMPTS * SOCKETS_RETRY_WAIT = timeout for sockets
+    connection
     This timeout should be very long to allow the server to open its socket
     before the client gives up on connecting to it.
 '''
@@ -162,8 +164,8 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 USE_SERIAL = True
 REQUIRE_SERIAL = True
 SERIAL_BAUD = 9600  # Serial Baudrate
-SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing a serial port
-SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection after failing
+SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
+SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection
 SERIAL_TIMEOUT = 4
 SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
@@ -180,6 +182,6 @@ INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 ROBOT_NAME = "Subrina"
 # ROBOT_NAME = "S5"
 
-# -----Do NOT change anything below this line (To be modified at runtime only)-----
+# ---Do NOT change anything below this line (To be modified at runtime only)---
 
 ROLE = "not set"  # Not a user facing setting
