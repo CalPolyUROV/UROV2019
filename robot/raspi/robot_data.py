@@ -54,6 +54,7 @@ class Database:
     def process_controls(self) -> SomeTasks:
         task_list = []
         # Collect only new control values
+        debug("robot_control_verbose", "Processing controls data: {}", [self.control_input])
         for key in self.control_input.keys():
             if self.previous_cntl_input is not None:
                 old_data = try_key(self.previous_cntl_input, key)
@@ -97,6 +98,8 @@ class Database:
         XBox controller is translated to a direction in which to drive
         the ROV
         """
+
+        
         # Left stick x axis to robot y axis
         if "stick_left_x" in key:
             self.throttle['y'] = val
