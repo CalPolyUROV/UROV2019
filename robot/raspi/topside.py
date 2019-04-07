@@ -20,13 +20,14 @@ class Topside(Node):
     def __init__(self, mode: str):
         super().__init__(self.handle_task, self.get_new_tasks)
 
+        controls_server_ip = settings.CONTROLS_SERVER_IP
         if mode.__eq__("debug"):
-            settings.TOPSIDE_IP_ADDRESS = "localhost"
+            controls_server_ip = "localhost"
 
         # TODO: Remotely start robot program from topside
 
         # Start sockets server endpoint
-        server_tuple = (settings.TOPSIDE_IP_ADDRESS, settings.TOPSIDE_PORT)
+        server_tuple = (controls_server_ip, settings.CONTROLS_SERVER_PORT)
         self.sockets_server = SocketsServer(server_tuple,
                                             self.serve_controller_data)
 
