@@ -1,19 +1,18 @@
-""" Main Python code that runs on the Raspberry Pi 3 B+ inside the robot and surface unit
+""" Main Python code that runs on the Raspberry Pi on robot and surface unit
 
 This is the python program is meant to run on the Raspberry Pi's located on
-the robot and one the surface unit. This program acts as a intermediary between the Raspberry Pi on
-the surface unit and the Arduino/Teensy on the robot. The scheduling module
-used in this program manages the serial and sockets connections to the
-Arduino/Teensy and topside raspberry Pi respectively.
+the robot and one the surface unit. This program acts as a intermediary
+between the Raspberry Pi on the surface unit and the Arduino/Teensy on the
+robot. The scheduling module used in this program manages the serial and
+sockets connections to the Arduino/Teensy and topside raspberry Pi
+respectively.
 """
 
 # System imports
 from sys import argv  # For command line arguments
 
 # Scheduling imports
-import settings
 from robot import Robot
-from snr import Node
 from topside import Topside
 from utils import debug, u_exit, print_usage
 
@@ -24,22 +23,22 @@ def main():
         print_usage()
         u_exit("Improper usage")
 
+    role = str(argv[1])  # Command line argument
 
-    role = argv[1]  # Command line argument
     mode = "deployed"
 
     if "-d" in argv:
         mode = "debug"
 
-    role = argv[1]
+    node = None
     if role.__eq__("robot"):
-        debug("framework", "Running as robot")
+        debug("framework", "Running as robot in mode: {}", [mode])
         node = Robot(mode)
     elif role.__eq__("topside"):
-        debug("framework", "Running as server")
+        debug("framework", "Running as server in mode: {}", [mode])
         node = Topside(mode)
     else:
-        debug("framework", "Invalid ROLE {} given as command line arg", [role])
+        debug("framework", "Invalid role {} given as command line arg", [role])
         print_usage()
         u_exit("Unknown role")
 
