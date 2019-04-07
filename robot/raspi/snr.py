@@ -5,19 +5,20 @@ Node
 Relay (aka Transport)
 """
 # System imports
-from typing import Callable, List, NewType, Union
+from typing import Callable, Union, List
 from collections import deque
 import _thread
 
 # Our imports
-import settings
+# import settings
 from datastore import Datastore
-from task import *
+import task
+from task import Task, SomeTasks, TaskSource, Handler, TaskPriority
 from utils import debug, sleep, u_exit
 
 
 class Node:
-    """ Implemented by an object which needs to have a queue of tasks that are executed
+    """Main thread object contianing task queue
     """
 
     def __init__(self, task_handler: Handler, task_source: TaskSource):
@@ -31,14 +32,14 @@ class Node:
     def loop(self):
         while not self.terminate_flag:
             self.step_task()
-            debug("schedule", "Task queue: \n{}", [self.repr_task_queue()])
+            debug("schedule_verbose", "Task queue: \n{}", [self.repr_task_queue()])
         self.terminate()
 
     def set_terminate_flag(self):
         self.terminate_flag = True
 
     def terminate(self):
-        """Execute actions needed to deconstruction an object that implements a Node
+        """Execute actions needed to deconstruct a Node
         """
         debug("framework", "Node termianted")
         self.terminate_flag = True
@@ -49,17 +50,18 @@ class Node:
         self.execute_task(t)
 
     def schedule_task(self, t: SomeTasks):
-        """ Adds a Task or the contents of a list of Tasks to a Scheduler's queue
+        """ Adds a Task or a list of Tasks to the node's queue
         """
         if t is None:
             debug("schedule", "Cannot schedule None")
             return
         if isinstance(t, list):
             # Recursively handle lists
-            debug("schedule_verbose", "Recursively scheduling list of {} tasks", [len(t)])
-            for task in t:
-                # debug("schedule_verbose", "Recursively scheduling {}", [task])
-                self.schedule_task(task)
+            debug("schedule_verbose",
+                  "Recursively scheduling list of {} tasks", [len(t)])
+            for item in t:
+                debug("schedule_verbose", "Recursively scheduling {}", [item])
+                self.schedule_task(item)
             return
         elif not isinstance(t, Task):
             # Handle garbage
@@ -72,25 +74,29 @@ class Node:
             self.task_queue.append(t)  # High priotity at front (right)
         elif t.priority == TaskPriority.normal:
             self.task_queue.appendleft(t)  # Normal priotity at end (left)
-            # TODO: intelligently insert normal priority tasks after any high priority tasks, but before low priority tasks
+            # TODO:  insert normal priority in between high and low
         elif t.priority == TaskPriority.low:
             self.task_queue.appendleft(t)  # Normal priotity at end (left)
         else:
             debug("schedule", "Cannot schedule task with priority: {}", [
                 t.priority])
 
-    def execute_task(self, t: Task or None):
+    def execute_task(self, t: Union[Task, None]):
         """Execute the given task
 
-        The handler is provided at construction by the owner of the scheduler object. 
-        Note that the task is pass in and can be provided on the fly rather than needing to be in the queue. 
+        The handler is provided at construction by the owner of the scheduler
+        object.
+        Note that the task is pass in and can be provided on the fly rather
+        than needing to be in the queue.
         """
         if t is None:
             debug("execute_task", "Tried to execute None")
             return
         task_result = self.task_handler(t)
-        if task_result is not None:
-            debug("schedule_verbose", "Task execution resulted in {} new tasks", [len(task_result)])
+        if task_result is list:
+            debug("schedule_verbose",
+                  "Task execution resulted in {} new tasks",
+                  [len(task_result)])
         self.schedule_task(task_result)
 
     def has_tasks(self) -> bool:
@@ -106,13 +112,14 @@ class Node:
         debug("schedule_verbose", "Scheduling new tasks {}", [new_tasks])
         self.schedule_task(new_tasks)
 
-    def get_next_task(self) -> Task or None:
+    def get_next_task(self) -> Union[Task, None]:
         """Take the next task off the queue
         """
         while not self.has_tasks():
             debug("schedule_verbose", "Ran out of tasks, getting more")
             self.schedule_new_tasks()
-        debug("schedule_verbose", "Popping task, {} remaining", [len(self.task_queue) - 1])
+        debug("schedule_verbose", "Popping task, {} remaining",
+              [len(self.task_queue) - 1])
         return self.task_queue.pop()
 
     def store_data(self, key: str, data):
@@ -127,21 +134,22 @@ class Node:
             s = s + "\n\t" + str(t)
         return s
 
+
 class AsyncEndpoint:
     """An Asynchronous endpoint of data for a node
 
-    An AsyncEndpoint is part of a node, and runs in its own thread. An 
-    endpoint may produce data to be stored in the Node or retreive data from 
-    the Node. The endpoint has its loop handler function run according to its 
+    An AsyncEndpoint is part of a node, and runs in its own thread. An
+    endpoint may produce data to be stored in the Node or retreive data from
+    the Node. The endpoint has its loop handler function run according to its
     tick_rate (Hz).
     """
 
-    def __init__(self, name: str, loop_handler: Callable, tick_rate: int):
+    def __init__(self, name: str, loop_handler: Callable, tick_rate: float):
         self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False
         if tick_rate == 0:
-            self.delay = 0
+            self.delay = 0.0
         else:
             self.delay = 1.0 / tick_rate
 
@@ -168,7 +176,7 @@ class AsyncEndpoint:
         debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
-        """Execute actions needed to deconstruction an object that implements a Transport
+        """Execute actions needed to destruct a Transport
         """
         raise NotImplementedError(
             "Subclass of endpoint does not implement terminate()")
@@ -178,17 +186,17 @@ class Relay:
     """An object belonging to a Node that connects it to other nodes or devices
     """
 
-    def __init__(self, request_data: Callable):
-        self.request_data = request_data
+    def __init__(self, sub):
+        self.sub = sub
 
-    def request_data(self, data) -> SomeTasks:
+    def request_data(self) -> SomeTasks:
         """The main event done by a Transport object
         """
         raise NotImplementedError(
             "Subclass of Transport does not implement send_and_receive()")
 
     def terminate(self):
-        """Execute actions needed to deconstruction an object that implements a Transport
+        """Execute actions needed to destruct a Relay
         """
         raise NotImplementedError(
             "Subclass of Transport does not implement terminate()")
