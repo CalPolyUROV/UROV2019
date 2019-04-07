@@ -6,8 +6,7 @@ Attempts to document propper usage of such functions
 import os  # For exit
 import sys  # For exit
 import time  # For sleep
-from typing import Callable, NewType, Dict
-import _thread  # For  multi threaded debug
+from typing import Callable, Union, Any
 
 # Our imports
 import settings
@@ -30,18 +29,18 @@ def u_exit(reason: str) -> None:
     # This point should be unreachable, just die already
 
 
-def debug(channel: str, *args: list):
+def debug(channel: str, *args: Union[list,  str]):
     """Debugging print and logging functions
 
     Records information for debugging by printing or logging to disk. args is a
-        list of arguments to be formatted. Various channels can be toggled on or
-        off from settings.DEBUG_CHANNELS: dict. Channels not found in the dict
-        while be printed by default.
+        list of arguments to be formatted. Various channels can be toggled on
+        or off from settings.DEBUG_CHANNELS: dict. Channels not found
+        in the dict while be printed by default.
 
     Usage:
     debug("channel", "message")
     debug("channel", object)
-    debug("channel", "message with brackets: {}, {}", ["list", thing_to_format])
+    debug("channel", "message: {}, {}", ["list", thing_to_format])
 
     respective outputs:
     channel: message
@@ -65,19 +64,13 @@ def debug(channel: str, *args: list):
         if n == 1:
             print("{}:\t{}".format(channel, args[0]))
         elif n == 2:
-            print("{}:\t{}".format(channel, args[0].format(*args[1])))
+            message = str(args[0])
+            print("{}:\t{}".format(channel, message.format(*args[1])))
         elif 2 > 1:
-            print("{}:\t{}".format(channel, args[0].format(*args[1:])))
+            message = str(args[0])
+            print("{}:\t{}".format(channel, message.format(*args[1:])))
     if(settings.DEBUG_LOGGING and channel_active(channel)):
         # TODO: Output stuff to a log file
-        def log(channel: str, message: str):
-            """Unimplemented logging function
-            """
-            # TODO: Add logging to a specific file
-            # (such as for logging the port that a sockets connection is on, so that the
-            #  value is accessible to the other Pi over a network share)
-            pass
-        debug("framework", "Logging to file is not implemented")
         pass
 
 
@@ -90,45 +83,42 @@ def channel_active(channel: str) -> bool:
         val = settings.DEBUG_CHANNELS[channel]
         if isinstance(val, bool):
             return val
-        else:
-            return val < settings.DEBUG_LEVEL
+        return val < settings.DEBUG_LEVEL
     return True  # default for unknown channels
 
 
-def sleep(time_s: int):
+def sleep(time_s: Union[int, float]):
     """Pauses the execution of the thread for time_s seconds
     """
     if settings.DISABLE_SLEEP:
         debug("sleep", "Sleep disabled, not sleeping")
         return
-    elif time_s == 0:
+    if time_s == 0:
         return
-    else:
-        try:
-            time.sleep(time_s)
-        except KeyboardInterrupt:
-            debug("sleep", "Interupted by user")
-            exit("Interrupted by user")
+    try:
+        time.sleep(time_s)
+    except KeyboardInterrupt:
+        debug("sleep", "Interupted by user")
+        u_exit("Interrupted by user")
 
 
 def debug_delay():
     sleep(settings.DEBUGGING_DELAY_S)
 
 
-def try_key(d: dict, k: str) -> object or None:
+def try_key(d: dict, k: str) -> Any:
     """Access the value of a key in a dict, return None if not found
     """
     try:
         return d[k]
-    except KeyError as meh:
+    except KeyError as _meh:
         debug("try_key", "Unknown key: {}", [k])
         return None
 
 
-Attemptable = NewType("Attemptable", Callable[[None], bool])
-
-
-def attempt(action: Attemptable, tries: int, fail_once: Callable, failure: Callable[[int], None]) -> None:
+def attempt(action: Callable[[], bool],
+            tries: int, fail_once: Callable,
+            failure: Callable[[int], None]) -> None:
     """Wrapper for trying to complete and action with a number of tries
     Should follow this prototype:
     def attmpt_action():
@@ -158,6 +148,5 @@ def attempt(action: Attemptable, tries: int, fail_once: Callable, failure: Calla
         if attempts >= tries:
             failure(attempts)
             return
-        else:
-            fail_once()
-            attempts += 1
+        fail_once()
+        attempts += 1
