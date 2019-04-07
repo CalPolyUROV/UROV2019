@@ -7,7 +7,6 @@ used in this program manages the serial and sockets connections to the
 Arduino/Teensy and topside raspberry Pi respectively.
 """
 
-import serial_coms
 import settings  # Configuration file
 from internal_temp import IntTempMon
 from robot_data import Database  # Stores data and preforms calculations
@@ -60,12 +59,12 @@ class Robot(Node):
         elif t.task_type == TaskType.cntl_input:
             debug("robot_control", "Processing control input")
             debug("robot_control_verbose", "Control input {}", [t.val_list])
-            sched_list = self.database.receive_controls(t.val_list)
+            sched_list = self.database.receive_controls(t.val_list[0])
 
         # Read sensor data
         elif t.task_type == TaskType.get_telemetry:
             debug("execute_task", "Executing task: {}", [t.val_list])
-            # TODO: Read sensor values by serial connection and store in datastore
+            # TODO: Read sensor values from serial  and store in datastore
 
         # Send serial data
         elif t.task_type == TaskType.serial_com:
