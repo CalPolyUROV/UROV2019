@@ -1,10 +1,9 @@
 import os
-import _thread
 from collections import deque
 from typing import Callable
 
 import settings
-from utils import sleep, debug
+from utils import debug
 from snr import AsyncEndpoint
 
 CMD = "vcgencmd measure_temp"
@@ -26,15 +25,17 @@ def measure_temp() -> int:
 class IntTempMon(AsyncEndpoint):
     """AsyncEndpoint for internal Raspberry Pi temperature monitoring
 
-    Settings toggle of this class' use must be done in the calling class 
-    because topside and robot toggles for this device are separate
+    Settings toggle of this class' use must be done in the calling
+    class because topside and robot toggles for this device are separate
     """
 
     def __init__(self, name: str, store_data: Callable):
-        super().__init__(name, self.monitor_temp, settings.INT_TEMP_MON_TICK_RATE)
+        super().__init__(name,
+                         self.monitor_temp,
+                         settings.INT_TEMP_MON_TICK_RATE)
         self.store_data = store_data
         self.deque = deque()
-        self.sum = 0
+        self.sum = 0.0
 
         self.init_temp()
         self.loop()
@@ -58,7 +59,7 @@ class IntTempMon(AsyncEndpoint):
         self.deque.appendleft(new_val)
         self.sum += new_val
 
-    def compute_avg(self) -> int:
+    def compute_avg(self) -> float:
         return self.sum / settings.INT_TEMP_MON_AVG_PERIOD
 
     def terminate(self):
