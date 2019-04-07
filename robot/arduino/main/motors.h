@@ -18,6 +18,8 @@
 #define ESC_DEADBAND    (25 + ESC_DEADBAND_CUSTOM)  // +/- 25 region around 1500 that does nothing
 #define ESC_DEADBAND_CUSTOM   (25)
 
+#define COMS_CENTER (127)
+#define THRUSTER_CENTER (0)
 
 #define GOV_DELTA (127)
 #define GOV_MAX (GOV_DELTA)

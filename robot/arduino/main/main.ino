@@ -62,7 +62,7 @@ int handle_packet(packet p) {
     case SET_MOT_CMD:
 
       int axis_index = p.value1;
-      set_axis(axis_index, p.value2 - 127);
+      set_axis(axis_index, p.value2 - COMS_CENTER);
       trigger_motor_updates(axis_index);
       break;
     case RD_SENS_CMD:
