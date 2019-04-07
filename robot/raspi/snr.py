@@ -55,7 +55,7 @@ class Node:
         if t is None:
             debug("schedule", "Cannot schedule None")
             return
-        if isinstance(t, list):
+        if t.__class__ is list:
             # Recursively handle lists
             debug("schedule_verbose",
                   "Recursively scheduling list of {} tasks", [len(t)])
@@ -63,7 +63,8 @@ class Node:
                 debug("schedule_verbose", "Recursively scheduling {}", [item])
                 self.schedule_task(item)
             return
-        elif not isinstance(t, Task):
+
+        if t.__class__ is not task.Task:
             # Handle garbage
             debug("schedule", "Cannot schedule non task object {}", [t])
             return
