@@ -3,12 +3,13 @@
 
 # System imports
 import socket  # Sockets library
-from typing import Callable, Tuple
+import json
+from typing import Tuple, Callable, Union
 
 # Our imports
 import settings
-from snr import Relay, Handler
-from task import *
+from snr import Relay  # , Handler
+from task import Task, SomeTasks, TaskPriority, TaskType
 from utils import debug, sleep, attempt, u_exit
 
 
@@ -16,11 +17,13 @@ class SocketsClient(Relay):
     """ Manages sockets network connection to topside raspi
     """
 
-    def __init__(self, task_scheduler: Handler, server_tuple: Tuple[str, int]):
+    def __init__(self,
+                 task_scheduler: Callable[[SomeTasks], None],
+                 server_tuple: Tuple[str, int]):
         super().__init__(self.request_data)
         self.server_tuple = server_tuple
         self.task_scheduler = task_scheduler
-        self.s = None
+        # self.s = None
         debug("sockets_status", "Sockets client created")
 
     def request_data(self) -> SomeTasks:
@@ -34,15 +37,17 @@ class SocketsClient(Relay):
         if data_bytes is None:
             return None
         data_str = data_bytes.decode()
-        # debug("decode_verbose", "Decoded bytes as {}: {}", [data_str.__class__, data_str])
+        debug("decode_verbose", "Decoded bytes as {}: {}",
+              [data_str.__class__, data_str])
         data_dict = json.loads(data_str)
         debug("decode_verbose", "Decoded control input: {}", [data_dict])
         data_task = self.data_as_task(data_dict)
         debug("sockets_receive_verbose", "Got new task: {}", [data_task])
         return data_task
 
-    def receive_data(self) -> Task:
-        debug("sockets_verbose", "Waiting to receive data immediately upon connection")
+    def receive_data(self) -> Union[bytes, None]:
+        debug("sockets_verbose",
+              "Waiting to receive data immediately upon connection")
         try:
             data = self.s.recv(settings.MAX_SOCKET_SIZE)
             debug("sockets_receive", "Received data")
@@ -53,9 +58,10 @@ class SocketsClient(Relay):
             debug("sockets_error", "Lost sockets connection: {}",
                   error.__repr__())
             # TODO: Correctly terminate this function here
+            return None
 
     def data_as_task(self, controller_data: dict) -> Task:
-        return Task(TaskType.cntl_input, TaskPriority.high, controller_data)
+        return Task(TaskType.cntl_input, TaskPriority.high, [controller_data])
 
     def create_connection(self) -> None:
         """Create socket and connect to server in one function
@@ -77,21 +83,22 @@ class SocketsClient(Relay):
                 return False
 
         def fail_once() -> None:
-            debug("sockets_warning", "Failed to connect to server at {}:{}, trying again.",
+            debug("sockets_warning",
+                  "Failed to connect to server at {}:{}, trying again.",
                   [self.server_tuple[0], str(self.server_tuple[1])])
             # Wait a second before retrying
             sleep(settings.SOCKETS_RETRY_WAIT)
 
         def failure(tries: int) -> None:
             if(settings.REQUIRE_SOCKETS):
-                # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-                s = "Could not connect to server at {}:{} after {} attempts. Exiting now."
-                debug("sockets_critical", s, [
-                    self.server_tuple[0], str(self.server_tuple[1]), tries])
+                debug("sockets_critical",
+                      "Could not connect to server at {}:{} after {} tries.",
+                      [self.server_tuple[0], str(self.server_tuple[1]), tries])
                 u_exit("Start required sockets connection")
             else:
-                debug("ssockets_error", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
-                    tries])
+                debug("ssockets_error",
+                      "Abort sockets connection after {} tries. Not required.",
+                      [tries])
                 settings.USE_SOCKETS = False
                 return
 
