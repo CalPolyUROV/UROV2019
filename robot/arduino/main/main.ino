@@ -37,7 +37,6 @@ void loop() {
   if (get_packet(&p)) {
     //error
   }
-  //  Serial.println("Got packet");
   if (handle_packet(p)) {
     // error
   }
@@ -46,12 +45,11 @@ void loop() {
   //    motor_input_delta = -1 * motor_input_delta;
   //    delay(2000);
   //  }
-  //  Serial.println(motor_input);
   //  for (int i = 0; i < NUM_MOTORS; i++) {
   //    set_motor_target(i, motor_input);
   //  }
 
-  update_motors();
+  update_all_motors_speeds();
   //  motor_input += motor_input_delta;
   //  delay(MOTOR_DELTA_MS);
 }
@@ -60,11 +58,12 @@ void loop() {
 // Returns 0 on success and >0 on failure
 int handle_packet(packet p) {
   struct packet response;
-//  Serial.println("handle packet");
   switch (p.cmd) {
     case SET_MOT_CMD:
-      //      Serial.println("SET_MOTOR_CMD");
-      set_motor_target(p.value1 - 1, p.value2);
+
+      int axis_index = p.value1;
+      set_axis(axis_index, p.value2 - 127);
+      trigger_motor_updates(axis_index);
       break;
     case RD_SENS_CMD:
       break;
@@ -75,7 +74,6 @@ int handle_packet(packet p) {
       break;
   }
   response = p;
-//  Serial.println("Response ready");
   int result = send_packet(response);
   return result;
 }

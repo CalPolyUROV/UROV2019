@@ -8,40 +8,50 @@
 
 #define COMS_BAUD 9600
 
+//--Axis numbers-----------------------------
+#define X_AXIS      (0)
+#define Y_AXIS      (1)
+#define Z_AXIS      (2)
+#define YAW_AXIS    (3)
+#define PITCH_AXIS  (4)
+#define ROLL_AXIS   (5)
+
 //--Motor Codes:-----------------------------
-// Must be kept from 0-5 because of for loops
-#define MOTOR_A (0)
-#define MOTOR_B (1)
-#define MOTOR_C (2)
-#define MOTOR_D (3)
-#define MOTOR_E (4)
-#define MOTOR_F (5)
+// Must be kept from 0-5 for iterative loops loops
+#define MOTOR_1 (0)
+#define MOTOR_2 (1)
+#define MOTOR_3 (2)
+#define MOTOR_4 (3)
+#define MOTOR_5 (4)
+#define MOTOR_6 (5)
 
 #define NUM_MOTORS (6)
 
 //--Pinouts:---------------------------------
 // Thrusters
 // Mega Pins:
-#define MOTOR_A_PIN 8
-#define MOTOR_B_PIN 9
-#define MOTOR_C_PIN 10
-#define MOTOR_D_PIN 11
-#define MOTOR_E_PIN 12
-#define MOTOR_F_PIN 13
+#define MOTOR_1_PIN (8)
+#define MOTOR_2_PIN (9)
+#define MOTOR_3_PIN (10)
+#define MOTOR_4_PIN (11)
+#define MOTOR_5_PIN (12)
+#define MOTOR_6_PIN (13)
+
 //Teensy Pins:
-//#define MOTOR_A_PIN 3
-//#define MOTOR_B_PIN 4
-//#define MOTOR_C_PIN 5
-//#define MOTOR_D_PIN 6
-//#define MOTOR_E_PIN 22
-//#define MOTOR_F_PIN 23
+//#define MOTOR_1_PIN (3)
+//#define MOTOR_2_PIN (4)
+//#define MOTOR_3_PIN (5)
+//#define MOTOR_4_PIN (6)
+//#define MOTOR_5_PIN (22)
+//#define MOTOR_6_PIN (23)
 
 // Motor directions
-#define MOTOR_A_DIR 1
-#define MOTOR_B_DIR 1
-#define MOTOR_C_DIR 1
-#define MOTOR_D_DIR 1
-#define MOTOR_E_DIR 1
-#define MOTOR_F_DIR 1
+// For switching motor direction based on 3-phase wiring to match thruster orientation
+#define MOTOR_1_DIR 1
+#define MOTOR_2_DIR 1
+#define MOTOR_3_DIR 1
+#define MOTOR_4_DIR 1
+#define MOTOR_5_DIR 1
+#define MOTOR_6_DIR 1
 
 #endif

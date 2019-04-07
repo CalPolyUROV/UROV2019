@@ -46,7 +46,7 @@ int get_packet(packet *p) {
   byte value1_byte = Serial.read();
   byte value2_byte = Serial.read();
   byte seqnum_chksum_byte = Serial.read();
-  blink_delay(15);
+//  blink_delay(15);
   create_packet(p, cmd_byte, value1_byte, value2_byte, seqnum_chksum_byte);
   return 0;
 }
