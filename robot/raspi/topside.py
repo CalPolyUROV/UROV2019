@@ -9,7 +9,7 @@ from controller import Controller
 from snr import Node
 from task import Task, TaskPriority, TaskType, SomeTasks
 from sockets_server import SocketsServer
-from utils import debug, exit, sleep
+from utils import debug, sleep
 from internal_temp import IntTempMon
 from topside_clui import TopsideClui
 

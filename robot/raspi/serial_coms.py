@@ -11,7 +11,7 @@ import struct
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
-from utils import sleep, debug, exit, attempt
+from utils import sleep, debug, u_exit, attempt
 from snr import Relay
 from task import *
 from serial_packet import Packet, parse_packet
@@ -57,7 +57,7 @@ class SerialConnection(Relay):
             if(settings.REQUIRE_SERIAL):
                 debug("serial_con", "Could not open serial port after {} attempts. Crashing now.", [
                     tries])
-                exit("Could not find port")
+                u_exit("Could not open serial port")
             else:
                 debug("serial_con", "Giving up on serial connection after {} attempts. Not required in settings.", [
                     tries])

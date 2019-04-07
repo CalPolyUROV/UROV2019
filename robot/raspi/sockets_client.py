@@ -9,7 +9,7 @@ from typing import Callable, Tuple
 import settings
 from snr import Relay, Handler
 from task import *
-from utils import debug, exit, sleep, attempt
+from utils import debug, sleep, attempt, u_exit
 
 
 class SocketsClient(Relay):
@@ -88,7 +88,7 @@ class SocketsClient(Relay):
                 s = "Could not connect to server at {}:{} after {} attempts. Exiting now."
                 debug("sockets_critical", s, [
                     self.server_tuple[0], str(self.server_tuple[1]), tries])
-                exit("Start required sockets connection")
+                u_exit("Start required sockets connection")
             else:
                 debug("ssockets_error", "Giving up on connecting to server after {} attempts.  Not required in settings.", [
                     tries])

@@ -19,7 +19,7 @@ def print_usage() -> None:
     print("usage: python3.5 main.py (robot | topside)")
 
 
-def exit(reason: str) -> None:
+def u_exit(reason: str) -> None:
     """Kills the program after printing the supplied str reason
     """
     print("\nExiting: " + reason.__repr__())

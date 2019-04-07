@@ -13,7 +13,7 @@ import _thread
 import settings
 from datastore import Datastore
 from task import *
-from utils import debug, exit, sleep
+from utils import debug, sleep, u_exit
 
 
 class Node:
@@ -154,7 +154,7 @@ class AsyncEndpoint:
             self.loop_handler()
             self.tick()
         debug("framework", "Async endpoint {} exited loop", [self.name])
-        exit("Endpoint thread exited by termination")
+        u_exit("Endpoint thread exited by termination")
 
     def get_name(self):
         return self.name

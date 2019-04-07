@@ -15,14 +15,15 @@ import settings
 from robot import Robot
 from snr import Node
 from topside import Topside
-from utils import debug, exit, sleep, print_usage
+from utils import debug, u_exit, print_usage
 
 
 def main():
     argc = len(argv)
     if argc < 2:
         print_usage()
-        exit("Improper usage, consider launching from the Makefile with 'make server' or 'make robot'")
+        u_exit("Improper usage")
+
 
     role = argv[1]  # Command line argument
     mode = "deployed"
@@ -40,7 +41,7 @@ def main():
     else:
         debug("framework", "Invalid ROLE {} given as command line arg", [role])
         print_usage()
-        exit("Unknown ROLE")
+        u_exit("Unknown role")
 
     # Run the node's loop
     try:
@@ -51,7 +52,7 @@ def main():
 
     node.terminate()
     debug("framework", "Node terminated")
-    exit("Ya done now")
+    u_exit("Ya done now")
 
 
 if __name__ == "__main__":

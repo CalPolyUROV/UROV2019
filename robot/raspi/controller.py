@@ -11,7 +11,7 @@ import random
 # Our imports
 import settings
 from snr import AsyncEndpoint
-from utils import debug, try_key, sleep, exit
+from utils import debug, try_key, sleep, u_exit
 
 class Controller(AsyncEndpoint):
     def __init__(self, name: str, store_data: Callable):

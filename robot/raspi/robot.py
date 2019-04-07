@@ -15,7 +15,7 @@ from serial_coms import SerialConnection  # Serial connection to Teensy
 from snr import Node
 from sockets_client import SocketsClient  # Sockets connection to topside
 from task import *
-from utils import debug, exit, sleep, debug_delay  # Miscelaneous utilities
+from utils import debug, debug_delay  # Miscelaneous utilities
 
 
 class Robot(Node):
