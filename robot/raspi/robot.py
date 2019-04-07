@@ -13,8 +13,10 @@ from robot_data import Database  # Stores data and preforms calculations
 from serial_coms import SerialConnection  # Serial connection to Teensy
 from snr import Node
 from sockets_client import SocketsClient  # Sockets connection to topside
-from task import *
+from task import Task, SomeTasks, TaskType, TaskPriority
 from utils import debug, debug_delay  # Miscelaneous utilities
+
+import task
 
 
 class Robot(Node):
@@ -32,26 +34,30 @@ class Robot(Node):
 
         if settings.USE_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
+
+            controls_server_ip = settings.CONTROLS_SERVER_IP
+
             if self.mode.__eq__("debug"):
-                settings.TOPSIDE_IP_ADDRESS = "localhost"
+                debug("robot", "Running in debug mode: server IP is localhost")
+                controls_server_ip = "localhost"
 
             # Make sockets client object using our implementation
-            self.socket_connection = SocketsClient(self.schedule_task,
-                                                   (settings.TOPSIDE_IP_ADDRESS,
-                                                    settings.TOPSIDE_PORT))
+            self.socket_connection = \
+                SocketsClient(self.schedule_task,
+                              (controls_server_ip, settings.CONTROLS_SERVER_PORT))
         if settings.USE_ROBOT_PI_TEMP_MON:
             self.temp_mon = IntTempMon(settings.ROBOT_INT_TEMP_NAME,
-                                       self.store_temperature_data)
+                                       self.store_int_temp_data)
 
-    def handle_task(self, t: Task or None) -> SomeTasks:
+    def handle_task(self, t: Task) -> SomeTasks:
         debug("execute_task_verbose", "Executing task: {}", [t])
 
-        sched_list = []
+        sched_list = [Task]
 
         # Get controls input
         if t.task_type == TaskType.get_cntl:
             # t = self.socket_connection.request_data()
-            # debug("robot_verbose", "Got task {} from sockets connection", [t])
+            # debug("robot_verbose", "Got task {} from sockets", [t])
             # sched_list.append(t)
             pass
 
@@ -85,7 +91,8 @@ class Robot(Node):
         # Terminate robot
         elif t.task_type == TaskType.terminate_robot:
             debug("robot_control",
-                  "Robot {} program terminated by command", settings.ROBOT_NAME)
+                  "Robot {} program terminated by command",
+                  settings.ROBOT_NAME)
             self.terminate()
 
         else:  # Catch all
@@ -126,7 +133,6 @@ class Robot(Node):
 
         if settings.USE_SERIAL:
             self.serial_connection.terminate()
-            pass
 
         self.set_terminate_flag()
 
