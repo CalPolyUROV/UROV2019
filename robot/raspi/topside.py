@@ -1,8 +1,4 @@
 
-
-# System imports
-import socket
-
 # Our imports
 import settings
 from controller import Controller
@@ -43,7 +39,8 @@ class Topside(Node):
 
         # Start local temperature monitor endpoint
         if settings.USE_TOPSIDE_PI_TEMP_MON:
-            self.int_temp_mon = IntTempMon(self.store_int_temp_data)
+            self.int_temp_mon = IntTempMon(settings.TOPSIDE_INT_TEMP_NAME,
+                                           self.store_int_temp_data)
 
         debug("framework", "Topside Node created")
 
@@ -55,12 +52,13 @@ class Topside(Node):
             debug("execute_task", "Debug_str task: {}", [t.val_list])
 
         elif (t.task_type == TaskType.get_telemetry):
-            # TODO: Implement sockets client on topside to query server on robot for data
+            # TODO: Implement sockets client on topside and server on robot
             pass
 
         else:
-            debug("execute_task", "Unable to handle TaskType: {}, values: {}", [
-                t.task_type, t.val_list])
+            debug("execute_task",
+                  "Unable to handle TaskType: {}, values: {}",
+                  [t.task_type, t.val_list])
 
         return sched_list
 
