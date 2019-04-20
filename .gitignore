@@ -110,3 +110,4 @@ venv.bak/
 
 robot/raspi/todo.txt
 robot/raspi/.vscode/*
+.vscode/*
