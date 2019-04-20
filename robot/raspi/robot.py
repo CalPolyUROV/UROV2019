@@ -52,7 +52,7 @@ class Robot(Node):
     def handle_task(self, t: Task) -> SomeTasks:
         debug("execute_task_verbose", "Executing task: {}", [t])
 
-        sched_list = [Task]
+        sched_list = []
 
         # Get controls input
         if t.task_type == TaskType.get_cntl:
