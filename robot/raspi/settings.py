@@ -162,7 +162,7 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 
 # Serial Connection
 USE_SERIAL = True
-REQUIRE_SERIAL = True
+REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection

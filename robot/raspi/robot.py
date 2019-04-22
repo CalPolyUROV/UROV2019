@@ -52,7 +52,7 @@ class Robot(Node):
     def handle_task(self, t: Task) -> SomeTasks:
         debug("execute_task_verbose", "Executing task: {}", [t])
 
-        sched_list = [Task]
+        sched_list = []
 
         # Get controls input
         if t.task_type == TaskType.get_cntl:
@@ -77,8 +77,11 @@ class Robot(Node):
             debug("serial", "Executing serial com task: {}", [t.val_list])
             t = self.serial_connection.send_receive(
                 t.val_list[0], t.val_list[1::])
-            for new_task in t:
-                sched_list.append(new_task)
+            if t is None:
+                debug("robot    ", "Received no data in response from serial message")
+            else:
+                for new_task in t:
+                    sched_list.append(new_task)
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
