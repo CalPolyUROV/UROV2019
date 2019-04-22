@@ -76,13 +76,12 @@ DEBUG_CHANNELS = {
 
     "serial_finder": True,
     "serial": True,
-    "serial_verbose": True,
-    "serial_con": True,
-    "ser_packet": True,
-    "chksum": True,
+    "serial_verbose": False,
+    "serial_con": False,
+    "ser_packet": False,
+    "chksum": False,
 
     "sleep": True,
-
     "try_key": False,
 
     "test": True,
