@@ -4,7 +4,7 @@ TODO: Add more documentation here
 
 # System imports
 import serial  # PySerial library
-from serial import SerialException
+#from serial import SerialException
 import struct
 from typing import Union, Tuple
 
@@ -70,6 +70,10 @@ class SerialConnection(Relay):
         self.serial_port = port
 
     def try_open_serial(self):
+        if not settings.USE_SERIAL:
+            debug("serial",
+                  "Serial is not used, ignoring opening attempt", [])
+            return None
         sleep(settings.SERIAL_SETUP_WAIT_PRE)
         try:
             self.serial_connection = serial.Serial(
@@ -90,7 +94,7 @@ class SerialConnection(Relay):
                     self.serial_connection.read()
                 return True
             return False
-        except serial.serialutil.SerialException as error:
+        except Exception as error:
             debug("serial_con", "Error opening port: {}", [error.__repr__()])
             return False
 

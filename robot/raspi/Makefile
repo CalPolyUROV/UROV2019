@@ -2,7 +2,7 @@
 # Should work on Unix. For windows, go to the location of your python.exe 
 # 	binary and rename a copy of it to python3.exe
 
-PYTHON_CMD = python3.5
+PYTHON_CMD = python3
 # PYTHON_FLAGS = -B
 
 MAIN_SRC = main.py

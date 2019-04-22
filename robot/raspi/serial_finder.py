@@ -31,11 +31,11 @@ def get_port_to_use(set_port: Callable) -> str:
             port = select_port(ports)
             set_port(port)
             if(port == None):
-                raise serial.serialutil.SerialException
+                raise Exception("Serial Exception")
             debug("serial_finder", "Using port: {}", [port])
             return True
 
-        except serial.serialutil.SerialException as error:
+        except Exception as error:
             debug("serial_finder", "Error finding port: {}", [str(error)])
             return False
 
@@ -86,7 +86,7 @@ def list_ports() -> list:
             s = serial.Serial(port)                 # Try to open a port
             s.close()                               # Close the port if sucessful
             result.append(port)                     # Add to list of good ports
-        except (OSError, serial.SerialException):   # If un sucessful
+        except (OSError, Exception):   # If un sucessful
             pass
     return result
 
