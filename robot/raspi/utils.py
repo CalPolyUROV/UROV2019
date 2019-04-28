@@ -15,7 +15,7 @@ import settings
 def print_usage() -> None:
     """Prints a Unix style uasge message on how to start the program
     """
-    print("usage: python3.5 main.py (robot | topside)")
+    print("usage: python3 main.py (robot | topside)")
 
 
 def u_exit(reason: str) -> None:
@@ -52,7 +52,7 @@ def debug(channel: str, *args: Union[list,  str]):
 
     Note that one iteration of this code spawned a separte thread for every
     debug() call. The printing system call could not keep up and threads
-    piled up and eventually crashed the program. Either threads must be 
+    piled up and eventually crashed the program. Either threads must be
     managed with pools or print statements can be allowed to slow down the
     program (They can be turn off in settings)
     """
