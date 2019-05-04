@@ -9,7 +9,7 @@ MAIN_SRC = main.py
 TEST_SRC = tests.py
 LAUNCH_CMD = $(PYTHON_CMD) $(MAIN_SRC)
 
-IP_CLIENT = 10.0.10.11
+ROBOT_IP = 10.0.10.11
 USERNAME = ubuntu
 
 robot:
@@ -24,8 +24,12 @@ debug_robot:
 debug_topside:
 	$(LAUNCH_CMD) topside -d
 
+dr: debug_robot
+
+dt: debug_topside
+
 ssh:
-	ssh $(USERNAME)@$(IP_CLIENT)
+	ssh $(USERNAME)@$(ROBOT_IP)
 
 test: $(TEST_SRC)
 	$(PYTHON_CMD) $(TEST_SRC)

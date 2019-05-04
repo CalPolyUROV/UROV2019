@@ -74,7 +74,7 @@ class Robot(Node):
 
         # Send serial data
         elif t.task_type == TaskType.serial_com:
-            debug("serial", "Executing serial com task: {}", [t.val_list])
+            debug("serial_verbose", "Executing serial com task: {}", [t.val_list])
             t = self.serial_connection.send_receive(
                 t.val_list[0], t.val_list[1::])
             for new_task in t:

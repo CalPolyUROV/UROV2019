@@ -26,7 +26,7 @@ DEBUG_CHANNELS = {
 
     "datastore": True,
     "datastore_error": True,
-    "datastore_event": True,
+    "datastore_event": False,
     "datastore_verbose": False,
 
     "controller": True,
@@ -44,10 +44,12 @@ DEBUG_CHANNELS = {
     "robot_verbose": False,
 
     "robot_control": True,
+    "robot_control_warning": True,
+    "robot_control_event": False,
     "robot_control_verbose": False,
 
     "thrust_vec": True,
-    "thrust_vec_verbose": False,
+    "thrust_vec_verbose": True,
 
     "throttle": True,
     "throttle_verbose": False,
@@ -76,10 +78,13 @@ DEBUG_CHANNELS = {
 
     "serial_finder": True,
     "serial": True,
-    "serial_verbose": True,
-    "serial_con": True,
-    "ser_packet": True,
-    "chksum": True,
+    "serial_error": True,
+    "serial_warning": True,
+    "serial_verbose": False,
+
+    "serial_packet": True,
+    "chksum_error": True,
+    "chksum_verbose": False,
 
     "sleep": True,
 

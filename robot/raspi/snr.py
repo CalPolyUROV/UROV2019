@@ -64,9 +64,9 @@ class Node:
                 self.schedule_task(item)
             return
 
-        if t.__class__ is not task.Task:
-            # Handle garbage
-            debug("schedule", "Cannot schedule non task object {}", [t])
+        if type(t) is not Task:
+            # Handle non task objects
+            debug("schedule_warning", "Cannot schedule {} object {}", [t.__class__, t])
             return
 
         # Handle normal tasks
@@ -128,6 +128,9 @@ class Node:
 
     def get_data(self, key: str):
         return self.data.get(key)
+
+    def use_data(self, key: str):
+        return self.data.use(key)
 
     def repr_task_queue(self) -> str:
         s = ""

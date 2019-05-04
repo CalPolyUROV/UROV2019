@@ -1,9 +1,9 @@
-import robot_data  # This is weird...
+from typing import List
 
-from task import *
+from task import Task, TaskPriority, TaskType, SomeTasks
 from utils import debug, try_key
 
-# TODO: Split this class into robot_processing and return data storing to datastore.py
+# TODO: Split this class into robot_processing and datastore.py
 
 
 class Database:
@@ -33,28 +33,24 @@ class Database:
 
         # Internal data
         self.throttle = {'x': 0, 'y': 0, 'z': 0, "yaw": 0, "roll": 0}
-        # Pitch is absent since motors are not arranged so
-
-        # Output data
-        self.acceleration = robot_data.GyroAccelData(0, 0, 0, 0, 0, 0)
-
-    def telemetry_data(self) -> list:
-        return [self.acceleration, self.orientation]
+        # Pitch cannot be acheive with current motor configuration
 
     def receive_controls(self, incoming_controls: dict) -> SomeTasks:
         if incoming_controls is None:
-            debug("robot_control", "Received empty controls")
+            debug("robot_control_warning", "Received empty controls")
             return None
         self.previous_cntl_input = self.control_input
         self.control_input = incoming_controls
         task_list = self.process_controls()
-        debug("robot_control", "Processed {} tasks from received controls", [len(task_list)])
+        debug("robot_control_event",
+              "Processed {} tasks from received controls", [len(task_list)])
         return task_list
 
-    def process_controls(self) -> SomeTasks:
+    def process_controls(self) -> List[Task]:
         task_list = []
         # Collect only new control values
-        debug("robot_control_verbose", "Processing controls data: {}", [self.control_input])
+        debug("robot_control_verbose",
+              "Processing controls data: {}", [self.control_input])
         for key in self.control_input.keys():
             if self.previous_cntl_input is not None:
                 old_data = try_key(self.previous_cntl_input, key)
@@ -76,10 +72,11 @@ class Database:
         debug("thrust_vec_verbose", "Throttle tasks: {}", [throttle_tasks])
         for t in throttle_tasks:
             task_list.append(t)
-        # debug("robot_control", "Processed {} tasks from controls", [len(task_list)])
+        debug("robot_control_verbose", "Created {} tasks from controls",
+              [len(task_list)])
         return task_list
 
-    def handle_control(self, key: str, value) -> Task or []:
+    def handle_control(self, key: str, value) -> SomeTasks:
         """Deal with individual control buttons fromthe controller
         This method takes a key value pair from the control data dict and does
         the appropriate action for it. For joysticks and triggers, this is
@@ -99,7 +96,6 @@ class Database:
         the ROV
         """
 
-        
         # Left stick x axis to robot y axis
         if "stick_left_x" in key:
             self.throttle['y'] = val
@@ -135,7 +131,8 @@ class Database:
     def get_throttle_tasks(self) -> Task or []:
         """Takes each throttle value and creates a task to send it to the teensy
         """
-        debug("throttle", "Generating serial tasks for throttle values x:{}, y:{}, z:{}, yaw:{}, roll:{}",
+        debug("throttle_verbose",
+              "Generating tasks for throttle values x:{}, y:{}, z:{}, yaw:{}, roll:{}",
               self.throttle_as_list())
 
         t_x = Task(TaskType.serial_com, TaskPriority.high,
@@ -154,17 +151,20 @@ class Database:
         return task_list
 
     def throttle_as_list(self) -> list:
-        return [self.throttle['x'], self.throttle['y'], self.throttle['z'], self.throttle['yaw'], self.throttle['roll']]
+        return [self.throttle['x'], self.throttle['y'], self.throttle['z'],
+                self.throttle['yaw'], self.throttle['roll']]
 
 
-class GyroAccelData:
-    def __init__(self, _x: int, _y: int, _z: int, _roll: int, _pitch: int, _yaw: int):
-        self.x = _x
-        self.y = _y
-        self.z = _z
-        self.roll = _roll
-        self.pitch = _pitch
-        self.yaw = _yaw
+# class GyroAccelData:
+#     def __init__(self, _x: int, _y: int, _z: int, _roll: int, _pitch: int, _yaw: int):
+#         self.x = _x
+#         self.y = _y
+#         self.z = _z
+#         self.roll = _roll
+#         self.pitch = _pitch
+#         self.yaw = _yaw
 
-    def __repr__(self):
-        return self.x.__repr__() + ", " + self.y.__repr__() + ", " + self.z.__repr__() + ", " + self.roll.__repr__() + ", " + self.pitch.__repr__() + ", " + self.yaw.__repr__()
+#     def __repr__(self):
+#         return "{}, {}, {}, {}, {}, {}".format(self.x, self.y,
+#                                                self.z, self.roll,
+#                                                self.pitch, self.yaw)

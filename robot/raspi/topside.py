@@ -90,8 +90,11 @@ class Topside(Node):
     def store_controller_data(self, controller_data: dict):
         self.store_data(settings.CONTROLLER_NAME, controller_data)
 
-    def serve_controller_data(self) -> dict:
-        return self.get_data(settings.CONTROLLER_NAME)
+    def serve_controller_data(self):
+        controls = self.get_data(settings.CONTROLLER_NAME)
+        if controls is None:
+            return {}
+        return controls
 
-    def fetch_ui_data(self) -> dict:
-        return self.get_data(settings.UI_DATA_KEY)
+    def fetch_ui_data(self, key: str):
+        return self.get_data(key)

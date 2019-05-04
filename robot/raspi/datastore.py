@@ -1,3 +1,5 @@
+from typing import Union
+
 from utils import debug, try_key
 
 
@@ -26,8 +28,8 @@ class Datastore:
             return page.fresh
         return False
 
-    def get(self, key: str) -> object:
-        """Get a value from the data store without makring it as unfresh
+    def get(self, key: str):
+        """Get a value from the data store without marking it as unfresh
         """
         page = try_key(self.database, key)
 
@@ -36,7 +38,7 @@ class Datastore:
             return None
         return page.data
 
-    def use(self, key: str) -> object:
+    def use(self, key: str):
         """Get a value from the datastore and mark it as unfresh/used
         """
         try:

@@ -1,5 +1,5 @@
 """Command Line User Interface
-Provides a visual interface for the terminal"""
+Provides a visual interface for the terminal for the topside unit"""
 
 # System imports
 from typing import Callable
@@ -25,7 +25,7 @@ class TopsideClui(AsyncEndpoint):
         pass
 
     def refresh_ui(self):
-        ui_data = self.get_data()
+        ui_data = self.get_data(self.name)
         if ui_data is None:
             debug("CLUI", "Data for UI is None, not refreshing")
             return

@@ -27,6 +27,7 @@ class SocketsServer(AsyncEndpoint):
         self.initialize_server()
         self.loop()
 
+
     def loop_handler(self):
         # Create connection to a specific client
         if not settings.USE_SOCKETS:
@@ -40,13 +41,14 @@ class SocketsServer(AsyncEndpoint):
             # Send data to the client once it connects
             self.send_data()
         except (socket.timeout, OSError, Exception) as err:
-            debug("sockets_server",
+            if err.__class__ is socket.timeout:
+                debug("sockets_server", "Restarting sockets server after idle timeout")
+            else:
+                debug("sockets_server",
                   "Connection failed: {}", [err.__repr__()])
-            debug("sockets_server", "Restarting sockets server")
+                debug("sockets_server", "Restarting sockets server")
             self.close_socket()
             self.initialize_server()
-
-    # def open_server(self):
 
     def initialize_server(self):
         if not settings.USE_SOCKETS:
