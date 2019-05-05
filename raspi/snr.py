@@ -152,6 +152,9 @@ class AsyncEndpoint:
         self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False
+        self.set_delay(tick_rate)
+
+    def set_delay(self, tick_rate: float):
         if tick_rate == 0:
             self.delay = 0.0
         else:

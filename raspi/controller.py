@@ -19,7 +19,12 @@ class Controller(AsyncEndpoint):
             debug("controller", "Controller disabled by settings")
             return
 
-        super().__init__(name, self.monitor_controller, settings.CONTROLLER_TICK_RATE)
+        # Require triggers to be set to zero before operation
+        # Initial value is inverse of setting
+        # Triggers zerod indicated whether the triggers no longer need to be zeroed
+        self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
+
+        super().__init__(name, self.monitor_controller, settings.CONTROLLER_INIT_TICK_RATE)
 
         self.store_data = store_data
         
@@ -33,6 +38,7 @@ class Controller(AsyncEndpoint):
         else:
             debug("controller", "Simulating input without pygame and XBox controller")
             return
+        
 
         pygame.event.get()
         num_controllers = pygame.joystick.get_count()
@@ -66,7 +72,8 @@ class Controller(AsyncEndpoint):
             except pygame.error as error:
                 debug("controller_error", "{}, simulating input", [error.__repr__()])
                 joystick_data = simulate_input()
-        controls_dict = self.map_input_dict(joystick_data)
+        new_data = self.map_input_dict(joystick_data)
+        controls_dict = self.check_trigger_zeroed(new_data)
 
         debug("controller_event",
               "Storing data with key: {}", [self.get_name()])
@@ -77,6 +84,23 @@ class Controller(AsyncEndpoint):
     def print_data(self, d: dict):
         for val in self.joystick_data:
             print(str(val) + ":\t" + str(self.joystick_data[val]))
+
+    
+    def check_trigger_zeroed(self, data: dict):
+        if self.triggers_zeroed:
+            return  data
+        left = try_key(data, "trigger_left")
+        right = try_key(data, "trigger_right")
+        if (left == 0) and (right == 0):
+            self.triggers_zeroed = True
+            self.set_delay(settings.CONTROLLER_TICK_RATE)
+            debug("controller", "Triggers successfully zeroed. Controller ready.")
+            return data
+        else:
+            debug("controller_error", "Please zero triggers: left: {}, right: {}", [left, right])
+            return {}
+        
+
 
     def map_input_dict(self, joystick_data: dict) -> dict:
         """Convert pygame input names to our names based off settings

@@ -4,7 +4,7 @@ TODO: Add more documentation here
 
 # System imports
 import serial  # PySerial library
-from serial import SerialException
+#from serial import SerialException
 import struct
 from typing import Union, Tuple
 
@@ -19,8 +19,7 @@ from serial_packet import Packet, calc_chksum
 # encoding scheme
 ENCODING = 'ascii'
 
-""" List of codes for each command
-"""
+""" List of codes for each command """
 # TODO: Move command list to external file (maybe .txt or .csv),
 #       write script to generate in Arduino source and python
 #       source will not be needed on topside Pi, only on robot
@@ -70,6 +69,10 @@ class SerialConnection(Relay):
         self.serial_port = port
 
     def try_open_serial(self):
+        if not settings.USE_SERIAL:
+            debug("serial",
+                  "Serial is not used, ignoring opening attempt", [])
+            return None
         sleep(settings.SERIAL_SETUP_WAIT_PRE)
         try:
             self.serial_connection = serial.Serial(
@@ -90,8 +93,8 @@ class SerialConnection(Relay):
                     self.serial_connection.read()
                 return True
             return False
-        except serial.serialutil.SerialException as error:
-            debug("serial_error", "Error opening port: {}", [error.__repr__()])
+        except Exception as error:
+            debug("serial_con", "Error opening port: {}", [error.__repr__()])
             return False
 
     # Send and receive data over serial
@@ -221,7 +224,8 @@ class SerialConnection(Relay):
         val1 = recv_bytes[1]
         val2 = recv_bytes[2]
         chksum = recv_bytes[3]
-        debug('serial_verbose', "Unpacked: cmd: {}.{}, val1: {}.{}, val2: {}.{}",
+        s = "Unpacked: cmd: {}.{}, val1: {}.{}, val2: {}.{}"
+        debug('serial_verbose', s,
               [cmd, cmd.__class__, val1, val1.__class__, val2, val2.__class__])
         # TODO: ensure that chksum is correct
         # p = parse_packet(_cmd, _val1, _val2, _chksum)

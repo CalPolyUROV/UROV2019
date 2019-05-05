@@ -87,7 +87,6 @@ DEBUG_CHANNELS = {
     "chksum_verbose": False,
 
     "sleep": True,
-
     "try_key": False,
 
     "test": True,
@@ -104,8 +103,9 @@ USE_CONTROLLER = True
 SIMULATE_INPUT = False
 REQUIRE_CONTROLLER = True
 CONTROLLER_NAME = "topside_xbox_controller"
-CONTROLLER_TICK_RATE = 20  # Hz (Times per second)
-
+CONTROLLER_INIT_TICK_RATE = 1
+CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
+CONTROLLER_ZERO_TRIGGERS = True
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
 "pygame_name": ["name_we_use"],
@@ -167,7 +167,7 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 
 # Serial Connection
 USE_SERIAL = True
-REQUIRE_SERIAL = True
+REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection
