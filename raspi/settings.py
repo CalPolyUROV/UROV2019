@@ -104,8 +104,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = False
-REQUIRE_CONTROLLER = True
+SIMULATE_INPUT = True
+REQUIRE_CONTROLLER = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
