@@ -1,6 +1,6 @@
-from typing import Union
+from typing import Union, Callable, Any
 
-from utils import debug, try_key
+from snr_utils import debug, try_key
 
 
 class Page:
@@ -46,3 +46,13 @@ class Datastore:
         except KeyError:
             debug("datastore_error", "Cannot mark unfresh, key not found")
         return self.get(key)
+
+# Sets data with a given key
+DatastoreSetter = Callable[[str, Any], None]
+# Calls a DatastoreSetter with a set key
+DataSetter = Callable[[Any], None]
+
+# Gets data with a given key from data store
+DatastoreGetter = Callable[[str], Any]
+# Calls a DatastoreGetter with set key
+DataGetter = Callable[[], Any]

@@ -55,3 +55,4 @@ class Task:
 SomeTasks = Union[Task, List[Task], None]
 Handler = Callable[[Task], SomeTasks]
 TaskSource = Callable[[], SomeTasks]
+TaskScheduler = Callable[[SomeTasks], None]

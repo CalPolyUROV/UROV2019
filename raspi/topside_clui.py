@@ -6,8 +6,8 @@ from typing import Callable
 
 # Our imports
 import settings
-from snr import AsyncEndpoint
-from utils import debug, try_key
+from snr_lib import AsyncEndpoint
+from snr_utils import debug, try_key
 
 
 class TopsideClui(AsyncEndpoint):
@@ -31,7 +31,8 @@ class TopsideClui(AsyncEndpoint):
             return
         button_a = try_key(ui_data, "button_a")
         bottom_line = "button_a: " + str(button_a)
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + bottom_line, end='', flush=True)
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
+              bottom_line, end='', flush=True)
 
     def terminate(self):
         debug("clui", "Terminating CLUI")

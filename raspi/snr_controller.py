@@ -1,17 +1,23 @@
-"""Reads controller data for topside 
-Based on example controller code from https://www.pygame.org/docs/ref/joystick.html
+"""Reads controller data for topside
+Based on example controller code from 
+https://www.pygame.org/docs/ref/joystick.html
 """
+
+import random
+from typing import Callable
+
+import pygame
+
+import _thread
+import settings
+from snr_lib import AsyncEndpoint
+from snr_utils import debug, sleep, try_key, u_exit
+
 # Sytem imports
 print("Importing pygame:")
-import pygame
-import _thread
-from typing import Callable
-import random
 
 # Our imports
-import settings
-from snr import AsyncEndpoint
-from utils import debug, try_key, sleep, u_exit
+
 
 class Controller(AsyncEndpoint):
     def __init__(self, name: str, store_data: Callable):
@@ -21,45 +27,43 @@ class Controller(AsyncEndpoint):
 
         # Require triggers to be set to zero before operation
         # Initial value is inverse of setting
-        # Triggers zerod indicated whether the triggers no longer need to be zeroed
+        # Triggers zerod indicated whether the triggers no longer need to be
+        # zeroed
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
-
-        super().__init__(name, self.monitor_controller, settings.CONTROLLER_INIT_TICK_RATE)
+        self.joystick_data = dict({})
+        super().__init__(name, self.monitor_controller,
+                         settings.CONTROLLER_INIT_TICK_RATE)
 
         self.store_data = store_data
-        
+
         self.init_controller()
         self.loop()
 
     def init_controller(self):
-        if not settings.SIMULATE_INPUT:
-            pygame.init()  # Initialize pygame
-            pygame.joystick.init()  # Initialize the joysticks
-        else:
-            debug("controller", "Simulating input without pygame and XBox controller")
+        if settings.SIMULATE_INPUT:
+            s = "Simulating input without pygame and XBox controller"
+            debug("controller", s)
+            self.triggers_zeroed = True
             return
-        
 
+        pygame.init()  # Initialize pygame
+        pygame.joystick.init()  # Initialize the joysticks
         pygame.event.get()
         num_controllers = pygame.joystick.get_count()
 
         if num_controllers > 0:
             debug("controller", "Controllers found: {}", [num_controllers])
-            debug(
-                "controller", "Warning: disconnecting the controller will crash the topside program")
+            print_controller_warning()
             # TODO: Handle pygame's segfault when the controller disconnects
         elif settings.REQUIRE_CONTROLLER:
             s = "Controller required by settings, {} found"
             debug("controller_error", s, [num_controllers])
             exit("Required XBox controller absent")
         else:
-            debug("controller", "Controller not found but not required, skipping")
+            s = "Controller not found but not required, skipping"
+            debug("controller", s)
             settings.USE_CONTROLLER = False
             return
-
-        # TODO: Require the user to zero each trigger by depressing it and
-        # releasing it. This is necessary because the triggers start at 50
-        # and are only zeroed after the initial press and release.
 
     def monitor_controller(self):
         if settings.SIMULATE_INPUT:
@@ -70,7 +74,8 @@ class Controller(AsyncEndpoint):
             try:
                 joystick_data = self.read_joystick()
             except pygame.error as error:
-                debug("controller_error", "{}, simulating input", [error.__repr__()])
+                debug("controller_error", "{}, simulating input",
+                      [error.__repr__()])
                 joystick_data = simulate_input()
         new_data = self.map_input_dict(joystick_data)
         controls_dict = self.check_trigger_zeroed(new_data)
@@ -85,10 +90,9 @@ class Controller(AsyncEndpoint):
         for val in self.joystick_data:
             print(str(val) + ":\t" + str(self.joystick_data[val]))
 
-    
     def check_trigger_zeroed(self, data: dict):
         if self.triggers_zeroed:
-            return  data
+            return data
         left = try_key(data, "trigger_left")
         right = try_key(data, "trigger_right")
         if (left == 0) and (right == 0):
@@ -97,10 +101,9 @@ class Controller(AsyncEndpoint):
             debug("controller", "Triggers successfully zeroed. Controller ready.")
             return data
         else:
-            debug("controller_error", "Please zero triggers: left: {}, right: {}", [left, right])
+            debug("controller_error",
+                  "Please zero triggers: left: {}, right: {}", [left, right])
             return {}
-        
-
 
     def map_input_dict(self, joystick_data: dict) -> dict:
         """Convert pygame input names to our names based off settings
@@ -152,7 +155,7 @@ class Controller(AsyncEndpoint):
 
         return key_val_tuple
 
-    def cast(self, value: object, t: type)-> object:
+    def cast(self, value, t: type)-> object:
         if t is None:
             return value
         elif t is int:
@@ -162,10 +165,13 @@ class Controller(AsyncEndpoint):
         elif t is tuple:
             if value is tuple:
                 return value
-            elif value.__class__ is float:
-                return (int((value * 4) - 2), int((value * - 4) + 2))
+            elif type(value) is float:
+                return (int((float(value) * 4) - 2),
+                        int((float(value) * -4) + 2))
             else:
-                debug("control_mappings_verbose", "Trying to cast {}: {} as tuple", [value.__class__, value])
+                debug("control_mappings_verbose",
+                      "Trying to cast {}: {} as tuple", [
+                          type(value), value])
                 return value
 
     def read_joystick(self) -> dict:
@@ -184,7 +190,7 @@ class Controller(AsyncEndpoint):
 
         joystick = pygame.joystick.Joystick(i)
         joystick.init()
-        # Get the index of which joystick in the event that multiple are connected
+        # Get the index of which joystick if there are multiple connected
         joystick_data["number"] = i
         # Get the name from the OS for the controller/joystick
         joystick_data["name"] = joystick.get_name()
@@ -214,7 +220,7 @@ class Controller(AsyncEndpoint):
         debug("controls_reader_verbose", "exiting pygame")
         settings.USE_CONTROLLER = False
         pygame.quit()
-        debug("controls_reader", "exited pygame")
+        debug("controls_reader", "Exited pygame")
         self.set_terminate_flag()
 
 
@@ -237,3 +243,8 @@ def simulate_input() -> dict:
         sim_data[key] = random_val()
     debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
     return sim_data
+
+
+def print_controller_warning():
+    s = "Warning: disconnecting the controller will crash the topside program"
+    print(s)

@@ -11,9 +11,9 @@ from typing import Union, Tuple
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
-from utils import sleep, debug, u_exit, attempt
-from snr import Relay
-from task import SomeTasks
+from snr_utils import sleep, debug, u_exit, attempt
+from snr_lib import Relay
+from snr_task import SomeTasks
 from serial_packet import Packet, calc_chksum
 
 # encoding scheme

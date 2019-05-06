@@ -3,8 +3,8 @@ from collections import deque
 from typing import Callable
 
 import settings
-from utils import debug
-from snr import AsyncEndpoint
+from snr_utils import debug
+from snr_lib import AsyncEndpoint
 
 CMD = "vcgencmd measure_temp"
 INVALID_VALUE = -2

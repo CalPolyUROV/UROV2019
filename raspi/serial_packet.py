@@ -1,5 +1,5 @@
 
-from utils import debug
+from snr_utils import debug
 
 
 class Packet:

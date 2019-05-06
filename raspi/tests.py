@@ -4,11 +4,11 @@
 # Imports
 import serial_coms
 import settings
-from utils import debug
-from serial_packet import Packet 
+from snr_utils import debug
+from serial_packet import Packet
 from serial_coms import SerialConnection
-from snr import Task, TaskPriority, TaskType
-from snr import decode as decode_task
+from snr_lib import Task, TaskPriority, TaskType
+from snr_lib import decode as decode_task
 from controller import simulate_input
 
 settings.DEBUG_CHANNELS["test"] = False

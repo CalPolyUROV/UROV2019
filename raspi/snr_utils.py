@@ -81,9 +81,7 @@ def channel_active(channel: str) -> bool:
     """
     if channel in settings.DEBUG_CHANNELS:
         val = settings.DEBUG_CHANNELS[channel]
-        if isinstance(val, bool):
-            return val
-        return val < settings.DEBUG_LEVEL
+        return val
     return True  # default for unknown channels
 
 
@@ -109,6 +107,8 @@ def debug_delay():
 def try_key(d: dict, k: str) -> Any:
     """Access the value of a key in a dict, return None if not found
     """
+    if type(d) is not dict:
+        return None
     try:
         return d[k]
     except KeyError as _meh:
@@ -137,7 +137,8 @@ def attempt(action: Callable[[], bool],
             if settings.REQUIRE_ACTION:
                 exit("Could not do required action")
             else:
-                debug("action", "Ignoring failing action after {} tries", [tries])
+                debug("action", "Ignoring failing action after {} tries",
+                      [tries])
                 settings.USE_ACTION = False
 
         attempt(try_action, settings.ACTION_ATTEMPTS, fail_once, failure)

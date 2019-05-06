@@ -1,20 +1,18 @@
 """ SNR framework for scheduling and task management
 
-Scheduler
-Node
-Relay (aka Transport)
+Node: Task queue driven host for data and endpoints
+AsyncEndpoint: Generate and process data for Nodes
+Relay: Server data to other nodes
 """
 # System imports
 from typing import Callable, Union, List
 from collections import deque
-import _thread
+import _thread as thread
 
 # Our imports
-# import settings
-from datastore import Datastore
-import task
-from task import Task, SomeTasks, TaskSource, Handler, TaskPriority
-from utils import debug, sleep, u_exit
+from snr_datastore import Datastore
+from snr_task import Task, SomeTasks, TaskSource, Handler, TaskPriority
+from snr_utils import debug, sleep, u_exit
 
 
 class Node:
@@ -32,7 +30,8 @@ class Node:
     def loop(self):
         while not self.terminate_flag:
             self.step_task()
-            debug("schedule_verbose", "Task queue: \n{}", [self.repr_task_queue()])
+            debug("schedule_verbose", "Task queue: \n{}",
+                  [self.repr_task_queue()])
         self.terminate()
 
     def set_terminate_flag(self):
@@ -55,7 +54,7 @@ class Node:
         if t is None:
             debug("schedule", "Cannot schedule None")
             return
-        if t.__class__ is list:
+        if type(t) is list:
             # Recursively handle lists
             debug("schedule_verbose",
                   "Recursively scheduling list of {} tasks", [len(t)])
@@ -66,7 +65,8 @@ class Node:
 
         if type(t) is not Task:
             # Handle non task objects
-            debug("schedule_warning", "Cannot schedule {} object {}", [t.__class__, t])
+            debug("schedule_warning",
+                  "Cannot schedule {} object {}", [type(t), t])
             return
 
         # Handle normal tasks
@@ -97,7 +97,7 @@ class Node:
         if task_result is list:
             debug("schedule_verbose",
                   "Task execution resulted in {} new tasks",
-                  [len(task_result)])
+                  [len(list(task_result))])
         self.schedule_task(task_result)
 
     def has_tasks(self) -> bool:
@@ -162,7 +162,7 @@ class AsyncEndpoint:
 
     def loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
-        _thread.start_new_thread(self.threaded_loop, ())
+        thread.start_new_thread(self.threaded_loop, ())
 
     def threaded_loop(self):
         while not self.terminate_flag:
