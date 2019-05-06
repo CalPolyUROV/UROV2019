@@ -8,7 +8,7 @@ import serial
 from sys import platform
 from typing import Callable
 
-from utils import debug, attempt, sleep
+from snr_utils import debug, attempt, sleep
 import settings
 
 

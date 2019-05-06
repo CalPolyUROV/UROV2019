@@ -14,7 +14,7 @@ from sys import argv  # For command line arguments
 # Scheduling imports
 from robot import Robot
 from topside import Topside
-from utils import debug, u_exit, print_usage
+from snr_utils import debug, u_exit, print_usage
 
 
 def main():

@@ -1,9 +1,6 @@
 
 from enum import Enum
-from typing import NewType, Callable, List, Union
-import json
-
-from utils import debug
+from typing import Callable, List, Union
 
 
 class TaskType(Enum):
@@ -27,10 +24,13 @@ class TaskPriority(Enum):
 class Task:
     """The task class and associated code for using and passing tasks
 
-    The Task object is one that defines a action or event on the robot raspberry pi or the surface unit raspberry pi
+    The Task object is one that defines a action or event on the robot
+    raspberry pi or the surface unit raspberry pi
     """
 
-    def __init__(self, task_type: TaskType, priority: TaskPriority, val_list: list):
+    def __init__(self, task_type: TaskType,
+                 priority: TaskPriority,
+                 val_list: list):
         self.task_type = task_type
         self.priority = priority
         self.val_list = val_list
@@ -51,15 +51,8 @@ class Task:
             self.task_type, self.priority, self.val_list
         )
 
-    # def encode(self) -> bytes:
-    #     """Encoding method used in sending data over sockets
-    #     """
-    #     debug("encode", "Encoding task: {}", [self])
-    #     data = (json.dumps(self, default=encode_task)).encode()
-    #     debug("encode_verbose", "Encoded task as JSON bytes: {}", [data])
-    #     return data
 
-
-SomeTasks = NewType("SomeTasks", Union[Task, List[Task], None])
-Handler = NewType("Handler", Callable[[Task], SomeTasks])
-TaskSource = NewType("TaskSource", Callable[[], SomeTasks])
+SomeTasks = Union[Task, List[Task], None]
+Handler = Callable[[Task], SomeTasks]
+TaskSource = Callable[[], SomeTasks]
+TaskScheduler = Callable[[SomeTasks], None]

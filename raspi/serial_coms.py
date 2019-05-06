@@ -11,16 +11,15 @@ from typing import Union, Tuple
 # Our imports
 import serial_finder  # Identifies serial ports
 import settings
-from utils import sleep, debug, u_exit, attempt
-from snr import Relay
-from task import SomeTasks
-from serial_packet import Packet, parse_packet, calc_chksum
+from snr_utils import sleep, debug, u_exit, attempt
+from snr_lib import Relay
+from snr_task import SomeTasks
+from serial_packet import Packet, calc_chksum
 
 # encoding scheme
 ENCODING = 'ascii'
 
-""" List of codes for each command
-"""
+""" List of codes for each command """
 # TODO: Move command list to external file (maybe .txt or .csv),
 #       write script to generate in Arduino source and python
 #       source will not be needed on topside Pi, only on robot
@@ -41,22 +40,22 @@ EST_CON_VAL2 = 0b01011010
 class SerialConnection(Relay):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self):
-        debug("serial", "Finding serial port")
+        debug("serial_verbose", "Finding serial port")
         serial_finder.get_port_to_use(self.set_port)
         debug("serial", "Selected port {}", [self.serial_port])
 
         def fail_once():
-            debug("serial_con", "Failed to open serial port, trying again.")
+            debug("serial_warning", "Failed to open serial port, trying again.")
             # sleep(1)  # Wait a second before retrying
 
         def failure(tries: int):
             if(settings.REQUIRE_SERIAL):
-                debug("serial_con",
+                debug("serial_error",
                       "Could not open serial port after {} tries.",
                       [tries])
                 u_exit("Could not open serial port")
             else:
-                debug("serial_con",
+                debug("serial_error",
                       "Abort serial connection after {} tries. Not required.",
                       [tries])
                 settings.USE_SERIAL = False
@@ -86,7 +85,7 @@ class SerialConnection(Relay):
             # Connection should be opened by constructor
             # self.serial_connection.open()
             if self.serial_connection.is_open:
-                debug('serial_con',
+                debug('serial',
                       "Opened serial connection on {} at baud {}",
                       [self.serial_port, settings.SERIAL_BAUD])
                 sleep(settings.SERIAL_SETUP_WAIT_POST)
@@ -102,7 +101,7 @@ class SerialConnection(Relay):
     def send_receive(self, cmd_type: str, data: list) -> SomeTasks:
         t = []
         if not settings.USE_SERIAL:
-            debug("serial",
+            debug("serial_warning",
                   "Serial is not used, ignoring sending of data {}", [data])
             return None
 
@@ -125,7 +124,7 @@ class SerialConnection(Relay):
     # Send and receive a serial packet
     def send_receive_packet(self, p: Packet) -> Packet:
         if(not settings.USE_SERIAL):
-            debug("serial",
+            debug("serial_warning",
                   "Serial is not used, ignoring sending of packet {}", [p])
             raise serial.serialutil.SerialException
         # send packet
@@ -133,21 +132,21 @@ class SerialConnection(Relay):
         # Recieve a packet from the Arduino/Teensy
         p_recv = self.read_packet()
         if p_recv is None:
-            debug("serial_con", "Received an empty packet")
+            debug("serial_verbose", "Received an empty packet")
         elif p.weak_eq(p_recv):
-            debug("serial_con", "Received echo packet")
+            debug("serial_verbose", "Received echo packet")
         else:
-            debug("serial_con", "Received {}", [p_recv])  # Debugging
+            debug("serial_verbose", "Received {}", [p_recv])  # Debugging
         return p
 
     # Send a Packet over serial
 
     def write_packet(self, p):
         if not p.isValid():
-            debug("serial_con", "Ignoring sending of invalid packet {}", [p])
+            debug("serial_error", "Ignoring sending of invalid packet {}", [p])
             return
         if not self.serial_connection.is_open:
-            debug("serial_con", "Aborting send, Serial is not open: {}",
+            debug("serial_error", "Aborting send, Serial is not open: {}",
                   [self.serial_connection])
             return
         # debug("serial_con", "{}", [self.serial_connection])
@@ -160,7 +159,7 @@ class SerialConnection(Relay):
         # val2_byte = struct.pack(byte_format, p.val2)
         # zero_byte = struct.pack(byte_format, 0)
         # expected_size = struct.calcsize(byte_format) * 4
-        debug("serial_con", "Trying to send packet of expected size {}",
+        debug("serial_verbose", "Trying to send packet of expected size {}",
               [expected_size])
         sent_bytes = 0
         try:
@@ -173,26 +172,27 @@ class SerialConnection(Relay):
             # sent_bytes += self.serial_connection.write(val2_byte)
             # # sleep(0.5)
             # sent_bytes += self.serial_connection.write(zero_byte)
-            debug("serial_con", "Out-waiting: {}",
+            debug("serial_verbose", "Out-waiting: {}",
                   [self.serial_connection.out_waiting])
             # sleep(0.5)
             # self.serial_connection.flush()
             # sleep(0.5)
         except serial.serialutil.SerialException as error:
-            debug("serial_con", "Error sending packet: {}", [error.__repr__()])
+            debug("serial_error", "Error sending packet: {}",
+                  [error.__repr__()])
             return
         # debug("serial_con",
         #       "{} bytes sent: {}{}{}{}",
         #       [sent_bytes, cmd_byte, val1_byte, val2_byte, zero_byte])
 
-        debug("serial_con", "Sent {}", [p])
+        debug("serial_verbose", "Sent {}", [p])
         return
 
     # Read in a packet from serial
     # TODO: ensure that this effectively recieves data over serial
     def read_packet(self) -> Union[Packet, None]:
         if not self.serial_connection.is_open:
-            debug("serial_con", "Aborting read, Serial is not open: {}",
+            debug("serial_error", "Aborting read, Serial is not open: {}",
                   [self.serial_connection])
             return None
 
@@ -209,7 +209,8 @@ class SerialConnection(Relay):
             #     debug("serial_con", "No reponse from device")
             #     return None
             # sleep(0.5)
-        debug("serial_verbose", "Received enough bytes after {} tries", [tries])
+        debug("serial_verbose",
+              "Received enough bytes after {} tries", [tries])
         debug("serial_verbose", "Reading, {} bytes ready",
               [self.serial_connection.in_waiting])
         try:
@@ -219,18 +220,19 @@ class SerialConnection(Relay):
                   [error.__repr__()])
         debug("serial_verbose", "Read bytes from serial")
         debug("serial_verbose", "type(recv_bytes) = {}", [type(recv_bytes)])
-        _cmd = recv_bytes[0]
-        _val1 = recv_bytes[1]
-        _val2 = recv_bytes[2]
-        _chksum = recv_bytes[3]
-        debug('serial_con', "Unpacked: cmd: {}.{}, val1: {}.{}, val2: {}.{}",
-          [_cmd, _cmd.__class__, _val1, _val1.__class__, _val2, _val2.__class__])
+        cmd = recv_bytes[0]
+        val1 = recv_bytes[1]
+        val2 = recv_bytes[2]
+        chksum = recv_bytes[3]
+        s = "Unpacked: cmd: {}.{}, val1: {}.{}, val2: {}.{}"
+        debug('serial_verbose', s,
+              [cmd, cmd.__class__, val1, val1.__class__, val2, val2.__class__])
         # TODO: ensure that chksum is correct
         # p = parse_packet(_cmd, _val1, _val2, _chksum)
-        p = Packet(_cmd, _val1, _val2, _chksum)
+        p = Packet(cmd, val1, val2, chksum)
         if p.isValid():
             return p
-        debug("ser_packet", "Whoa! Read invalid packet {}", [p])
+        debug("serail_warning", "Read invalid packet {}", [p])
         return p
 
     motor_translate_dict = {"x": 0,
@@ -241,7 +243,7 @@ class SerialConnection(Relay):
                             "roll": 5}
 
     def map_thrust_value(self, speed: int) -> int:
-        return int ((speed + 100) * 1.275)
+        return int((speed + 100) * 1.275)
 
     def translate_motor(self, motor_str: str, speed: int) -> Tuple[int, int]:
         mapped_speed = self.map_thrust_value(speed)
@@ -251,7 +253,7 @@ class SerialConnection(Relay):
     def new_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets to send (chksum is created)
         """
-        debug("ser_packet",
+        debug("serial_verbose",
               "Preparing packet: cmd: {}, val1: {}, val2: {}",
               [cmd, val1, val2])
         # debug("ser_packet", "Prepared packet: cmd: {}, val1: {}, val2: {}", [
@@ -267,8 +269,8 @@ class SerialConnection(Relay):
         return Packet(cmd, val1, val2, chksum)
 
     def terminate(self):
-        debug("serial_con", "Closing serial connection")
+        debug("serial", "Closing serial connection")
         settings.USE_SERIAL = False
         # self.serial_connection.flush()
         self.serial_connection.close()
-        debug("serial_con", "Closed serial connection")
+        debug("serial", "Closed serial connection")

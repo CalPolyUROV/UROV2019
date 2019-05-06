@@ -1,5 +1,5 @@
 
-from utils import debug
+from snr_utils import debug
 
 
 class Packet:
@@ -17,7 +17,7 @@ class Packet:
 
     def isValid(self) -> bool:
         expected = calc_chksum(self.cmd, self.val1, self.val2)
-        debug('chksum', "Packet had chksum of {}, {} was expected", [
+        debug('chksum_verbose', "Packet had chksum of {}, {} was expected", [
             self.chksum, expected])
         return self.chksum == expected
 
@@ -51,18 +51,18 @@ def calc_chksum(cmd: int, val1: int, val2: int) -> int:
     # TODO: Use CRC8 here and on the MCU
 
 
-def parse_packet(cmd: bytes,
-                 val1: bytes,
-                 val2: bytes,
-                 chksum: bytes) -> Packet:
-    """Constructor for packets that have been received, untrusted checksums
-    """
-    debug("ser_packet",
-          "Parsing packet: cmd: {}.{}, val1: {}.{}, val2: {}.{}",
-          [cmd, cmd.__class__, val1, val1.__class__, val2, val2.__class__])
-    cmd_int = int.from_bytes(cmd, byteorder='big')
-    val1_int = int.from_bytes(val1, byteorder='big')
-    val2_int = int.from_bytes(val2, byteorder='big')
-    chksum_int = int.from_bytes(chksum, byteorder='big')
-    p = Packet(cmd_int, val1_int, val2_int, chksum_int)
-    return p
+# def parse_packet(cmd: bytes,
+#                  val1: bytes,
+#                  val2: bytes,
+#                  chksum: bytes) -> Packet:
+#     """Constructor for packets that have been received, untrusted checksums
+#     """
+#     debug("serial_packet",
+#           "Parsing packet: cmd: {}.{}, val1: {}.{}, val2: {}.{}",
+#           [cmd, cmd.__class__, val1, val1.__class__, val2, val2.__class__])
+#     cmd_int = int.from_bytes(cmd, byteorder='big')
+#     val1_int = int.from_bytes(val1, byteorder='big')
+#     val2_int = int.from_bytes(val2, byteorder='big')
+#     chksum_int = int.from_bytes(chksum, byteorder='big')
+#     p = Packet(cmd_int, val1_int, val2_int, chksum_int)
+#     return p

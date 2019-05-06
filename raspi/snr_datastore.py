@@ -1,4 +1,6 @@
-from utils import debug, try_key
+from typing import Union, Callable, Any
+
+from snr_utils import debug, try_key
 
 
 class Page:
@@ -26,8 +28,8 @@ class Datastore:
             return page.fresh
         return False
 
-    def get(self, key: str) -> object:
-        """Get a value from the data store without makring it as unfresh
+    def get(self, key: str):
+        """Get a value from the data store without marking it as unfresh
         """
         page = try_key(self.database, key)
 
@@ -36,7 +38,7 @@ class Datastore:
             return None
         return page.data
 
-    def use(self, key: str) -> object:
+    def use(self, key: str):
         """Get a value from the datastore and mark it as unfresh/used
         """
         try:
@@ -44,3 +46,13 @@ class Datastore:
         except KeyError:
             debug("datastore_error", "Cannot mark unfresh, key not found")
         return self.get(key)
+
+# Sets data with a given key
+DatastoreSetter = Callable[[str, Any], None]
+# Calls a DatastoreSetter with a set key
+DataSetter = Callable[[Any], None]
+
+# Gets data with a given key from data store
+DatastoreGetter = Callable[[str], Any]
+# Calls a DatastoreGetter with set key
+DataGetter = Callable[[], Any]

@@ -12,7 +12,6 @@ a specific file, it will not be updated for other files.
 # Debugging printing and logging
 # TODO: Track debugging for server and client separately
 DEBUGGING_DELAY_S = 0
-DEBUG_LEVEL = 0  # Only used for integer channel values
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
@@ -26,7 +25,7 @@ DEBUG_CHANNELS = {
 
     "datastore": True,
     "datastore_error": True,
-    "datastore_event": True,
+    "datastore_event": False,
     "datastore_verbose": False,
 
     "controller": True,
@@ -44,13 +43,17 @@ DEBUG_CHANNELS = {
     "robot_verbose": False,
 
     "robot_control": True,
+    "robot_control_warning": True,
+    "robot_control_event": False,
     "robot_control_verbose": False,
 
     "thrust_vec": True,
     "thrust_vec_verbose": False,
 
     "throttle": True,
+    "throttle_values": True,
     "throttle_verbose": False,
+    "axis_update_verbose": False,
 
     "sockets": True,
     "sockets_client": True,
@@ -76,16 +79,22 @@ DEBUG_CHANNELS = {
 
     "serial_finder": True,
     "serial": True,
+    "serial_error": True,
+    "serial_warning": True,
     "serial_verbose": False,
-    "serial_con": False,
-    "ser_packet": False,
-    "chksum": False,
+
+    "serial_packet": True,
+    "chksum_error": True,
+    "chksum_verbose": False,
 
     "sleep": True,
     "try_key": False,
 
     "test": True,
 }
+THREAD_END_WAIT_S = 2
+DISABLE_SLEEP = False
+
 
 # Command Line User Interface
 USE_TOPSIDE_CLUI = False
@@ -113,7 +122,7 @@ to drop a value use "pygame_name": [None],
 '''
 control_mappings = {
     "number": [None],
-    "name": [None],
+    "name": ["controller_name"],
     "axis_0": ["stick_left_x", int,  100],
     "axis_1": ["stick_left_y", int, -100],
     "axis_2": ["trigger_left", int, 50, 50],
@@ -137,19 +146,28 @@ control_mappings = {
     "num_axes": [None],
 }
 
+# Robot Control
+THROTTLE_DATA_NAME = "robot_throttle_data"
 
-THREAD_END_WAIT_S = 2
-DISABLE_SLEEP = False
+# Controls Sockets Connection
+USE_CONTROLS_SOCKETS = True
+REQUIRE_CONTROLS_SOCKETS = True
+CONTROLS_SERVER_IP = "10.0.10.10"
+CONTROLS_SERVER_PORT = 9120
 
+# Telemetry Sockets Connection
+USE_TELEMETRY_SOCKETS = False
+REQUIRE_TELEMETRY_SOCKETS = False
+TELEMETRY_SERVER_IP = "10.0.10.11"
+TELEMETRY_SERVER_PORT = 9121
+TELEMETRY_DATA_NAME = "telemetry_data"
 
 # Sockets Connection
-USE_SOCKETS = True
-REQUIRE_SOCKETS = True
-CONTROLS_SERVER_IP = '10.0.10.10'
-CONTROLS_SERVER_PORT = 9120
 SOCKETS_SERVER_TIMEOUT = 640
 SOCKETS_CLIENT_TIMEOUT = 4
 SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
+SOCKETS_MAX_CONNECTIONS = 2  # Maximun concurrent connections
+# Should only ever be 1, after 2 thigns have gone very wrong
 # Maximum number of times to try creating or opening a socket
 SOCKETS_CONNECT_ATTEMPTS = 120
 SOCKETS_RETRY_WAIT = 1  # seconds to wait before retrying sockets connection
@@ -161,7 +179,7 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 '''
 
 # Serial Connection
-USE_SERIAL = True
+USE_SERIAL = False
 REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
@@ -179,9 +197,8 @@ INT_TEMP_MON_TICK_RATE = 0.25  # Hz (Readings per second)
 INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
-ROBOT_NAME = "Subrina"
-# ROBOT_NAME = "S5"
+ROBOT_NAME = "S5"
 
 # ---Do NOT change anything below this line (To be modified at runtime only)---
 
-ROLE = "not set"  # Not a user facing setting
+# ROLE = "not set"  # Not a user facing setting

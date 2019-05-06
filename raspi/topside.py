@@ -1,35 +1,49 @@
 
 # Our imports
 import settings
-from controller import Controller
-from snr import Node
-from task import Task, TaskPriority, TaskType, SomeTasks
-from sockets_server import SocketsServer
-from utils import debug, sleep
 from internal_temp import IntTempMon
+from snr_controller import Controller
+from snr_lib import Node
+from snr_sockets import SocketsConfig
+from snr_sockets_server import SocketsServer
+from sockets_client import SocketsClient
+from snr_task import SomeTasks, Task, TaskPriority, TaskType
+from snr_utils import debug, sleep
 from topside_clui import TopsideClui
 
 
 class Topside(Node):
     """Node for surface unit
 
-    Implements an Node to use Sockets and a PyGame joystick to sent control 
-    data to robot and show telemetry data from robot
+    Implements an Node to use Sockets and a PyGame joystick to send
+    control data to robot and show telemetry data from robot
     """
 
     def __init__(self, mode: str):
         super().__init__(self.handle_task, self.get_new_tasks)
 
-        controls_server_ip = settings.CONTROLS_SERVER_IP
-        if mode.__eq__("debug"):
-            controls_server_ip = "localhost"
-
         # TODO: Remotely start robot program from topside
 
         # Start sockets server endpoint
-        server_tuple = (controls_server_ip, settings.CONTROLS_SERVER_PORT)
-        self.sockets_server = SocketsServer(server_tuple,
-                                            self.serve_controller_data)
+        if settings.USE_CONTROLS_SOCKETS:
+            if mode.__eq__("debug"):
+                settings.CONTROLS_SERVER_IP = "localhost"
+            server_tuple = (settings.CONTROLS_SERVER_IP,
+                            settings.CONTROLS_SERVER_PORT)
+            server_config = SocketsConfig(server_tuple,
+                                          settings.REQUIRE_CONTROLS_SOCKETS)
+            self.controls_sockets_server = SocketsServer(server_config,
+                                                         self.serve_controller_data)
+
+        if settings.USE_TELEMETRY_SOCKETS:
+            if mode.__eq__("debug"):
+                settings.TELEMETRY_SERVER_IP = "localhost"
+            server_tuple = (settings.TELEMETRY_SERVER_IP,
+                            settings.TELEMETRY_SERVER_PORT)
+            client_config = SocketsConfig(server_tuple,
+                                          settings.REQUIRE_TELEMETRY_SOCKETS)
+            self.telemetry_sockets_client = SocketsClient(client_config,
+                                                          self.store_telemetry_data)
 
         # Start XBox controller endpoint
         self.xbox_controller = Controller(settings.CONTROLLER_NAME,
@@ -73,8 +87,11 @@ class Topside(Node):
         if settings.USE_CONTROLLER:
             self.xbox_controller.terminate()
 
-        if settings.USE_SOCKETS:
-            self.sockets_server.terminate()
+        if settings.USE_CONTROLS_SOCKETS:
+            self.controls_sockets_server.terminate()
+
+        if settings.USE_TELEMETRY_SOCKETS:
+            self.telemetry_sockets_client.terminate()
 
         if settings.USE_TOPSIDE_PI_TEMP_MON:
             self.int_temp_mon.terminate()
@@ -90,8 +107,14 @@ class Topside(Node):
     def store_controller_data(self, controller_data: dict):
         self.store_data(settings.CONTROLLER_NAME, controller_data)
 
-    def serve_controller_data(self) -> dict:
-        return self.get_data(settings.CONTROLLER_NAME)
+    def serve_controller_data(self):
+        controls = self.get_data(settings.CONTROLLER_NAME)
+        if controls is None:
+            return {}
+        return controls
 
-    def fetch_ui_data(self) -> dict:
-        return self.get_data(settings.UI_DATA_KEY)
+    def store_telemetry_data(self, telemetry_data: dict):
+        self.store_data(settings.TELEMETRY_DATA_NAME)
+
+    def fetch_ui_data(self, key: str):
+        return self.get_data(key)

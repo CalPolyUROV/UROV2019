@@ -7,8 +7,8 @@ from curses import wrapper
 
 # Our imports
 import settings
-from snr import AsyncEndpoint
-from utils import debug
+from snr_lib import AsyncEndpoint
+from snr_utils import debug
 
 
 class TopsideCluiCurses(AsyncEndpoint):
