@@ -9,14 +9,13 @@ Arduino/Teensy and topside raspberry Pi respectively.
 
 import settings  # Configuration file
 from internal_temp import IntTempMon
-from robot_data import Database  # Stores data and preforms calculations
+from robot_controls import ControlsProcessor
 from serial_coms import SerialConnection  # Serial connection to Teensy
-from snr import Node
+from snr_lib import Node
+from snr_task import SomeTasks, Task, TaskPriority, TaskType
+from snr_utils import debug, debug_delay  # Miscelaneous utilities
+from snr_sockets_server import SocketsConfig, SocketsServer
 from sockets_client import SocketsClient  # Sockets connection to topside
-from task import Task, SomeTasks, TaskType, TaskPriority
-from utils import debug, debug_delay  # Miscelaneous utilities
-
-import task
 
 
 class Robot(Node):
@@ -25,26 +24,38 @@ class Robot(Node):
         super().__init__(self.handle_task, self.get_new_tasks)
         self.mode = mode
 
-        self.database = Database()  # Handles all the robot's data
+        self.controls_processor = ControlsProcessor(self.store_throttle_data)
 
         # Create the serial_est_con connection object with the specified port
         if settings.USE_SERIAL:
             debug("serial", "Using serial as enabled in settings")
             self.serial_connection = SerialConnection()
 
-        if settings.USE_SOCKETS:
+        if settings.USE_CONTROLS_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
-
-            controls_server_ip = settings.CONTROLS_SERVER_IP
 
             if self.mode.__eq__("debug"):
                 debug("robot", "Running in debug mode: server IP is localhost")
-                controls_server_ip = "localhost"
-
+                settings.CONTROLS_SERVER_IP = "localhost"
+            server_tuple = (settings.CONTROLS_SERVER_IP,
+                            settings.CONTROLS_SERVER_PORT)
+            client_config = SocketsConfig(server_tuple,
+                                          settings.REQUIRE_CONTROLS_SOCKETS)
             # Make sockets client object using our implementation
-            self.socket_connection = \
-                SocketsClient(self.schedule_task,
-                              (controls_server_ip, settings.CONTROLS_SERVER_PORT))
+            self.socket_connection = SocketsClient(client_config, 
+            self.schedule_task)
+
+        if settings.USE_TELEMETRY_SOCKETS:
+            # Start sockets server endpoint
+            if mode.__eq__("debug"):
+                settings.CONTROLS_SERVER_IP = "localhost"
+            server_tuple = (settings.TELEMETRY_SERVER_IP,
+                            settings.TELEMETRY_SERVER_PORT)
+            server_config = SocketsConfig(server_tuple,
+                                          settings.REQUIRE_TELEMETRY_SOCKETS)
+            self.telemetry_server = SocketsServer(server_config,
+                                                  self.serve_throttle_data)
+
         if settings.USE_ROBOT_PI_TEMP_MON:
             self.temp_mon = IntTempMon(settings.ROBOT_INT_TEMP_NAME,
                                        self.store_int_temp_data)
@@ -63,9 +74,11 @@ class Robot(Node):
 
         # Process controls input
         elif t.task_type == TaskType.cntl_input:
-            debug("robot_control", "Processing control input")
+            debug("robot_control_event", "Processing control input")
             debug("robot_control_verbose", "Control input {}", [t.val_list])
-            sched_list = self.database.receive_controls(t.val_list[0])
+            controls_data = t.val_list[0]
+            new_task = self.controls_processor.receive_controls(controls_data)
+            sched_list.append(new_task)
 
         # Read sensor data
         elif t.task_type == TaskType.get_telemetry:
@@ -74,14 +87,19 @@ class Robot(Node):
 
         # Send serial data
         elif t.task_type == TaskType.serial_com:
-            debug("serial_verbose", "Executing serial com task: {}", [t.val_list])
-            t = self.serial_connection.send_receive(
-                t.val_list[0], t.val_list[1::])
-            if t is None:
-                debug("robot    ", "Received no data in response from serial message")
-            else:
-                for new_task in t:
-                    sched_list.append(new_task)
+            debug("serial_verbose",
+                  "Executing serial com task: {}", [t.val_list])
+            if settings.USE_SERIAL:
+                result = self.serial_connection.send_receive(t.val_list[0],
+                                                             t.val_list[1::])
+                if result is None:
+                    debug("robot",
+                          "Received no data in response from serial message")
+                elif type(result) == Task:
+                    sched_list.append(result)
+                elif type(result) == list:
+                    for new_task in list(result):
+                        sched_list.append(new_task)
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
@@ -110,13 +128,12 @@ class Robot(Node):
         """
         sched_list = []
 
-        if settings.USE_SOCKETS:
-            # t = Task(TaskType.get_cntl, TaskPriority.low, [])
-
-            t = self.socket_connection.request_data()
-            debug("robot_verbose", "Got task {} from sockets connection", [t])
+        if settings.USE_CONTROLS_SOCKETS:
+            controller_data = self.socket_connection.request_data()
+            t = Task(TaskType.cntl_input, TaskPriority.high, [controller_data])
+            debug("robot_verbose",
+                  "Got task {} from controls sockets connection", [t])
             sched_list.append(t)
-
         else:
             debug("robot", "Sockets disabled, queuing blink task")
             t = Task(TaskType.blink_test, TaskPriority.high, [1, 1])
@@ -124,20 +141,29 @@ class Robot(Node):
 
         if settings.USE_SERIAL:
             t = Task(TaskType.get_telemetry, TaskPriority.normal, [])
-            # sched_list.append(t)
+            sched_list.append(t)
 
         return sched_list
 
     def terminate(self) -> None:
         """Close the sockets connection
         """
-        if settings.USE_SOCKETS:
+        if settings.USE_CONTROLS_SOCKETS:
             self.socket_connection.terminate()
+
+        if settings.USE_TELEMETRY_SOCKETS:
+            self.telemetry_server.terminate()
 
         if settings.USE_SERIAL:
             self.serial_connection.terminate()
 
         self.set_terminate_flag()
+
+    def store_throttle_data(self, throttle_data: dict):
+        self.store_data(settings.THROTTLE_DATA_NAME, throttle_data)
+
+    def serve_throttle_data(self):
+        self.get_data(settings.THROTTLE_DATA_NAME)
 
     def store_int_temp_data(self, int_temp: float):
         self.store_data(settings.ROBOT_INT_TEMP_NAME, int_temp)

@@ -4,13 +4,15 @@
 # System imports
 import socket  # Sockets library
 import json
+from json import JSONDecodeError
 from typing import Tuple, Callable, Union
 
 # Our imports
 import settings
-from snr import Relay  # , Handler
-from task import Task, SomeTasks, TaskPriority, TaskType
-from utils import debug, sleep, attempt, u_exit
+from snr_lib import Relay
+from snr_task import Task, SomeTasks, TaskPriority, TaskType, TaskScheduler
+from snr_utils import debug, sleep, attempt, u_exit
+from snr_sockets import SocketsConfig
 
 
 class SocketsClient(Relay):
@@ -18,10 +20,10 @@ class SocketsClient(Relay):
     """
 
     def __init__(self,
-                 task_scheduler: Callable[[SomeTasks], None],
-                 server_tuple: Tuple[str, int]):
+                 config: SocketsConfig,
+                 task_scheduler: TaskScheduler):
         super().__init__(self.request_data)
-        self.server_tuple = server_tuple
+        self.config = config
         self.task_scheduler = task_scheduler
         # self.s = None
         debug("sockets_status", "Sockets client created")
@@ -36,14 +38,18 @@ class SocketsClient(Relay):
 
         if data_bytes is None:
             return None
+
         data_str = data_bytes.decode()
-        debug("decode_verbose", "Decoded bytes as {}: {}",
-              [data_str.__class__, data_str])
-        data_dict = json.loads(data_str)
-        debug("decode_verbose", "Decoded control input: {}", [data_dict])
-        data_task = self.data_as_task(data_dict)
-        debug("sockets_receive_verbose", "Got new task: {}", [data_task])
-        return data_task
+        try:
+            debug("decode_verbose",
+                  "Decoded bytes as {}: {}",
+                  [data_str.__class__, data_str])
+            data_dict = json.loads(data_str)
+            debug("decode_verbose", "Decoded control input: {}", [data_dict])
+            return data_dict
+        except JSONDecodeError as error:
+            debug("JSON_Error", "{}", [error])
+            return None
 
     def receive_data(self) -> Union[bytes, None]:
         debug("sockets_verbose",
@@ -60,20 +66,18 @@ class SocketsClient(Relay):
             # TODO: Correctly terminate this function here
             return None
 
-    def data_as_task(self, controller_data: dict) -> Task:
-        return Task(TaskType.cntl_input, TaskPriority.high, [controller_data])
-
     def create_connection(self) -> None:
         """Create socket and connect to server in one function
         """
-        if not settings.USE_SOCKETS:
-            debug("sockets")
-            return
+        # if not settings.USE_SOCKETS:
+        #     debug("sockets")
+        #     return
 
         def try_create_connection() -> bool:
             try:
                 self.s = socket.create_connection(
-                    self.server_tuple, settings.SOCKETS_CLIENT_TIMEOUT)
+                    self.config.server_tuple,
+                    settings.SOCKETS_CLIENT_TIMEOUT)
                 # Reuse port prior to slow kernel release
                 self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 return True
@@ -85,28 +89,30 @@ class SocketsClient(Relay):
         def fail_once() -> None:
             debug("sockets_warning",
                   "Failed to connect to server at {}:{}, trying again.",
-                  [self.server_tuple[0], str(self.server_tuple[1])])
+                  [self.config.server_tuple[0],
+                   str(self.config.server_tuple[1])])
             # Wait a second before retrying
             sleep(settings.SOCKETS_RETRY_WAIT)
 
         def failure(tries: int) -> None:
-            if(settings.REQUIRE_SOCKETS):
+            if(self.config.required):
                 debug("sockets_critical",
                       "Could not connect to server at {}:{} after {} tries.",
-                      [self.server_tuple[0], str(self.server_tuple[1]), tries])
+                      [self.config.server_tuple[0],
+                       str(self.config.server_tuple[1]), tries])
                 u_exit("Start required sockets connection")
             else:
                 debug("ssockets_error",
                       "Abort sockets connection after {} tries. Not required.",
                       [tries])
-                settings.USE_SOCKETS = False
+                # settings.USE_SOCKETS = False
                 return
 
         attempt(try_create_connection,
                 settings.SOCKETS_CONNECT_ATTEMPTS, fail_once, failure)
         self.socket_connected = True
         debug("sockets_event", 'Socket Connected to {}:{}',
-              [self.server_tuple[0], str(self.server_tuple[1])])
+              [self.config.server_tuple[0], str(self.config.server_tuple[1])])
 
     def close_socket(self):
         if self.s is None:
@@ -124,4 +130,5 @@ class SocketsClient(Relay):
 
     def terminate(self):
         # self.close_socket()
-        settings.USE_SOCKETS = False
+        # settings.USE_SOCKETS = False
+        pass
