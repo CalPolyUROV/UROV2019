@@ -4,7 +4,6 @@ TODO: Add more documentation here
 
 # System imports
 import serial  # PySerial library
-#from serial import SerialException
 import struct
 from typing import Union, Tuple
 
@@ -23,18 +22,19 @@ ENCODING = 'ascii'
 # TODO: Move command list to external file (maybe .txt or .csv),
 #       write script to generate in Arduino source and python
 #       source will not be needed on topside Pi, only on robot
-EST_CON_CMD = 0x10  # cmd of initial packet
-EST_CON_ACK = 0x11  # cmd for response to initial packet
-SET_MOT_CMD = 0x20  # set motor (call)
-SET_MOT_ACK = 0x21  # motor has been set (reponse)
-RD_SENS_CMD = 0x40  # request read sensor value
+EST_CON_CMD = 0x10      # cmd of initial packet
+# EST_CON_ACK = 0x11    # cmd for response to initial packet
+SET_MOT_CMD = 0x20      # set motor (call)
+# SET_MOT_ACK = 0x21    # motor has been set (reponse)
+SET_CAM_CMD = 0x33      # set camera feed
+RD_SENS_CMD = 0x40      # request read sensor value
 BLINK_CMD = 0x80
-BLINK_ACK = 0x81
-INV_CMD_ACK = 0xFF  # Invalid command, value2 of response contains cmd
+# BLINK_ACK = 0x81
+INV_CMD_ACK = 0xFF      # Invalid command, value2 of response contains cmd
 
-# Magic numbers to verify correct initial packet and response
-EST_CON_VAL1 = 0b10100101
-EST_CON_VAL2 = 0b01011010
+# # Magic numbers to verify correct initial packet and response
+# EST_CON_VAL1 = 0b10100101
+# EST_CON_VAL2 = 0b01011010
 
 
 class SerialConnection(Relay):
@@ -45,7 +45,8 @@ class SerialConnection(Relay):
         debug("serial", "Selected port {}", [self.serial_port])
 
         def fail_once():
-            debug("serial_warning", "Failed to open serial port, trying again.")
+            debug("serial_warning",
+                  "Failed to open serial port, trying again.")
             # sleep(1)  # Wait a second before retrying
 
         def failure(tries: int):

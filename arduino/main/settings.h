@@ -28,8 +28,7 @@
 #define NUM_MOTORS (6)
 
 //--Pinouts:---------------------------------
-// Thrusters
-// Mega Pins:
+// Thrusters:
 #define MOTOR_1_PIN (8)
 #define MOTOR_2_PIN (9)
 #define MOTOR_3_PIN (10)
@@ -37,13 +36,10 @@
 #define MOTOR_5_PIN (12)
 #define MOTOR_6_PIN (13)
 
-//Teensy Pins:
-//#define MOTOR_1_PIN (3)
-//#define MOTOR_2_PIN (4)
-//#define MOTOR_3_PIN (5)
-//#define MOTOR_4_PIN (6)
-//#define MOTOR_5_PIN (22)
-//#define MOTOR_6_PIN (23)
+#define CAMERA_MUX_PIN_1 (14)
+#define CAMERA_MUX_PIN_2 (15)
+#define CAMERA_MUX_PIN_3 (16)
+
 
 // Motor directions
 // For switching motor direction based on 3-phase wiring to match thruster orientation

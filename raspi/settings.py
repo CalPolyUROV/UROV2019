@@ -148,6 +148,7 @@ control_mappings = {
 
 # Robot Control
 THROTTLE_DATA_NAME = "robot_throttle_data"
+NUM_ANALOG_CAMERAS = 8
 
 # Controls Sockets Connection
 USE_CONTROLS_SOCKETS = True

@@ -8,7 +8,6 @@ class TaskType(Enum):
     get_cntl = "get_cntl"
     cntl_input = "cntl_input"
     get_telemetry = "get_telemetry"
-    serial_est_con = "serial_est_con"
     serial_com = "serial_com"
     blink_test = "blink_test"
     update_ui = "update_ui"

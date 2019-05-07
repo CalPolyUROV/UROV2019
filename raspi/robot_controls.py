@@ -1,7 +1,9 @@
-from typing import List
+from typing import Any, List
 
-from snr_task import Task, TaskPriority, TaskType, SomeTasks
+import settings
+from robot_cameras import RobotCameras
 from snr_datastore import DatastoreSetter
+from snr_task import SomeTasks, Task, TaskPriority, TaskType
 from snr_utils import debug, try_key
 
 # TODO: Split this class into robot_processing and datastore.py
@@ -29,20 +31,25 @@ class ControlsProcessor:
         """Create data structures to hold implented data
         """
         self.db_store_throttle = db_store_throttle
+        self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
         # Input data
         self.control_input = {}
         self.previous_cntl_input = {}
 
         # Internal data
         self.axis_list = ['x', 'y', 'z', "yaw", "roll"]
-        self.previous_throttle = self.init_throttle_dict(self.axis_list)
-        self.throttle = self.init_throttle_dict(self.axis_list)
+        self.previous_throttle = self.init_dict(self.axis_list, 0)
+        self.throttle = self.init_dict(self.axis_list, 0)
+
+        self.buttons_list = ['a']
+        self.buttons = self.init_dict(self.buttons_list, False)
+        self.previous_buttons = self.init_dict(self.buttons_list, False)
         # Pitch cannot be acheive with current motor configuration
 
-    def init_throttle_dict(self, axis: List[str]) -> dict:
+    def init_dict(self, keys: List[str], val: Any) -> dict:
         d = {}
-        for a in axis:
-            d[a] = 0
+        for k in keys:
+            d[k] = val
         return d
 
     def receive_controls(self, incoming_controls: dict) -> SomeTasks:
@@ -80,11 +87,12 @@ class ControlsProcessor:
 
         # Batch thrust controls into a tasks afterwards
         throttle_tasks = self.get_throttle_tasks()
-
+        camera_tasks = self.cameras.get_task()
         # debug("thrust_vec", "Got {} throttle tasks", [len(throttle_tasks)])
-        debug("thrust_vec_verbose", "Throttle tasks: {}", [throttle_tasks])
-        for t in list(throttle_tasks):
-            task_list.append(t)
+        debug("thrust_vec_verbose", "Throttle tasks: {}",
+              [throttle_tasks, camera_tasks])
+        task_list.append(throttle_tasks)
+        task_list.append(camera_tasks)
         debug("robot_control_event", "Created {} tasks from controls",
               [len(task_list)])
         return task_list
@@ -99,12 +107,12 @@ class ControlsProcessor:
         # TODO: Create task for different control inputs
         new_task = None
         if "stick" in key or "trigger" in key:
-            self.store_throttle(key, value)
+            self.process_throttle(key, value)
         elif "button" in key:
             self.process_button(key, value)
         return new_task
 
-    def store_throttle(self, key: str, val):
+    def process_throttle(self, key: str, val):
         """Process the value of a single throttle control value
         This method is were the translation from a specific input on the
         XBox controller is translated to a direction in which to drive
@@ -163,19 +171,6 @@ class ControlsProcessor:
                          ["set_motor", axis, self.throttle[axis]])
                 self.previous_throttle[axis] = self.throttle[axis]
                 task_list.append(t)
-        # t_x = Task(TaskType.serial_com, TaskPriority.high,
-        #            ["set_motor", 'x', self.throttle['x']])
-        # t_y = Task(TaskType.serial_com, TaskPriority.high,
-        #            ["set_motor", 'y', self.throttle['y']])
-        # t_z = Task(TaskType.serial_com, TaskPriority.high,
-        #            ["set_motor", 'z', self.throttle['z']])
-        # t_yaw = Task(TaskType.serial_com, TaskPriority.high,
-        #              ["set_motor", 'yaw', self.throttle["yaw"]])
-        # t_roll = Task(TaskType.serial_com, TaskPriority.high,
-        #               ["set_motor", 'roll', self.throttle["roll"]])
-        # task_list = [t_x, t_y, t_z, t_yaw, t_roll]
-        # debug("throttle", "Got {} tasks", [len(task_list)])
-        # debug("throttle_verbose", "Tasks: {}", [task_list])
         return task_list
 
     def throttle_value_list(self) -> list:
@@ -183,8 +178,11 @@ class ControlsProcessor:
                 self.throttle['yaw'], self.throttle['roll']]
 
     def process_button(self, key: str, val):
-        # TODO: Process button presses
-        pass
+        if "button_a" in key:
+            self.previous_buttons['a'] = self.buttons['a']
+            self.buttons['a'] = val
+            if self.previous_buttons['a'] and not val:
+                self.cameras.next_state()
 
     def axis_changed(self, axis: str) -> bool:
         if self.throttle[axis] == self.previous_throttle[axis]:
@@ -195,18 +193,3 @@ class ControlsProcessor:
             debug("axis_update_verbose", "{} axis updated from {} to {}",
                   [axis, self.previous_throttle[axis], self.throttle[axis]])
             return True
-
-# class GyroAccelData:
-#     def __init__(self, _x: int, _y: int, _z: int,
-#                  _roll: int, _pitch: int, _yaw: int):
-#         self.x = _x
-#         self.y = _y
-#         self.z = _z
-#         self.roll = _roll
-#         self.pitch = _pitch
-#         self.yaw = _yaw
-
-#     def __repr__(self):
-#         return "{}, {}, {}, {}, {}, {}".format(self.x, self.y,
-#                                                self.z, self.roll,
-#                                                self.pitch, self.yaw)

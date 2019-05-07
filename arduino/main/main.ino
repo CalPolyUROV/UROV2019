@@ -7,6 +7,7 @@
 #include "packet.h"
 #include "blink.h"
 #include "motors.h"
+#include "cameras.h"
 
 // Sequence number keeps track of packet order
 // Do not directly access or modify the global sequence number
@@ -69,6 +70,9 @@ int handle_packet(packet p) {
       break;
     case BLINK_CMD:
       blink_std();
+      break;
+    case SET_CAM_CMD:
+      set_camera(p.value1);
       break;
     default:
       break;

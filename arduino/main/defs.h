@@ -12,4 +12,8 @@
 //#define SERIAL_CLASS Serial
 typedef unsigned char u8;
 
+#define BIT0 0x01
+#define BIT1 0x02
+#define BIT2 0x04
+
 #endif
