@@ -30,7 +30,8 @@ void setup() {
   //  seqnum = FIRST_SEQNUM;
   //establishContact();  // send a byte to establish contact until receiver responds
   led_on();
-  motorSetup();
+  motor_setup();
+  camera_setup();
   led_off();
 }
 

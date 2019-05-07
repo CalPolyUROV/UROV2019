@@ -4,7 +4,7 @@
 #include "defs.h"
 #include "settings.h"
 
-void cameras_init(){
+void camera_setup(){
   pinMode(CAMERA_MUX_PIN_1, OUTPUT);
   pinMode(CAMERA_MUX_PIN_2, OUTPUT);
   pinMode(CAMERA_MUX_PIN_3, OUTPUT);

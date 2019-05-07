@@ -208,7 +208,7 @@ void update_all_motors_speeds() {
   update_motor_speed(MOTOR_6);
 }
 
-void motorSetup() {
+void motor_setup() {
   // attach motors to pins
   motors[0].attach(MOTOR_1_PIN);//, ESC_MIN_US, ESC_MAX_US);
   motors[1].attach(MOTOR_2_PIN);//, ESC_MIN_US, ESC_MAX_US);
