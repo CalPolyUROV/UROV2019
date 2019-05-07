@@ -76,7 +76,7 @@ class SocketsClient(Relay):
         def try_create_connection() -> bool:
             try:
                 self.s = socket.create_connection(
-                    self.config.server_tuple,
+                    self.config.tuple(),
                     settings.SOCKETS_CLIENT_TIMEOUT)
                 # Reuse port prior to slow kernel release
                 self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -89,8 +89,8 @@ class SocketsClient(Relay):
         def fail_once() -> None:
             debug("sockets_warning",
                   "Failed to connect to server at {}:{}, trying again.",
-                  [self.config.server_tuple[0],
-                   str(self.config.server_tuple[1])])
+                  [self.config.ip,
+                   str(self.config.port)])
             # Wait a second before retrying
             sleep(settings.SOCKETS_RETRY_WAIT)
 
@@ -98,8 +98,7 @@ class SocketsClient(Relay):
             if(self.config.required):
                 debug("sockets_critical",
                       "Could not connect to server at {}:{} after {} tries.",
-                      [self.config.server_tuple[0],
-                       str(self.config.server_tuple[1]), tries])
+                      [self.config.ip, str(self.config.port), tries])
                 u_exit("Start required sockets connection")
             else:
                 debug("ssockets_error",
@@ -112,7 +111,7 @@ class SocketsClient(Relay):
                 settings.SOCKETS_CONNECT_ATTEMPTS, fail_once, failure)
         self.socket_connected = True
         debug("sockets_event", 'Socket Connected to {}:{}',
-              [self.config.server_tuple[0], str(self.config.server_tuple[1])])
+              [self.config.ip, str(self.config.port)])
 
     def close_socket(self):
         if self.s is None:

@@ -6,6 +6,8 @@ other copies. In other words, if a setting here is changed from inside
 a specific file, it will not be updated for other files.
 """
 
+from snr_sockets import SocketsConfig
+
 # TODO: Investigate converting settings values to an object
 # (Maybe keeping a per Node settings object)
 
@@ -104,8 +106,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = True
-REQUIRE_CONTROLLER = False
+SIMULATE_INPUT = False
+REQUIRE_CONTROLLER = True
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -150,20 +152,9 @@ control_mappings = {
 THROTTLE_DATA_NAME = "robot_throttle_data"
 NUM_ANALOG_CAMERAS = 8
 
-# Controls Sockets Connection
-USE_CONTROLS_SOCKETS = True
-REQUIRE_CONTROLS_SOCKETS = True
-CONTROLS_SERVER_IP = "10.0.10.10"
-CONTROLS_SERVER_PORT = 9120
-
-# Telemetry Sockets Connection
-USE_TELEMETRY_SOCKETS = False
-REQUIRE_TELEMETRY_SOCKETS = False
-TELEMETRY_SERVER_IP = "10.0.10.11"
-TELEMETRY_SERVER_PORT = 9121
-TELEMETRY_DATA_NAME = "telemetry_data"
-
 # Sockets Connection
+TOPSIDE_IP = "10.0.10.10"
+ROBOT_IP = "10.0.10.11"
 SOCKETS_SERVER_TIMEOUT = 640
 SOCKETS_CLIENT_TIMEOUT = 4
 SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
@@ -178,6 +169,26 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
     This timeout should be very long to allow the server to open its socket
     before the client gives up on connecting to it.
 '''
+
+# Controls Sockets Connection
+USE_CONTROLS_SOCKETS = True
+REQUIRE_CONTROLS_SOCKETS = True
+controls_server_ip = TOPSIDE_IP
+controls_server_port = 9120
+CONTROLS_SOCKETS_CONFIG = SocketsConfig(controls_server_ip,
+                                        controls_server_port,
+                                        REQUIRE_CONTROLS_SOCKETS)
+
+# Telemetry Sockets Connection
+USE_TELEMETRY_SOCKETS = False
+REQUIRE_TELEMETRY_SOCKETS = False
+telemetry_server_ip = ROBOT_IP
+telemetry_server_port = 9121
+TELEMETRY_SOCKETS_CONFIG = SocketsConfig(telemetry_server_ip,
+                                         telemetry_server_port,
+                                         REQUIRE_TELEMETRY_SOCKETS)
+TELEMETRY_DATA_NAME = "telemetry_data"
+
 
 # Serial Connection
 USE_SERIAL = False
@@ -199,7 +210,3 @@ INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
 ROBOT_NAME = "S5"
-
-# ---Do NOT change anything below this line (To be modified at runtime only)---
-
-# ROLE = "not set"  # Not a user facing setting

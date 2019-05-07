@@ -36,24 +36,18 @@ class Robot(Node):
 
             if self.mode.__eq__("debug"):
                 debug("robot", "Running in debug mode: server IP is localhost")
-                settings.CONTROLS_SERVER_IP = "localhost"
-            server_tuple = (settings.CONTROLS_SERVER_IP,
-                            settings.CONTROLS_SERVER_PORT)
-            client_config = SocketsConfig(server_tuple,
-                                          settings.REQUIRE_CONTROLS_SOCKETS)
+                settings.CONTROLS_SOCKETS_CONFIG.ip = "localhost"
             # Make sockets client object using our implementation
-            self.socket_connection = SocketsClient(client_config, 
-            self.schedule_task)
+            self.socket_connection = SocketsClient(settings.
+                                                   CONTROLS_SOCKETS_CONFIG,
+                                                   self.schedule_task)
 
         if settings.USE_TELEMETRY_SOCKETS:
             # Start sockets server endpoint
             if mode.__eq__("debug"):
-                settings.CONTROLS_SERVER_IP = "localhost"
-            server_tuple = (settings.TELEMETRY_SERVER_IP,
-                            settings.TELEMETRY_SERVER_PORT)
-            server_config = SocketsConfig(server_tuple,
-                                          settings.REQUIRE_TELEMETRY_SOCKETS)
-            self.telemetry_server = SocketsServer(server_config,
+                settings.TELEMETRY_SOCKETS_CONFIG.ip = "localhost"
+            self.telemetry_server = SocketsServer(settings.
+                                                  TELEMETRY_SOCKETS_CONFIG,
                                                   self.serve_throttle_data)
 
         if settings.USE_ROBOT_PI_TEMP_MON:

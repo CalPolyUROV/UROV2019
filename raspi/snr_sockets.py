@@ -1,15 +1,15 @@
 """ Sockets server for use in topside UI
 """
-# System imports
 from typing import Tuple
-
-
-ServerTuple = Tuple[str, int]
 
 
 class SocketsConfig:
     def __init__(self,
-                 server_tuple: ServerTuple,
+                 ip: str, port: int,
                  required: bool):
-        self.server_tuple = server_tuple
+        self.ip = ip
+        self.port = port
         self.required = required
+
+    def tuple(self) -> Tuple[str, int]:
+        return self.ip, self.port

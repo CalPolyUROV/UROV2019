@@ -56,25 +56,25 @@ class SocketsServer(AsyncEndpoint):
         # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
         debug("sockets_status", "Socket created")
         try:
-            self.s.bind(self.config.server_tuple)
+            self.s.bind(self.config.tuple())
             debug("sockets_event", "Socket bound to {}",
-                  [self.config.server_tuple])
+                  [self.config.tuple()])
         except socket.error as socket_error:
             debug("sockets_critical", "Bind failed: {}", [socket_error])
             self.s.close()
             sleep(settings.SOCKETS_RETRY_WAIT)
         try:
             self.s.listen(settings.SOCKETS_MAX_CONNECTIONS)
-            debug("sockets_status", "Server now listening")
+            debug("sockets_event", "Server now listening")
         except Exception as error:
             debug("sockets_error", "Error listening: {}", [error.__repr__()])
             self.s.close()
 
     def accept_connection(self):
         """Block until a client connects
-        Once a clinet connects, the conn instance variable will be set so 
-        send_data() can send data to it specifically. Note that only a single 
-        instance variable conn can exist at once so the old connection is 
+        Once a clinet connects, the conn instance variable will be set so
+        send_data() can send data to it specifically. Note that only a single
+        instance variable conn can exist at once so the old connection is
         overwritten on a new connection. The reason that this does not cause
         issues is that the client closes the old connection before connecting
         again.

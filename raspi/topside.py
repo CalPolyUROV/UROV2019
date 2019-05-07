@@ -27,23 +27,17 @@ class Topside(Node):
         # Start sockets server endpoint
         if settings.USE_CONTROLS_SOCKETS:
             if mode.__eq__("debug"):
-                settings.CONTROLS_SERVER_IP = "localhost"
-            server_tuple = (settings.CONTROLS_SERVER_IP,
-                            settings.CONTROLS_SERVER_PORT)
-            server_config = SocketsConfig(server_tuple,
-                                          settings.REQUIRE_CONTROLS_SOCKETS)
-            self.controls_sockets_server = SocketsServer(server_config,
-                                                         self.serve_controller_data)
+                settings.CONTROLS_SOCKETS_CONFIG.ip = "localhost"
+            self.controls_sockets_server = \
+                SocketsServer(settings.CONTROLS_SOCKETS_CONFIG,
+                              self.serve_controller_data)
 
         if settings.USE_TELEMETRY_SOCKETS:
             if mode.__eq__("debug"):
-                settings.TELEMETRY_SERVER_IP = "localhost"
-            server_tuple = (settings.TELEMETRY_SERVER_IP,
-                            settings.TELEMETRY_SERVER_PORT)
-            client_config = SocketsConfig(server_tuple,
-                                          settings.REQUIRE_TELEMETRY_SOCKETS)
-            self.telemetry_sockets_client = SocketsClient(client_config,
-                                                          self.store_telemetry_data)
+                settings.TELEMETRY_SOCKETS_CONFIG.ip = "localhost"
+            self.telemetry_sockets_client = \
+                SocketsClient(settings.TELEMETRY_SOCKETS_CONFIG,
+                              self.store_telemetry_data)
 
         # Start XBox controller endpoint
         self.xbox_controller = Controller(settings.CONTROLLER_NAME,
