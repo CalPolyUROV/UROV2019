@@ -117,7 +117,7 @@ class SerialConnection(Relay):
         elif cmd_type.__eq__("read_sensor"):
             pass
         else:
-            debug("serial", "Type of serial command {} not recognized",
+            debug("serial_error", "Type of serial command {} not recognized",
                   [cmd_type])
             return None
         return t
