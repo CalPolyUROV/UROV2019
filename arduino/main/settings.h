@@ -36,9 +36,9 @@
 #define MOTOR_5_PIN (12)
 #define MOTOR_6_PIN (13)
 
-#define CAMERA_MUX_PIN_1 (14)
-#define CAMERA_MUX_PIN_2 (15)
-#define CAMERA_MUX_PIN_3 (16)
+#define CAMERA_MUX_PIN_1 (5)
+#define CAMERA_MUX_PIN_2 (6)
+#define CAMERA_MUX_PIN_3 (7)
 
 
 // Motor directions
