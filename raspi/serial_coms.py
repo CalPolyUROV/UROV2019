@@ -114,6 +114,9 @@ class SerialConnection(Relay):
                 data[0], data[1])
             p = self.new_packet(SET_MOT_CMD, direction, throttle)
             self.send_receive_packet(p)
+        elif cmd_type.__eq__("set_cam"):
+            p = self.new_packet(SET_CAM_CMD, data[0], 0)
+            self.send_receive_packet(p)
         elif cmd_type.__eq__("read_sensor"):
             pass
         else:
