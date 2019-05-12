@@ -42,7 +42,8 @@
 
 
 // Motor directions
-// For switching motor direction based on 3-phase wiring to match thruster orientation
+// For switching motor direction based on 3-phase wiring
+// to match thruster orientation
 #define MOTOR_1_DIR (-1)
 #define MOTOR_2_DIR (1)
 #define MOTOR_3_DIR (1)
