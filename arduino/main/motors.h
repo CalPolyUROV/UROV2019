@@ -36,9 +36,9 @@ struct Thruster {
 
 Thruster thrusters[NUM_MOTORS];
 Servo motors[NUM_MOTORS];
-int axis[6] = {0, 0, 0, 0, 0, 0};
+//int axis[6] = {0, 0, 0, 0, 0, 0};
 
-int apply_governor(int input) {
+/*int apply_governor(int input) {
   if (input > GOV_MAX) {
     return GOV_MAX;
   } else if (input < GOV_MIN) {
@@ -46,18 +46,18 @@ int apply_governor(int input) {
   } else {
     return input;
   }
-}
+}*/
 
-int apply_deadzone(int speed) {
+/*int apply_deadzone(int speed) {
   if ((speed > (ESC_CENTER_US - ESC_DEADBAND)) && (speed < (ESC_CENTER_US + ESC_DEADBAND))) {
     return ESC_CENTER_US;
   }
   else {
     return speed;
   }
-}
+}*/
 
-int map_esc_speed(int input_speed) {
+/*int map_esc_speed(int input_speed) {
   int speed = (input_speed * 3) + ESC_CENTER_US;
   if (speed > ESC_MAX_US) {
     speed = ESC_MAX_US;
@@ -67,17 +67,17 @@ int map_esc_speed(int input_speed) {
   }
   speed = apply_deadzone(speed);
   return speed;
-}
+}*/
 
 
-void set_motor_target(int thruster_index, int input) {
+/*void set_motor_target(int thruster_index, int input) {
   // TODO: clamp target speed
   int input_speed = apply_governor(input);
   int speed = map_esc_speed(input_speed);
   thrusters[thruster_index].target_value = speed;
-}
+}*/
 
-void update_motor_target(int thruster_index) {
+/*void update_motor_target(int thruster_index) {
   switch (thruster_index) {
     // TODO: move logic out into another function to remove repeat code
     // TODO: switch to summing x, y, and yaw as simple control system
@@ -103,9 +103,9 @@ void update_motor_target(int thruster_index) {
       // Panic
       break;
   }
-}
+}*/
 
-int trigger_motor_updates(int axis_index) {
+/*int trigger_motor_updates(int axis_index) {
   switch (axis_index) {
     // TODO: move logic out into another function to remove repeat code
     // TODO: switch to summing x, y, and yaw as simple control system
@@ -143,9 +143,9 @@ int trigger_motor_updates(int axis_index) {
       // Panic
       break;
   }
-}
+}*/
 
-int set_axis(int axis_index, int input) {
+/*int set_axis(int axis_index, int input) {
   switch (axis_index) {
     case X_AXIS:
       axis[axis_index] = input;
@@ -170,29 +170,29 @@ int set_axis(int axis_index, int input) {
       // Panic
       break;
   }
-}
+}*/
 void write_thruster(int thruster_index, int esc_speed) {
 
   motors[thruster_index].writeMicroseconds(esc_speed);
 }
 
-// void update_motor_speed(int thruster_index) {
-//   int current = thrusters[thruster_index].current_value;
-//   int target = thrusters[thruster_index].target_value;
-//   // Update current_value to be closer to target value
-//   if (target < current) {
-//     current = max(target, current - MOTOR_JERK_MAX);
-//   }
-//   else {
-//     current = min(target, current + MOTOR_JERK_MAX);
-//   }
-//   //  motors[thruster_index].write(120);//(motor->current_value * motor->direction) + ESC_CENTER_US);
+ void update_motor_speed(int thruster_index) {
+   int current = thrusters[thruster_index].current_value;
+   int target = thrusters[thruster_index].target_value;
+   // Update current_value to be closer to target value
+   if (target < current) {
+     current = max(target, current - MOTOR_JERK_MAX);
+   }
+   else {
+     current = min(target, current + MOTOR_JERK_MAX);
+   }
+     motors[thruster_index].write(120);//(motor->current_value * motor->direction) + ESC_CENTER_US);
 
-//   write_thruster(thruster_index, current);
+   write_thruster(thruster_index, current);
 
-//   thrusters[thruster_index].current_value = current;
-//   thrusters[thruster_index].target_value = target;
-// }
+   thrusters[thruster_index].current_value = current;
+   thrusters[thruster_index].target_value = target;
+ }
 
 // Updates all motors to move toward their target values
 // Assumes only called after a safe time delay
@@ -236,6 +236,10 @@ void motor_setup() {
   update_all_motors_speeds();
 
   delay(SETUP_WAIT_MS);
+}
+
+int translate(int val2){
+  return (val2 * 3 + 1245);
 }
 
 #endif
