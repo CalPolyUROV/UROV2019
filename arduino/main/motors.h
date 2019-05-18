@@ -176,23 +176,23 @@ void write_thruster(int thruster_index, int esc_speed) {
   motors[thruster_index].writeMicroseconds(esc_speed);
 }
 
-void update_motor_speed(int thruster_index) {
-  int current = thrusters[thruster_index].current_value;
-  int target = thrusters[thruster_index].target_value;
-  // Update current_value to be closer to target value
-  if (target < current) {
-    current = max(target, current - MOTOR_JERK_MAX);
-  }
-  else {
-    current = min(target, current + MOTOR_JERK_MAX);
-  }
-  //  motors[thruster_index].write(120);//(motor->current_value * motor->direction) + ESC_CENTER_US);
+// void update_motor_speed(int thruster_index) {
+//   int current = thrusters[thruster_index].current_value;
+//   int target = thrusters[thruster_index].target_value;
+//   // Update current_value to be closer to target value
+//   if (target < current) {
+//     current = max(target, current - MOTOR_JERK_MAX);
+//   }
+//   else {
+//     current = min(target, current + MOTOR_JERK_MAX);
+//   }
+//   //  motors[thruster_index].write(120);//(motor->current_value * motor->direction) + ESC_CENTER_US);
 
-  write_thruster(thruster_index, current);
+//   write_thruster(thruster_index, current);
 
-  thrusters[thruster_index].current_value = current;
-  thrusters[thruster_index].target_value = target;
-}
+//   thrusters[thruster_index].current_value = current;
+//   thrusters[thruster_index].target_value = target;
+// }
 
 // Updates all motors to move toward their target values
 // Assumes only called after a safe time delay
