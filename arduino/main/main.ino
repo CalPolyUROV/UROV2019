@@ -62,10 +62,9 @@ int handle_packet(packet p) {
   struct packet response;
   switch (p.cmd) {
     case SET_MOT_CMD:
-
-      int axis_index = p.value1;
-      set_axis(axis_index, p.value2 - COMS_CENTER);
-      trigger_motor_updates(axis_index);
+      write_thruster(p.value1, translate(p.value2));
+      //      set_axis(axis_index, p.value2 - COMS_CENTER);
+      //      trigger_motor_updates(axis_index);
       break;
     case RD_SENS_CMD:
       break;
