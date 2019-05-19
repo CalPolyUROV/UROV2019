@@ -4,7 +4,8 @@ import settings
 from robot_cameras import RobotCameras
 from snr_datastore import DatastoreSetter
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, try_key
+from snr_utils import debug, try_key, init_dict
+from robot_motors import RobotMotors
 
 # TODO: Split this class into robot_processing and datastore.py
 
@@ -32,25 +33,24 @@ class ControlsProcessor:
         """
         self.db_store_throttle = db_store_throttle
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
+        self.motor_control = RobotMotors(self.get_throttle_data)
         # Input data
         self.control_input = {}
         self.previous_cntl_input = {}
 
         # Internal data
         self.axis_list = ['x', 'y', 'z', "yaw", "roll"]
-        self.previous_throttle = self.init_dict(self.axis_list, 0)
-        self.throttle = self.init_dict(self.axis_list, 0)
+        self.previous_throttle = init_dict(self.axis_list, 0)
+        self.throttle = init_dict(self.axis_list, 0)
 
         self.buttons_list = ['a']
-        self.buttons = self.init_dict(self.buttons_list, False)
-        self.previous_buttons = self.init_dict(self.buttons_list, False)
+        self.buttons = init_dict(self.buttons_list, False)
+        self.previous_buttons = init_dict(self.buttons_list, False)
         # Pitch cannot be acheive with current motor configuration
 
-    def init_dict(self, keys: List[str], val: Any) -> dict:
-        d = {}
-        for k in keys:
-            d[k] = val
-        return d
+    def get_throttle_data(self):
+        return self.throttle
+
 
     def receive_controls(self, incoming_controls: dict) -> SomeTasks:
         if incoming_controls is None:
@@ -158,19 +158,22 @@ class ControlsProcessor:
         return
 
     def get_throttle_tasks(self) -> Task or []:
-        """Takes each throttle value and creates a task to send it to the teensy
+        """Takes each throttle value and creates a task to send it to the MCU
         """
         debug("throttle_verbose", "Generating tasks for throttle values")
         s = "x:{}, y:{}, z:{}, yaw:{}, roll:{}"
         debug("throttle_values", s, self.throttle_value_list())
 
-        task_list = []
-        for axis in self.axis_list:
-            if self.axis_changed(axis):
-                t = Task(TaskType.serial_com, TaskPriority.high,
-                         ["set_motor", axis, self.throttle[axis]])
-                self.previous_throttle[axis] = self.throttle[axis]
-                task_list.append(t)
+        # task_list = []
+        # for axis in self.axis_list:
+        #     if self.axis_changed(axis):
+        #         t = Task(TaskType.serial_com, TaskPriority.high,
+        #                  ["set_motor", axis, self.throttle[axis]])
+        #         self.previous_throttle[axis] = self.throttle[axis]
+        #         task_list.append(t)
+        self.motor_control.update_motor_targets(self.get_throttle_data())
+        self.motor_control.update_motor_values()
+        task_list = self.motor_control.generate_serial_tasks()
         return task_list
 
     def throttle_value_list(self) -> list:

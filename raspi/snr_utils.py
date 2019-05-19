@@ -6,7 +6,7 @@ Attempts to document propper usage of such functions
 import os  # For exit
 import sys  # For exit
 import time  # For sleep
-from typing import Callable, Union, Any
+from typing import Callable, Union, Any, List
 
 # Our imports
 import settings
@@ -114,6 +114,13 @@ def try_key(d: dict, k: str) -> Any:
     except KeyError as _meh:
         debug("try_key", "Unknown key: {}", [k])
         return None
+
+
+def init_dict(keys: List[str], val: Any) -> dict:
+    d = {}
+    for k in keys:
+        d[k] = val
+    return d
 
 
 def attempt(action: Callable[[], bool],

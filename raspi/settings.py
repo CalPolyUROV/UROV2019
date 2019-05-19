@@ -106,8 +106,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-SIMULATE_INPUT = False
-REQUIRE_CONTROLLER = True
+REQUIRE_CONTROLLER = False
+SIMULATE_INPUT = True
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -150,6 +150,15 @@ control_mappings = {
 
 # Robot Control
 THROTTLE_DATA_NAME = "robot_throttle_data"
+
+# Motor control
+MOTOR_CONTROL_NAME = "motor_control_data"
+MOTOR_CONTROL_TICK_RATE = 20
+DEFAULT_MOTOR_VALUE = 0
+NUM_MOTORS = 6
+MOTOR_MAX_DELTA = 10
+
+# Cameras
 NUM_ANALOG_CAMERAS = 2
 
 # Sockets Connection
