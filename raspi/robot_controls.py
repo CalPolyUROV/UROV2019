@@ -90,8 +90,10 @@ class ControlsProcessor:
         # debug("thrust_vec", "Got {} throttle tasks", [len(throttle_tasks)])
         debug("thrust_vec_verbose", "Throttle tasks: {}",
               [throttle_tasks, camera_tasks])
-        task_list.append(throttle_tasks)
-        task_list.append(camera_tasks)
+        if throttle_tasks is not None:
+            task_list.append(throttle_tasks)
+        if camera_tasks is not None:
+            task_list.append(camera_tasks)
         debug("robot_control_event", "Created {} tasks from controls",
               [len(task_list)])
         return task_list
@@ -171,7 +173,6 @@ class ControlsProcessor:
         #         self.previous_throttle[axis] = self.throttle[axis]
         #         task_list.append(t)
         self.motor_control.update_motor_targets(self.get_throttle_data())
-        self.motor_control.update_motor_values()
         task_list = self.motor_control.generate_serial_tasks()
         return task_list
 

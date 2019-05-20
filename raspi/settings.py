@@ -57,6 +57,9 @@ DEBUG_CHANNELS = {
     "throttle_verbose": False,
     "axis_update_verbose": False,
 
+    "motor_control": False,
+    "motor_control_verbose": False,
+
     "sockets": True,
     "sockets_client": True,
     "sockets_server": True,
@@ -156,7 +159,7 @@ MOTOR_CONTROL_NAME = "motor_control_data"
 MOTOR_CONTROL_TICK_RATE = 20
 DEFAULT_MOTOR_VALUE = 0
 NUM_MOTORS = 6
-MOTOR_MAX_DELTA = 10
+MOTOR_MAX_DELTA = 5
 
 # Cameras
 NUM_ANALOG_CAMERAS = 2

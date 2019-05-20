@@ -22,7 +22,7 @@ ENCODING = 'ascii'
 # TODO: Move command list to external file (maybe .txt or .csv),
 #       write script to generate in Arduino source and python
 #       source will not be needed on topside Pi, only on robot
-EST_CON_CMD = 0x10      # cmd of initial packet
+# EST_CON_CMD = 0x10      # cmd of initial packet
 # EST_CON_ACK = 0x11    # cmd for response to initial packet
 SET_MOT_CMD = 0x20      # set motor (call)
 # SET_MOT_ACK = 0x21    # motor has been set (reponse)
@@ -110,9 +110,8 @@ class SerialConnection(Relay):
             p = self.new_packet(BLINK_CMD, data[0], data[1])
             self.send_receive_packet(p)
         elif cmd_type.__eq__("set_motor"):
-            (direction, throttle) = self.translate_motor(
-                data[0], data[1])
-            p = self.new_packet(SET_MOT_CMD, direction, throttle)
+            generate_packet_set_motor(data[0], data[1])
+            
             self.send_receive_packet(p)
         elif cmd_type.__eq__("read_sensor"):
             pass
@@ -246,10 +245,9 @@ class SerialConnection(Relay):
     def map_thrust_value(self, speed: int) -> int:
         return int((speed + 100) * 1.275)
 
-    def translate_motor(self, motor_str: str, speed: int) -> Tuple[int, int]:
+    def translate_motor(self, motor: int, speed: int) -> Packet:
         mapped_speed = self.map_thrust_value(speed)
-        motor_int = SerialConnection.motor_translate_dict[motor_str]
-        return (motor_int, mapped_speed)
+        return self.new_packet(SET_MOT_CMD, motor, mapped_speed)
 
     def new_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets to send (chksum is created)
