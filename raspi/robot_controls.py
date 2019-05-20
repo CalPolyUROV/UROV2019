@@ -51,7 +51,6 @@ class ControlsProcessor:
     def get_throttle_data(self):
         return self.throttle
 
-
     def receive_controls(self, incoming_controls: dict) -> SomeTasks:
         if incoming_controls is None:
             debug("robot_control_warning", "Received empty controls")
@@ -71,7 +70,7 @@ class ControlsProcessor:
         for key in self.control_input.keys():
             # For each key that is incoming
             # if self.previous_cntl_input is not None:
-            old_data = try_key(self.previous_cntl_input, key)
+            old_data = self.previous_cntl_input.get(key)
             # else:
             #     old_data = None
             data = self.control_input[key]

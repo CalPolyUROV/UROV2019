@@ -83,7 +83,7 @@ class RobotMotors:
             else:
                 self.motor_values[motor_index] -= settings.MOTOR_MAX_DELTA
 
-    def generate_serial_tasks(self) -> List[Task]:
+    def generate_serial_tasks(self) -> SomeTasks:
         l = []
         for motor_index in range(settings.NUM_MOTORS):
             if not self.motor_values[motor_index] == self.motor_previous[motor_index]:
@@ -92,6 +92,7 @@ class RobotMotors:
                 l.append(t)
 
         debug("motor_control", "Generated {} serial task(s)", [len(l)])
+        debug("motor_control_verbose", "{}", [l])
         return l
 
     def terminate(self):
