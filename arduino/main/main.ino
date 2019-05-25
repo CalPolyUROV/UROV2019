@@ -51,7 +51,7 @@ void loop() {
   //    set_motor_target(i, motor_input);
   //  }
 
-  update_all_motors_speeds();
+//  update_all_motors_speeds();
   //  motor_input += motor_input_delta;
   //  delay(MOTOR_DELTA_MS);
 }
@@ -62,7 +62,7 @@ int handle_packet(packet p) {
   struct packet response;
   switch (p.cmd) {
     case SET_MOT_CMD:
-      write_thruster(p.value1, translate(p.value2));
+      write_thruster(p.value1, translate_motor_val(p.value2));
       //      set_axis(axis_index, p.value2 - COMS_CENTER);
       //      trigger_motor_updates(axis_index);
       break;

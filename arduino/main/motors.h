@@ -46,7 +46,7 @@ Servo motors[NUM_MOTORS];
   } else {
     return input;
   }
-}*/
+  }*/
 
 /*int apply_deadzone(int speed) {
   if ((speed > (ESC_CENTER_US - ESC_DEADBAND)) && (speed < (ESC_CENTER_US + ESC_DEADBAND))) {
@@ -55,7 +55,7 @@ Servo motors[NUM_MOTORS];
   else {
     return speed;
   }
-}*/
+  }*/
 
 /*int map_esc_speed(int input_speed) {
   int speed = (input_speed * 3) + ESC_CENTER_US;
@@ -67,7 +67,7 @@ Servo motors[NUM_MOTORS];
   }
   speed = apply_deadzone(speed);
   return speed;
-}*/
+  }*/
 
 
 /*void set_motor_target(int thruster_index, int input) {
@@ -75,7 +75,7 @@ Servo motors[NUM_MOTORS];
   int input_speed = apply_governor(input);
   int speed = map_esc_speed(input_speed);
   thrusters[thruster_index].target_value = speed;
-}*/
+  }*/
 
 /*void update_motor_target(int thruster_index) {
   switch (thruster_index) {
@@ -103,7 +103,7 @@ Servo motors[NUM_MOTORS];
       // Panic
       break;
   }
-}*/
+  }*/
 
 /*int trigger_motor_updates(int axis_index) {
   switch (axis_index) {
@@ -143,7 +143,7 @@ Servo motors[NUM_MOTORS];
       // Panic
       break;
   }
-}*/
+  }*/
 
 /*int set_axis(int axis_index, int input) {
   switch (axis_index) {
@@ -170,42 +170,46 @@ Servo motors[NUM_MOTORS];
       // Panic
       break;
   }
-}*/
+  }*/
 void write_thruster(int thruster_index, int esc_speed) {
 
   motors[thruster_index].writeMicroseconds(esc_speed);
 }
+//
+//void update_motor_speed(int thruster_index) {
+//  int current = thrusters[thruster_index].current_value;
+//  int target = thrusters[thruster_index].target_value;
+//  // Update current_value to be closer to target value
+//  if (target < current) {
+//    current = max(target, current - MOTOR_JERK_MAX);
+//  }
+//  else {
+//    current = min(target, current + MOTOR_JERK_MAX);
+//  }
+//  motors[thruster_index].write(120);//(motor->current_value * motor->direction) + ESC_CENTER_US);
+//
+//  write_thruster(thruster_index, current);
+//
+//  thrusters[thruster_index].current_value = current;
+//  thrusters[thruster_index].target_value = target;
+//}
+//
+//// Updates all motors to move toward their target values
+//// Assumes only called after a safe time delay
+//void update_all_motors_speeds() {
+//  //  for (int thruster_index = 0; thruster_index < NUM_MOTORS; thruster_index++) {
+//  //    update_motor(thruster_index);
+//  //  }
+//  update_motor_speed(MOTOR_1);
+//  update_motor_speed(MOTOR_2);
+//  update_motor_speed(MOTOR_3);
+//  update_motor_speed(MOTOR_4);
+//  update_motor_speed(MOTOR_5);
+//  update_motor_speed(MOTOR_6);
+//}
 
- void update_motor_speed(int thruster_index) {
-   int current = thrusters[thruster_index].current_value;
-   int target = thrusters[thruster_index].target_value;
-   // Update current_value to be closer to target value
-   if (target < current) {
-     current = max(target, current - MOTOR_JERK_MAX);
-   }
-   else {
-     current = min(target, current + MOTOR_JERK_MAX);
-   }
-     motors[thruster_index].write(120);//(motor->current_value * motor->direction) + ESC_CENTER_US);
-
-   write_thruster(thruster_index, current);
-
-   thrusters[thruster_index].current_value = current;
-   thrusters[thruster_index].target_value = target;
- }
-
-// Updates all motors to move toward their target values
-// Assumes only called after a safe time delay
-void update_all_motors_speeds() {
-  //  for (int thruster_index = 0; thruster_index < NUM_MOTORS; thruster_index++) {
-  //    update_motor(thruster_index);
-  //  }
-  update_motor_speed(MOTOR_1);
-  update_motor_speed(MOTOR_2);
-  update_motor_speed(MOTOR_3);
-  update_motor_speed(MOTOR_4);
-  update_motor_speed(MOTOR_5);
-  update_motor_speed(MOTOR_6);
+int translate_motor_val(int val2) {
+  return (val2 * 3 + 1245);
 }
 
 void motor_setup() {
@@ -233,13 +237,9 @@ void motor_setup() {
   }
 
   // Update motors with initial values
-  update_all_motors_speeds();
+  // update_all_motors_speeds();
 
   delay(SETUP_WAIT_MS);
-}
-
-int translate(int val2){
-  return (val2 * 3 + 1245);
 }
 
 #endif

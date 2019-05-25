@@ -108,11 +108,11 @@ class SerialConnection(Relay):
 
         if cmd_type.__eq__("blink"):
             p = self.new_packet(BLINK_CMD, data[0], data[1])
-        
+
             self.send_receive_packet(p)
         elif cmd_type.__eq__("set_motor"):
-            p = self.new_packet(SET_MOT_CMD, data[0], data[1])
-            
+            p = self.generate_motor_packet(data[0], data[1])
+
             self.send_receive_packet(p)
         elif cmd_type.__eq__("read_sensor"):
             pass
@@ -244,9 +244,16 @@ class SerialConnection(Relay):
                             "roll": 5}
 
     def map_thrust_value(self, speed: int) -> int:
-        return int((speed + 100) * 1.275)
+        if speed > 100:
+            return 255
+        elif speed < -100:
+            return 0
+        val = int((speed * 1.275) + 127)
+        debug("serial_packet",
+              "Converted motor speed from {} to {}", [speed, val])
+        return val
 
-    def translate_motor(self, motor: int, speed: int) -> Packet:
+    def generate_motor_packet(self, motor: int, speed: int) -> Packet:
         mapped_speed = self.map_thrust_value(speed)
         return self.new_packet(SET_MOT_CMD, motor, mapped_speed)
 
