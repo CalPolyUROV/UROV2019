@@ -110,7 +110,7 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 # XBox Controller
 USE_CONTROLLER = True
 REQUIRE_CONTROLLER = False
-SIMULATE_INPUT = True
+SIMULATE_INPUT = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -203,7 +203,7 @@ TELEMETRY_DATA_NAME = "telemetry_data"
 
 
 # Serial Connection
-USE_SERIAL = False
+USE_SERIAL = True
 REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
