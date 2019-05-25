@@ -35,16 +35,20 @@ from typing import Callable, List
 from snr_task import Task, TaskType, TaskPriority, TaskScheduler, SomeTasks
 import settings
 from snr_utils import debug
+from snr_lib import AsyncEndpoint
 
 
-class RobotMotors:
+class RobotMotors(AsyncEndpoint):
     def __init__(self, get_throttle_data: Callable):
 
+        super().__init__("robot_motors", self.update_motor_values, settings.MOTOR_CONTROL_TICK_RATE)
         self.get_throttle_data = get_throttle_data
 
         self.motor_previous = generate_motor_array()
         self.motor_values = generate_motor_array()
         self.motor_targets = generate_motor_array()
+
+        self.loop()
 
     # def motor_control_tick(self):
     #     self.update_motor_targets(self.get_throttle_data())
@@ -53,7 +57,7 @@ class RobotMotors:
     #     # TODO: Send serial tasks to
 
     def update_motor_targets(self, axis):
-        debug("motor_control", "Updating motor targets")
+        debug("motor_control_verbose", "Updating motor targets")
         # Motor 1: Forward, right
         self.motor_targets[0] = axis["x"] + axis["y"] - axis["yaw"]
         # Motor 2: Forward, left
