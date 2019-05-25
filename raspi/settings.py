@@ -203,7 +203,7 @@ TELEMETRY_DATA_NAME = "telemetry_data"
 
 
 # Serial Connection
-USE_SERIAL = False
+USE_SERIAL = True
 REQUIRE_SERIAL = False
 SERIAL_BAUD = 9600  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port

@@ -108,9 +108,10 @@ class SerialConnection(Relay):
 
         if cmd_type.__eq__("blink"):
             p = self.new_packet(BLINK_CMD, data[0], data[1])
+        
             self.send_receive_packet(p)
         elif cmd_type.__eq__("set_motor"):
-            generate_packet_set_motor(data[0], data[1])
+            p = self.new_packet(SET_MOT_CMD, data[0], data[1])
             
             self.send_receive_packet(p)
         elif cmd_type.__eq__("read_sensor"):
