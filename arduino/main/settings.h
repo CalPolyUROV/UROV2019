@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define COMS_BAUD 9600
+#define COMS_BAUD 115200
 
 //--Motor Codes:-----------------------------
 // Must be kept from 0-5 for iterative loops loops
