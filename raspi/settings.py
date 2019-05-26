@@ -86,7 +86,7 @@ DEBUG_CHANNELS = {
     "serial": True,
     "serial_error": True,
     "serial_warning": True,
-    "serial_verbose": True,
+    "serial_verbose": False,
 
     "serial_packet": False,
     # "chksum_error": True,
