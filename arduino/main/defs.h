@@ -8,8 +8,6 @@
     https://electronics.stackexchange.com/questions/58386/how-can-i-detect-which-arduino-board-or-which-controller-in-software
 */
 
-#define SERIAL_CLASS HardwareSerial
-//#define SERIAL_CLASS Serial
 typedef unsigned char u8;
 
 #define BIT0 0x01

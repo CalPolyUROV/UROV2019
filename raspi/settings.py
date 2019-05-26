@@ -20,7 +20,7 @@ DEBUG_CHANNELS = {
     "framework": True,
     "schedule": True,
     "schedule_verbose": False,
-    "execute_task": True,
+    "execute_task": False,
     "execute_task_verbose": False,
 
     "clui": True,
@@ -88,9 +88,9 @@ DEBUG_CHANNELS = {
     "serial_warning": True,
     "serial_verbose": False,
 
-    "serial_packet": True,
-    "chksum_error": True,
-    "chksum_verbose": False,
+    "serial_packet": False,
+    # "chksum_error": True,
+    # "chksum_verbose": False,
 
     "sleep": True,
     "try_key": False,
