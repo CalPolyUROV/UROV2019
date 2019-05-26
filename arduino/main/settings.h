@@ -1,20 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define DEBUG false
-/* Whether to output information on debug serial line.
-   This may consume a lot of time away from the main coms or confuse them if they are the same interface.
-*/
-
 #define COMS_BAUD 9600
-
-//--Axis numbers-----------------------------
-#define X_AXIS      (0)
-#define Y_AXIS      (1)
-#define Z_AXIS      (2)
-#define YAW_AXIS    (3)
-#define PITCH_AXIS  (4)
-#define ROLL_AXIS   (5)
 
 //--Motor Codes:-----------------------------
 // Must be kept from 0-5 for iterative loops loops
@@ -30,7 +17,7 @@
 //--Pinouts:---------------------------------
 // Thrusters:
 #define MOTOR_1_PIN (8)
-#define MOTOR_2_PIN (9)
+#define MOTOR_2_PIN (8)
 #define MOTOR_3_PIN (10)
 #define MOTOR_4_PIN (11)
 #define MOTOR_5_PIN (12)
