@@ -2,10 +2,10 @@ from typing import Any, List
 
 import settings
 from robot_cameras import RobotCameras
+from robot_motors import RobotMotors
 from snr_datastore import DatastoreSetter
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, try_key, init_dict
-from robot_motors import RobotMotors
+from snr_utils import debug, init_dict, try_key
 
 # TODO: Split this class into robot_processing and datastore.py
 
@@ -23,9 +23,9 @@ class ControlsProcessor:
 
     Implemented inputs:
         - XBox Controller throttles
+        -Camera switching
     Inputs TODO:
         -Mission tools
-        -Camera switching
     """
 
     def __init__(self, db_store_throttle: callable):
@@ -62,7 +62,7 @@ class ControlsProcessor:
               "Processed {} tasks from received controls", [len(task_list)])
         return task_list
 
-    def process_controls(self) -> List[Task]:
+    def process_controls(self) -> SomeTasks:
         task_list = []
         # Collect only new control values
         debug("robot_control_verbose",
@@ -156,9 +156,8 @@ class ControlsProcessor:
             # Invert stick Y axis
             debug("throttle_verbose", "roll set to {}",
                   [self.throttle["roll"]])
-        return
 
-    def get_throttle_tasks(self) -> Task or []:
+    def get_throttle_tasks(self) -> SomeTasks:
         """Takes each throttle value and creates a task to send it to the MCU
         """
         debug("throttle_verbose", "Generating tasks for throttle values")
@@ -176,7 +175,7 @@ class ControlsProcessor:
         task_list = self.motor_control.generate_serial_tasks()
         return task_list
 
-    def throttle_value_list(self) -> list:
+    def throttle_value_list(self) -> List[int]:
         return [self.throttle['x'], self.throttle['y'], self.throttle['z'],
                 self.throttle['yaw'], self.throttle['roll']]
 
