@@ -12,24 +12,20 @@ from internal_temp import IntTempMon
 from robot_controls import ControlsProcessor
 from serial_coms import SerialConnection  # Serial connection to Teensy
 from snr_lib import Node
+from snr_sockets_server import SocketsConfig, SocketsServer
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
 from snr_utils import debug, debug_delay  # Miscelaneous utilities
-from snr_sockets_server import SocketsConfig, SocketsServer
 from sockets_client import SocketsClient  # Sockets connection to topside
 
 
 class Robot(Node):
-
     def __init__(self, mode: str):
         super().__init__(self.handle_task, self.get_new_tasks)
         self.mode = mode
 
         self.controls_processor = ControlsProcessor(self.store_throttle_data)
 
-        # Create the serial_est_con connection object with the specified port
-        if settings.USE_SERIAL:
-            debug("serial", "Using serial as enabled in settings")
-            self.serial_connection = SerialConnection()
+        self.serial_connection = SerialConnection()
 
         if settings.USE_CONTROLS_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
@@ -83,17 +79,16 @@ class Robot(Node):
         elif t.task_type == TaskType.serial_com:
             debug("serial_verbose",
                   "Executing serial com task: {}", [t.val_list])
-            if settings.USE_SERIAL:
-                result = self.serial_connection.send_receive(t.val_list[0],
-                                                             t.val_list[1::])
-                if result is None:
-                    debug("robot",
-                          "Received no data in response from serial message")
-                elif type(result) == Task:
-                    sched_list.append(result)
-                elif type(result) == list:
-                    for new_task in list(result):
-                        sched_list.append(new_task)
+            result = self.serial_connection.send_receive(t.val_list[0],
+                                                         t.val_list[1::])
+            if result is None:
+                debug("robot",
+                      "Received no data in response from serial message")
+            elif type(result) == Task:
+                sched_list.append(result)
+            elif type(result) == list:
+                for new_task in list(result):
+                    sched_list.append(new_task)
 
         # Blink test
         elif t.task_type == TaskType.blink_test:
@@ -133,9 +128,8 @@ class Robot(Node):
             t = Task(TaskType.blink_test, TaskPriority.high, [1, 1])
             sched_list.append(t)
 
-        if settings.USE_SERIAL:
-            t = Task(TaskType.get_telemetry, TaskPriority.normal, [])
-            sched_list.append(t)
+        t = Task(TaskType.get_telemetry, TaskPriority.normal, [])
+        sched_list.append(t)
 
         return sched_list
 
@@ -148,8 +142,7 @@ class Robot(Node):
         if settings.USE_TELEMETRY_SOCKETS:
             self.telemetry_server.terminate()
 
-        if settings.USE_SERIAL:
-            self.serial_connection.terminate()
+        self.serial_connection.terminate()
 
         self.set_terminate_flag()
 

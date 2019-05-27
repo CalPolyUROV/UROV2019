@@ -1,5 +1,9 @@
 
+import struct
+
 from snr_utils import debug
+
+PACKED_FORMAT = "BBB"
 
 
 class Packet:
@@ -13,6 +17,11 @@ class Packet:
         self.cmd = cmd
         self.val1 = val1
         self.val2 = val2
+
+    def pack(self) -> (bytes, int):
+        data_bytes = struct.pack(PACKED_FORMAT, self.cmd, self.val1, self.val2)
+        expected_size = struct.calcsize(PACKED_FORMAT)
+        return data_bytes, expected_size
 
     def weak_eq(self, other) -> bool:
         return ((self.__class__ == other.__class__) and

@@ -2,18 +2,16 @@
 TODO: Add more documentation here
 """
 
-# System imports
-import serial  # PySerial library
-import struct
-from typing import Union, Tuple
+from typing import Tuple, Union
 
-# Our imports
+import serial  # PySerial library
+
 import serial_finder  # Identifies serial ports
 import settings
-from snr_utils import sleep, debug, u_exit, attempt
+from serial_packet import Packet
 from snr_lib import Relay
 from snr_task import SomeTasks
-from serial_packet import Packet  # , calc_chksum
+from snr_utils import attempt, debug, sleep, u_exit
 
 # encoding scheme
 ENCODING = 'ascii'
@@ -33,6 +31,12 @@ INV_CMD_ACK = 0xFF      # Invalid command, value2 of response contains cmd
 class SerialConnection(Relay):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self):
+
+        if settings.SIMULATE_SERIAL:
+            self.serial_connection = None
+            self.simulated_bytes = None
+            return
+
         debug("serial_verbose", "Finding serial port")
         serial_finder.get_port_to_use(self.set_port)
         debug("serial", "Selected port {}", [self.serial_port])
@@ -42,16 +46,10 @@ class SerialConnection(Relay):
                   "Failed to open serial port, trying again.")
 
         def failure(tries: int):
-            if(settings.REQUIRE_SERIAL):
-                debug("serial_error",
-                      "Could not open serial port after {} tries.",
-                      [tries])
-                u_exit("Could not open serial port")
-            else:
-                debug("serial_error",
-                      "Abort serial connection after {} tries. Not required.",
-                      [tries])
-                settings.USE_SERIAL = False
+            debug("serial_error",
+                  "Could not open serial port after {} tries.",
+                  [tries])
+            u_exit("Could not open serial port")
 
         attempt(self.try_open_serial,
                 settings.SERIAL_MAX_ATTEMPTS,
@@ -62,9 +60,9 @@ class SerialConnection(Relay):
         self.serial_port = port
 
     def try_open_serial(self):
-        if not settings.USE_SERIAL:
-            debug("serial",
-                  "Serial is not used, ignoring opening attempt", [])
+        if settings.SIMULATE_SERIAL:
+            debug("serial_sim",
+                  "Not opening port", [])
             return None
         sleep(settings.SERIAL_SETUP_WAIT_PRE)
         try:
@@ -91,10 +89,6 @@ class SerialConnection(Relay):
     # Send and receive data over serial
     def send_receive(self, cmd_type: str, data: list) -> SomeTasks:
         t = []
-        if not settings.USE_SERIAL:
-            debug("serial_warning",
-                  "Serial is not used, ignoring sending of data {}", [data])
-            return None
 
         if cmd_type.__eq__("blink"):
             p = self.new_packet(BLINK_CMD, data[0], data[1])
@@ -117,10 +111,6 @@ class SerialConnection(Relay):
 
     # Send and receive a serial packet
     def send_receive_packet(self, p: Packet) -> Packet:
-        if(not settings.USE_SERIAL):
-            debug("serial_warning",
-                  "Serial is not used, ignoring sending of packet {}", [p])
-            raise serial.serialutil.SerialException
         # send packet
         self.write_packet(p)
         # Recieve a packet from the Arduino/Teensy
@@ -136,17 +126,22 @@ class SerialConnection(Relay):
     # Send a Packet over serial
 
     def write_packet(self, p):
-        if not self.serial_connection.is_open:
-            debug("serial_error", "Aborting send, Serial is not open: {}",
-                  [self.serial_connection])
-            return
-        packed_format = "BBB"
-        data_bytes = struct.pack(packed_format, p.cmd, p.val1, p.val2)
-        expected_size = struct.calcsize(packed_format)
+        data_bytes, expected_size = p.pack()
         debug("serial_verbose", "Trying to send packet of expected size {}",
               [expected_size])
         sent_bytes = 0
+
+        if settings.SIMULATE_SERIAL:
+            debug("serial_sim", "Sending bytes {}", [
+                  data_bytes])
+            self.simulated_bytes = data_bytes
+            return
+
         try:
+            if not self.serial_connection.is_open:
+                debug("serial_error", "Aborting send, Serial is not open: {}",
+                      [self.serial_connection])
+                return
             sent_bytes += self.serial_connection.write(data_bytes)
             debug("serial_verbose", "Sent {} bytes: {}",
                   [sent_bytes, data_bytes])
@@ -162,31 +157,35 @@ class SerialConnection(Relay):
     # Read in a packet from serial
     # TODO: ensure that this effectively recieves data over serial
     def read_packet(self) -> Union[Packet, None]:
-        if not self.serial_connection.is_open:
-            debug("serial_error", "Aborting read, Serial is not open: {}",
-                  [self.serial_connection])
-            return None
+        if settings.SIMULATE_SERIAL:
+            debug("serial_sim", "Receiving packet of simulated bytes")
+            recv_bytes = self.simulated_bytes
+        else:
+            if not self.serial_connection.is_open:
+                debug("serial_error", "Aborting read, Serial is not open: {}",
+                    [self.serial_connection])
+                return None
 
-        debug("serial_verbose", "Waiting for bytes, {} ready", [
-              self.serial_connection.in_waiting])
-        tries = 0
-        while self.serial_connection.in_waiting < PACKET_SIZE:
-            tries = tries + 1
-            # debug("serial_verbose", "waiting... {} of 4",
-            #       [self.serial_connection.in_waiting])
-            # if tries > settings.SERIAL_MAX_ATTEMPTS:
-            #     debug("serial_con", "No reponse from device")
-            #     return None
-            # sleep(0.5)
-        debug("serial_verbose",
-              "Received enough bytes after {} tries", [tries])
-        debug("serial_verbose", "Reading, {} bytes ready",
-              [self.serial_connection.in_waiting])
-        try:
-            recv_bytes = self.serial_connection.read(size=PACKET_SIZE)
-        except Exception as error:
-            debug("serial_receive", "Error reading serial: {}",
-                  [error.__repr__()])
+            debug("serial_verbose", "Waiting for bytes, {} ready", [
+                self.serial_connection.in_waiting])
+            tries = 0
+            while self.serial_connection.in_waiting < PACKET_SIZE:
+                tries = tries + 1
+                # debug("serial_verbose", "waiting... {} of 4",
+                #       [self.serial_connection.in_waiting])
+                # if tries > settings.SERIAL_MAX_ATTEMPTS:
+                #     debug("serial_con", "No reponse from device")
+                #     return None
+                # sleep(0.5)
+            debug("serial_verbose",
+                "Received enough bytes after {} tries", [tries])
+            debug("serial_verbose", "Reading, {} bytes ready",
+                [self.serial_connection.in_waiting])
+            try:
+                recv_bytes = self.serial_connection.read(size=PACKET_SIZE)
+            except Exception as error:
+                debug("serial_receive", "Error reading serial: {}",
+                    [error.__repr__()])
         debug("serial_verbose", "Read bytes from serial")
         debug("serial_verbose", "type(recv_bytes) = {}", [type(recv_bytes)])
         cmd = recv_bytes[0]
@@ -218,16 +217,17 @@ class SerialConnection(Relay):
         debug("serial_verbose",
               "Preparing packet: cmd: {}, val1: {}, val2: {}",
               [cmd, val1, val2])
-    
+
         return Packet(cmd, val1, val2)
 
     def make_packet(self, cmd: int, val1: int, val2: int, chksum: int):
         """ Constructor for building packets (chksum is given)
         """
-        return Packet(cmd, val1, val2) 
+        return Packet(cmd, val1, val2)
 
     def terminate(self):
-        debug("serial", "Closing serial connection")
-        settings.USE_SERIAL = False
-        self.serial_connection.close()
+        if self.serial_connection is not None:
+            debug("serial", "Closing serial connection")
+            self.serial_connection.close()
+            self.serial_connection = None
         debug("serial", "Closed serial connection")

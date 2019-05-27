@@ -40,15 +40,10 @@ def get_port_to_use(set_port: Callable) -> str:
             return False
 
     def failure(tries: int):
-        if(settings.REQUIRE_SERIAL):
-                # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-            debug('serial_finder', "Could not find serial port after {} attempts. Crashing now.", [
-                tries])
-            exit("Could not find port")
-        else:
-            debug('serial_finder', "Giving up on finding serial port after {} attempts. Not required in settings.", [
-                tries])
-            settings.USE_SERIAL = False
+        # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
+        debug('serial_finder', "Could not find serial port after {} attempts. Crashing now.",
+              [tries])
+        exit("Could not find port")
 
     def fail_once():
         debug('serial_finder', "Failed to find serial port, trying again.")
