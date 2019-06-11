@@ -60,7 +60,7 @@ class Topside(Node):
 
         elif (t.task_type == TaskType.get_telemetry):
             telemetry_data = self.telemetry_sockets_client.request_data()
-            debug("telemetry", "Recieved data: {}", [telemetry_data])
+            debug("telemetry_verbose", "Recieved data: {}", [telemetry_data])
             self.store_telemetry_data(telemetry_data)
 
         else:

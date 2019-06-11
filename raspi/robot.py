@@ -155,13 +155,13 @@ class Robot(Node):
     def serve_throttle_data(self):
         return self.get_data(settings.THROTTLE_DATA_NAME)
 
-    def serve_telemetry_data(self)-> dict:
-        telemetry_data = {}
-        telemetry_data["throttle_data"] = self.serve_throttle_data()
-        telemetry_data["motor_data"] = self.controls_processor.motor_control.motor_values
-        telemetry_data["current_camera"] = self.controls_processor.cameras.current_camera
-        telemetry_data["int_temp_data"] = self.get_data(settings.ROBOT_INT_TEMP_NAME)
-        return telemetry_data
+    def serve_telemetry_data(self) -> dict:
+        data = {}
+        data["throttle_data"] = self.controls_processor.throttle
+        data["motor_data"] = self.controls_processor.motor_control.motor_values
+        data["current_camera"] = self.controls_processor.cameras.current_camera
+        data["int_temp_data"] = self.get_data(settings.ROBOT_INT_TEMP_NAME)
+        return data
 
     def store_int_temp_data(self, int_temp: float):
         self.store_data(settings.ROBOT_INT_TEMP_NAME, int_temp)

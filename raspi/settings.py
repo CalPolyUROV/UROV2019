@@ -85,6 +85,8 @@ DEBUG_CHANNELS = {
     "decode": False,
     "decode_verbose": False,
 
+    "telemetry_verbose": True,
+
     "int_temp_mon": True,
 
     "serial_finder": True,
