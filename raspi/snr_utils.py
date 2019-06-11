@@ -156,19 +156,30 @@ class Profiler:
             self.init_task_type(task_type)
         # Shift elements
         self.time_dict[task_type].append(runtime)
-        debug("profiling_avg", "Task {} has average runtime {:6.3f} us",
-              [task_type, self.avg_us(task_type)])
+        debug("profiling_avg", "Task {} has average runtime {}",
+              [task_type, self.avg_time(task_type)])
 
     def init_task_type(self, task_type: TaskType):
         self.time_dict[task_type] = deque(maxlen=self.moving_avg_len)
 
-    def avg_us(self, task_type: TaskType) -> float:
-        return 1000000 * sum(self.time_dict[task_type]) / len(self.time_dict[task_type])
+    def avg_time(self, task_type: Union[TaskType, str]) -> float:
+        return self.format_time(sum(self.time_dict[task_type]) /
+                                len(self.time_dict[task_type]))
 
     def dump(self):
         debug("profiling_dump", "Type: \t\tAvg runtime: ")
         for k in self.time_dict.keys():
-            debug("profiling_dump", "{}: {:6.3f} us", [k, self.avg_us(k)])
+            debug("profiling_dump", "{}: {}", [k, self.avg_time(k)])
+
+    def format_time(self, time_s: float) -> str:
+        if time_s > 1:
+            return "{:6.3f} s".format(time_s)
+        elif time_s > 0.001:
+            return "{:6.3f} ms".format(time_s * 1000)
+        elif time_s > 0.000001:
+            return "{:6.3f} us".format(time_s * 1000000)
+        elif time_s > 0.000000001:
+            return "{:6.3f} ns".format(time_s * 1000000000)
 
     def terminate(self):
         self.dump()
