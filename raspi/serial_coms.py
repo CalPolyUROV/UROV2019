@@ -28,7 +28,7 @@ BLINK_CMD = 0x80
 INV_CMD_ACK = 0xFF      # Invalid command, value2 of response contains cmd
 
 
-class SerialConnection(Relay):
+class SerialConnection():
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self):
         if settings.SIMULATE_SERIAL:
@@ -170,12 +170,6 @@ class SerialConnection(Relay):
             tries = 0
             while self.serial_connection.in_waiting < PACKET_SIZE:
                 tries = tries + 1
-                # debug("serial_verbose", "waiting... {} of 4",
-                #       [self.serial_connection.in_waiting])
-                # if tries > settings.SERIAL_MAX_ATTEMPTS:
-                #     debug("serial_con", "No reponse from device")
-                #     return None
-                # sleep(0.5)
             debug("serial_verbose",
                   "Received enough bytes after {} tries", [tries])
             debug("serial_verbose", "Reading, {} bytes ready",

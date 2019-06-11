@@ -12,14 +12,14 @@ from snr_task import SomeTasks, TaskScheduler
 from snr_utils import attempt, debug, sleep, u_exit
 
 
-class SocketsClient(Relay):
-    """ Manages sockets network connection to topside raspi
+class SocketsClient():
+    """ Requests data from sockets server,
+    located on the robot or topside unit
     """
 
     def __init__(self,
                  config: SocketsConfig,
                  task_scheduler: TaskScheduler):
-        super().__init__(self.request_data)
         self.config = config
         self.task_scheduler = task_scheduler
         # self.s = None

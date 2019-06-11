@@ -217,21 +217,21 @@ class AsyncEndpoint:
             "Subclass of endpoint does not implement terminate()")
 
 
-class Relay:
-    """An object belonging to a Node that connects it to other nodes or devices
-    """
+# class Relay:
+#     """An object belonging to a Node that connects it to other nodes
+#     """
 
-    def __init__(self, sub):
-        self.sub = sub
+#     def __init__(self, sub):
+#         self.sub = sub
 
-    def request_data(self) -> SomeTasks:
-        """The main event done by a Transport object
-        """
-        raise NotImplementedError(
-            "Subclass of Transport does not implement send_and_receive()")
+#     def request_data(self) -> SomeTasks:
+#         """The main event done by a Transport object
+#         """
+#         raise NotImplementedError(
+#             "Subclass of Transport does not implement send_and_receive()")
 
-    def terminate(self):
-        """Execute actions needed to destruct a Relay
-        """
-        raise NotImplementedError(
-            "Subclass of Transport does not implement terminate()")
+#     def terminate(self):
+#         """Execute actions needed to destruct a Relay
+#         """
+#         raise NotImplementedError(
+#             "Subclass of Transport does not implement terminate()")
