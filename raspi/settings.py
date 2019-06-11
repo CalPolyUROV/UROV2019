@@ -211,7 +211,6 @@ SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
 
 # Temperature Monitor
-USE_TOPSIDE_PI_TEMP_MON = False
 USE_ROBOT_PI_TEMP_MON = False
 TOPSIDE_INT_TEMP_NAME = "topside_int_temp_mon"
 ROBOT_INT_TEMP_NAME = "robot_int_temp_mon"

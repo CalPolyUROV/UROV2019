@@ -46,11 +46,6 @@ class Topside(Node):
         # Start CLUI endpoint
         self.ui = TopsideClui(settings.TOPSIDE_CLUI_NAME, self.fetch_ui_data)
 
-        # Start local temperature monitor endpoint
-        if settings.USE_TOPSIDE_PI_TEMP_MON:
-            self.int_temp_mon = IntTempMon(settings.TOPSIDE_INT_TEMP_NAME,
-                                           self.store_int_temp_data)
-
         debug("framework", "Topside Node created")
 
     def handle_task(self, t: Task) -> SomeTasks:
@@ -87,9 +82,6 @@ class Topside(Node):
 
         if settings.USE_TELEMETRY_SOCKETS:
             self.telemetry_sockets_client.terminate()
-
-        if settings.USE_TOPSIDE_PI_TEMP_MON:
-            self.int_temp_mon.terminate()
 
         if settings.USE_TOPSIDE_CLUI:
             self.ui.terminate()
