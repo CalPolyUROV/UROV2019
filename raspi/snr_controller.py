@@ -193,7 +193,7 @@ class Controller(AsyncEndpoint):
         # Get the index of which joystick if there are multiple connected
         joystick_data["number"] = i
         # Get the name from the OS for the controller/joystick
-        joystick_data["name"] = joystick.get_name()
+        # joystick_data["name"] = joystick.get_name()
 
         # Enumerate number floating point values
         joystick_data["num_axes"] = joystick.get_numaxes()
