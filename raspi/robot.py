@@ -7,15 +7,15 @@ used in this program manages the serial and sockets connections to the
 Arduino/Teensy and topside raspberry Pi respectively.
 """
 
-import settings  # Configuration file
+import settings
 from internal_temp import IntTempMon
 from robot_controls import ControlsProcessor
-from serial_coms import SerialConnection  # Serial connection to Teensy
+from serial_coms import SerialConnection
 from snr_lib import Node
-from snr_sockets_server import SocketsConfig, SocketsServer
+from snr_sockets_server import SocketsServer
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, debug_delay  # Miscelaneous utilities
-from sockets_client import SocketsClient  # Sockets connection to topside
+from snr_utils import debug, debug_delay
+from sockets_client import SocketsClient
 
 
 class Robot(Node):
@@ -34,22 +34,24 @@ class Robot(Node):
                 debug("robot", "Running in debug mode: server IP is localhost")
                 settings.CONTROLS_SOCKETS_CONFIG.ip = "localhost"
             # Make sockets client object using our implementation
-            self.socket_connection = SocketsClient(settings.
-                                                   CONTROLS_SOCKETS_CONFIG,
-                                                   self.schedule_task)
+            self.socket_connection = SocketsClient(
+                settings.CONTROLS_SOCKETS_CONFIG,
+                self.schedule_task)
 
         if settings.USE_TELEMETRY_SOCKETS:
             # Start sockets server endpoint
             if mode.__eq__("debug"):
                 settings.TELEMETRY_SOCKETS_CONFIG.ip = "localhost"
-            self.telemetry_server = SocketsServer(settings.TELEMETRY_SOCKETS_CONFIG,
-                                                  self.serve_telemetry_data,
-                                                  self.profiler)
+            self.telemetry_server = SocketsServer(
+                settings.TELEMETRY_SOCKETS_CONFIG,
+                self.serve_telemetry_data,
+                self.profiler)
 
         if settings.USE_ROBOT_PI_TEMP_MON:
-            self.temp_mon = IntTempMon(settings.ROBOT_INT_TEMP_NAME,
-                                       self.store_int_temp_data,
-                                       self.profiler)
+            self.temp_mon = IntTempMon(
+                settings.ROBOT_INT_TEMP_NAME,
+                self.store_int_temp_data,
+                self.profiler)
 
     def handle_task(self, t: Task) -> SomeTasks:
         debug("execute_task_verbose", "Executing task: {}", [t])
@@ -59,7 +61,8 @@ class Robot(Node):
         # Get controls input
         if t.task_type == TaskType.get_controls:
             controller_data = self.socket_connection.request_data()
-            t = Task(TaskType.process_controls, TaskPriority.high, [controller_data])
+            t = Task(TaskType.process_controls,
+                     TaskPriority.high, [controller_data])
             debug("robot_verbose",
                   "Got task {} from controls sockets connection", [t])
             sched_list.append(t)

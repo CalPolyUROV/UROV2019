@@ -1,15 +1,15 @@
 """ This module manages the serial connection
+between the Pi and microcontroller
 TODO: Add more documentation here
 """
 
-from typing import Tuple, Union
+from typing import Union
 
-import serial  # PySerial library
+import serial
 
-import serial_finder  # Identifies serial ports
+import serial_finder
 import settings
 from serial_packet import Packet
-from snr_lib import Relay
 from snr_task import SomeTasks
 from snr_utils import attempt, debug, sleep, u_exit
 
@@ -31,7 +31,6 @@ INV_CMD_ACK = 0xFF      # Invalid command, value2 of response contains cmd
 class SerialConnection(Relay):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self):
-
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
@@ -163,7 +162,7 @@ class SerialConnection(Relay):
         else:
             if not self.serial_connection.is_open:
                 debug("serial_error", "Aborting read, Serial is not open: {}",
-                    [self.serial_connection])
+                      [self.serial_connection])
                 return None
 
             debug("serial_verbose", "Waiting for bytes, {} ready", [
@@ -178,14 +177,14 @@ class SerialConnection(Relay):
                 #     return None
                 # sleep(0.5)
             debug("serial_verbose",
-                "Received enough bytes after {} tries", [tries])
+                  "Received enough bytes after {} tries", [tries])
             debug("serial_verbose", "Reading, {} bytes ready",
-                [self.serial_connection.in_waiting])
+                  [self.serial_connection.in_waiting])
             try:
                 recv_bytes = self.serial_connection.read(size=PACKET_SIZE)
             except Exception as error:
                 debug("serial_receive", "Error reading serial: {}",
-                    [error.__repr__()])
+                      [error.__repr__()])
         debug("serial_verbose", "Read bytes from serial")
         debug("serial_verbose", "type(recv_bytes) = {}", [type(recv_bytes)])
         cmd = recv_bytes[0]

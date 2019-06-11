@@ -8,13 +8,11 @@ sockets connections to the Arduino/Teensy and topside raspberry Pi
 respectively.
 """
 
-# System imports
-from sys import argv  # For command line arguments
+from sys import argv
 
-# Scheduling imports
 from robot import Robot
+from snr_utils import debug, print_usage, u_exit
 from topside import Topside
-from snr_utils import debug, u_exit, print_usage
 
 
 def main():

@@ -4,16 +4,16 @@ Node: Task queue driven host for data and endpoints
 AsyncEndpoint: Generate and process data for Nodes
 Relay: Server data to other nodes
 """
-from typing import Callable, Union, List
+
 from collections import deque
 from time import time
+from typing import Callable, Union
+
 import _thread as thread
-
-from snr_datastore import Datastore
-from snr_task import Task, SomeTasks, TaskSource, Handler, TaskPriority, TaskType
-from snr_utils import debug, sleep, u_exit, Profiler
-
 import settings
+from snr_datastore import Datastore
+from snr_task import Handler, SomeTasks, Task, TaskPriority, TaskSource
+from snr_utils import Profiler, debug, sleep, u_exit
 
 
 class Node:
@@ -165,7 +165,8 @@ class AsyncEndpoint:
     tick_rate (Hz).
     """
 
-    def __init__(self, name: str, loop_handler: Callable, tick_rate: float, profiler: Profiler):
+    def __init__(self, name: str, loop_handler: Callable,
+                 tick_rate: float, profiler: Profiler):
         self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False

@@ -1,10 +1,8 @@
 """Command Line User Interface
 Provides a visual interface for the terminal for the topside unit"""
 
-# System imports
 from typing import Callable
 
-# Our imports
 import settings
 from snr_lib import AsyncEndpoint
 from snr_utils import debug

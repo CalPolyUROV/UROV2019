@@ -2,9 +2,9 @@
 Attempts to document propper usage of such functions
 """
 
-import os  # For exit
-import sys  # For exit
-import time  # For sleep
+import os
+import sys
+import time
 from collections import deque
 from typing import Any, Callable, List, Union
 
@@ -93,7 +93,7 @@ def sleep(time_s: Union[int, float]):
         return
     if time_s == 0:
         return
-        
+
     time.sleep(time_s)
 
 

@@ -1,4 +1,10 @@
-from typing import Union, Callable, Any
+"""Store a dictionary for a Node
+
+Provides extra information for items in dictionary including freshness
+and previous value
+"""
+
+from typing import Callable, Any
 
 from snr_utils import debug
 
@@ -46,6 +52,7 @@ class Datastore:
         except KeyError:
             debug("datastore_error", "Cannot mark unfresh, key not found")
         return self.get(key)
+
 
 # Sets data with a given key
 DatastoreSetter = Callable[[str, Any], None]

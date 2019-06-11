@@ -1,14 +1,15 @@
+""" SNR Node that runs on the surface unit
 
-# Our imports
+Called by main
+"""
+
 import settings
-from internal_temp import IntTempMon
 from snr_controller import Controller
 from snr_lib import Node
-from snr_sockets import SocketsConfig
 from snr_sockets_server import SocketsServer
-from sockets_client import SocketsClient
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
 from snr_utils import debug, sleep
+from sockets_client import SocketsClient
 from topside_clui import TopsideClui
 
 
@@ -28,21 +29,22 @@ class Topside(Node):
         if settings.USE_CONTROLS_SOCKETS:
             if mode.__eq__("debug"):
                 settings.CONTROLS_SOCKETS_CONFIG.ip = "localhost"
-            self.controls_sockets_server = \
-                SocketsServer(settings.CONTROLS_SOCKETS_CONFIG,
-                              self.serve_controller_data,
-                              self.profiler)
+            self.controls_sockets_server = SocketsServer(
+                settings.CONTROLS_SOCKETS_CONFIG,
+                self.serve_controller_data,
+                self.profiler)
 
         if settings.USE_TELEMETRY_SOCKETS:
             if mode.__eq__("debug"):
                 settings.TELEMETRY_SOCKETS_CONFIG.ip = "localhost"
-            self.telemetry_sockets_client = \
-                SocketsClient(settings.TELEMETRY_SOCKETS_CONFIG,
-                              self.store_telemetry_data)
+            self.telemetry_sockets_client = SocketsClient(
+                settings.TELEMETRY_SOCKETS_CONFIG,
+                self.store_telemetry_data)
 
         # Start XBox controller endpoint
         self.xbox_controller = Controller(settings.CONTROLLER_NAME,
-                                          self.store_controller_data, self.profiler)
+                                          self.store_controller_data,
+                                          self.profiler)
 
         # Start CLUI endpoint
         self.ui = TopsideClui(settings.TOPSIDE_CLUI_NAME, self.fetch_ui_data)

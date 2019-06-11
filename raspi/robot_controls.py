@@ -1,11 +1,14 @@
-from typing import Any, List
+"""Perform calculations on controls data
+determines axis of thrust and stores state information
+"""
+
+from typing import List
 
 import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
-from snr_datastore import DatastoreSetter
-from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, init_dict, Profiler
+from snr_task import SomeTasks
+from snr_utils import Profiler, debug, init_dict
 
 # TODO: Split this class into robot_processing and datastore.py
 

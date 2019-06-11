@@ -1,18 +1,15 @@
-"""Sockets client which communicates to topside raspi
+"""Sockets client which communicates to a sockets server
 """
 
-# System imports
-import socket  # Sockets library
 import json
+import socket
 from json import JSONDecodeError
-from typing import Tuple, Callable, Union
+from typing import Union
 
-# Our imports
 import settings
-from snr_lib import Relay
-from snr_task import Task, SomeTasks, TaskPriority, TaskType, TaskScheduler
-from snr_utils import debug, sleep, attempt, u_exit
 from snr_sockets import SocketsConfig
+from snr_task import SomeTasks, TaskScheduler
+from snr_utils import attempt, debug, sleep, u_exit
 
 
 class SocketsClient(Relay):

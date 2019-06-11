@@ -1,5 +1,5 @@
 """Reads controller data for topside
-Based on example controller code from 
+Based on example controller code from
 https://www.pygame.org/docs/ref/joystick.html
 """
 
@@ -8,15 +8,9 @@ from typing import Callable
 
 import pygame
 
-import _thread
 import settings
 from snr_lib import AsyncEndpoint
-from snr_utils import debug, sleep, u_exit, Profiler
-
-# Sytem imports
-print("Importing pygame:")
-
-# Our imports
+from snr_utils import Profiler, debug
 
 
 class Controller(AsyncEndpoint):
@@ -30,7 +24,7 @@ class Controller(AsyncEndpoint):
         # Triggers zerod indicated whether the triggers no longer need to be
         # zeroed
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
-        self.joystick_data = dict({})
+        self.joystick_data = {}
         super().__init__(name, self.monitor_controller,
                          settings.CONTROLLER_INIT_TICK_RATE,
                          profiler)
@@ -61,7 +55,7 @@ class Controller(AsyncEndpoint):
             debug("controller_error", s, [num_controllers])
             exit("Required XBox controller absent")
         else:
-            s = "Controller not found but not required, skipping"
+            s = "Controller not found but not required, simulating input"
             debug("controller", s)
             settings.USE_CONTROLLER = False
             return
@@ -99,7 +93,8 @@ class Controller(AsyncEndpoint):
         if (left == 0) and (right == 0):
             self.triggers_zeroed = True
             self.set_delay(settings.CONTROLLER_TICK_RATE)
-            debug("controller", "Triggers successfully zeroed. Controller ready.")
+            debug("controller",
+                  "Triggers successfully zeroed. Controller ready.")
             return data
         else:
             debug("controller_error",
@@ -112,7 +107,7 @@ class Controller(AsyncEndpoint):
         control_data = {}
         for k in joystick_data.keys():
             (new_key, new_value) = self.map_input(k, joystick_data[k])
-            if new_key != None:
+            if new_key is not None:
                 control_data[new_key] = new_value
         return control_data
 
@@ -227,8 +222,8 @@ class Controller(AsyncEndpoint):
 
 def random_val():
     """Generates random values for simulated control input
-    All values are floats between 0.0 and 1.0. These are transformed to the 
-    correct data type in map_input
+    All values are floats between 0.0 and 1.0. These are transformed
+    to the correct data type in map_input
     """
     return random.random()
 

@@ -32,10 +32,10 @@ achieved by bouyancy
 
 from typing import Callable, List
 
-from snr_task import Task, TaskType, TaskPriority, TaskScheduler, SomeTasks
 import settings
-from snr_utils import debug, Profiler
 from snr_lib import AsyncEndpoint
+from snr_task import SomeTasks, Task, TaskPriority, TaskType
+from snr_utils import Profiler, debug
 
 
 class RobotMotors(AsyncEndpoint):

@@ -4,18 +4,20 @@
 
 import glob
 import sys
-import serial
 from sys import platform
 from typing import Callable
 
-from snr_utils import debug, attempt, sleep
+import serial
+
 import settings
+from snr_utils import attempt, debug, sleep
 
 
 def get_port_to_use(set_port: Callable) -> str:
     """ Finds a serial port for the serial connection
 
-    Calls the serial_finder library to search the operating system for serial ports
+    Calls the serial_finder library to search the operating system
+    for serial ports
     """
     # port = None
 
@@ -30,7 +32,7 @@ def get_port_to_use(set_port: Callable) -> str:
             # Select the port
             port = select_port(ports)
             set_port(port)
-            if(port == None):
+            if(port is None):
                 raise Exception("Serial Exception")
             debug("serial_finder", "Using port: {}", [port])
             return True
@@ -40,8 +42,8 @@ def get_port_to_use(set_port: Callable) -> str:
             return False
 
     def failure(tries: int):
-        # TODO: Handle aborting program in Schedule in order to correctly terminate connections, etc.
-        debug('serial_finder', "Could not find serial port after {} attempts. Crashing now.",
+        debug('serial_finder',
+              "Could not find serial port after {} attempts. Crashing now.",
               [tries])
         exit("Could not find port")
 
@@ -78,9 +80,9 @@ def list_ports() -> list:
     result = []
     for port in ports:
         try:
-            s = serial.Serial(port)                 # Try to open a port
-            s.close()                               # Close the port if sucessful
-            result.append(port)                     # Add to list of good ports
+            s = serial.Serial(port)    # Try to open a port
+            s.close()                  # Close the port if sucessful
+            result.append(port)        # Add to list of good ports
         except (OSError, Exception):   # If un sucessful
             pass
     return result
@@ -92,7 +94,8 @@ def select_port(ports) -> str or None:
     if platform == "linux" or platform == "linux2":
         debug("serial_finder", "Linux detected")
         for p in ports:
-            # return '/dev/ttyS0'  # If using raspi GPIO for serial, just pick this port
+            # return '/dev/ttyS0'  
+            # # If using raspi GPIO for serial, just pick this port
             if ("USB" in p) or ("ACM" in p):
                 return p
 

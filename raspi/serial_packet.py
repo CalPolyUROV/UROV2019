@@ -1,7 +1,7 @@
+"""Define sequences of packets to be sent over the serial connection
+"""
 
 import struct
-
-from snr_utils import debug
 
 PACKED_FORMAT = "BBB"
 
@@ -11,7 +11,7 @@ class Packet:
     the serial connection
     """
 
-    def __init__(self, cmd: int, val1: int, val2: int):  # , chksum: int):
+    def __init__(self, cmd: int, val1: int, val2: int):
         """Internal constructor
         """
         self.cmd = cmd

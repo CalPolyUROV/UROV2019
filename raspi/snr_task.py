@@ -1,3 +1,5 @@
+""" Defines the basic unit of work for Nodes
+"""
 
 from enum import Enum
 from typing import Callable, List, Union
@@ -36,10 +38,10 @@ class Task:
 
     def __eq__(self, other):
         return (
-            (self.__class__ == other.__class__)
-            and (self.task_type == other.task_type)
-            and (self.priority == other.priority)
-            and (self.val_list == other.val_list)
+            (self.__class__ == other.__class__) and
+            (self.task_type == other.task_type) and
+            (self.priority == other.priority) and
+            (self.val_list == other.val_list)
         )
 
     def __repr__(self):
