@@ -31,10 +31,9 @@ class ControlsProcessor:
         -Mission tools
     """
 
-    def __init__(self, db_store_throttle: callable, profiler: Profiler):
+    def __init__(self, profiler: Profiler):
         """Create data structures to hold implented data
         """
-        self.db_store_throttle = db_store_throttle
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
         self.motor_control = RobotMotors(self.get_throttle_data, profiler)
         # Input data
@@ -184,10 +183,42 @@ class ControlsProcessor:
 
     def process_button(self, key: str, val):
         if "button_a" in key:
-            self.previous_buttons['a'] = self.buttons['a']
-            self.buttons['a'] = val
-            if self.previous_buttons['a'] and not val:
+            self.store_button('a', val)
+            if self.button_pressed('a'):
+                pass
+            elif self.button_released('a'):
                 self.cameras.next_state()
+
+        elif "button_b" in key:
+            self.store_button('b', val)
+            if self.button_pressed('b'):
+                pass
+            elif self.button_released('b'):
+                pass
+        elif "button_x" in key:
+            self.store_button('x', val)
+            if self.button_pressed('x'):
+                pass
+            elif self.button_released('x'):
+                pass
+        elif "button_y" in key:
+            self.store_button('y', val)
+            if self.button_pressed('y'):
+                pass
+            elif self.button_released('y'):
+                pass
+
+    def store_button(self, button: str, val: bool):
+        self.previous_buttons[button] = self.buttons.get(button)
+        self.buttons[button] = val
+
+    def button_pressed(self, button: str):
+        # Button is pressed and was previous not pressed
+        return self.buttons[button] and not self.previous_buttons[button]
+
+    def button_released(self, button: str):
+        # Button was previous pressed but is now released
+        return self.previous_buttons[button] and not self.buttons[button]
 
     def axis_changed(self, axis: str) -> bool:
         if self.throttle[axis] == self.previous_throttle[axis]:

@@ -41,7 +41,8 @@ from snr_utils import Profiler, debug
 class RobotMotors(AsyncEndpoint):
     def __init__(self, get_throttle_data: Callable, profiler: Profiler):
 
-        super().__init__("robot_motors", self.update_motor_values, settings.MOTOR_CONTROL_TICK_RATE, profiler)
+        super().__init__("robot_motors", self.update_motor_values,
+                         settings.MOTOR_CONTROL_TICK_RATE, profiler)
         self.get_throttle_data = get_throttle_data
 
         self.motor_previous = generate_motor_array()
@@ -71,33 +72,33 @@ class RobotMotors(AsyncEndpoint):
         self.motor_targets[5] = axis["x"] + axis["y"] + axis["yaw"]
 
     def update_motor_values(self):
-        for motor_index in range(settings.NUM_MOTORS):
-            self.motor_previous[motor_index] = self.motor_values[motor_index]
+        for index in range(settings.NUM_MOTORS):
+            self.motor_previous[index] = self.motor_values[index]
             # New value is within max delta, set new value
-            if (abs(self.motor_targets[motor_index] -
-                    self.motor_values[motor_index])
+            if (abs(self.motor_targets[index] -
+                    self.motor_values[index])
                     <= settings.MOTOR_MAX_DELTA):
-                self.motor_values[motor_index] = self.motor_targets[motor_index]
+                self.motor_values[index] = self.motor_targets[index]
 
             # Target is above current
-            elif self.motor_targets[motor_index] > self.motor_values[motor_index]:
-                self.motor_values[motor_index] += settings.MOTOR_MAX_DELTA
+            elif self.motor_targets[index] > self.motor_values[index]:
+                self.motor_values[index] += settings.MOTOR_MAX_DELTA
 
             # Target is below current
             else:
-                self.motor_values[motor_index] -= settings.MOTOR_MAX_DELTA
+                self.motor_values[index] -= settings.MOTOR_MAX_DELTA
 
     def generate_serial_tasks(self) -> SomeTasks:
-        l = []
-        for motor_index in range(settings.NUM_MOTORS):
-            if not self.motor_values[motor_index] == self.motor_previous[motor_index]:
+        task_list = []
+        for index in range(settings.NUM_MOTORS):
+            if not self.motor_values[index] == self.motor_previous[index]:
                 t = Task(TaskType.serial_com, TaskPriority.high,
-                         ["set_motor", motor_index, self.motor_values[motor_index]])
-                l.append(t)
+                         ["set_motor", index, self.motor_values[index]])
+                task_list.append(t)
 
-        debug("motor_control", "Generated {} serial task(s)", [len(l)])
-        debug("motor_control_verbose", "{}", [l])
-        return l
+        debug("motor_control", "Generated {} serial task(s)", [len(task_list)])
+        debug("motor_control_verbose", "{}", [task_list])
+        return task_list
 
     def terminate(self):
         pass

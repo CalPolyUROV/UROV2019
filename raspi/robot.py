@@ -23,7 +23,7 @@ class Robot(Node):
         super().__init__(self.handle_task, self.get_new_tasks)
         self.mode = mode
 
-        self.controls_processor = ControlsProcessor(self.store_throttle_data, self.profiler)
+        self.controls_processor = ControlsProcessor(self.profiler)
 
         self.serial_connection = SerialConnection()
 
