@@ -56,14 +56,16 @@ class Robot(Node):
         sched_list = []
 
         # Get controls input
-        if t.task_type == TaskType.get_cntl:
-            # t = self.socket_connection.request_data()
-            # debug("robot_verbose", "Got task {} from sockets", [t])
-            # sched_list.append(t)
+        if t.task_type == TaskType.get_controls:
+            controller_data = self.socket_connection.request_data()
+            t = Task(TaskType.process_controls, TaskPriority.high, [controller_data])
+            debug("robot_verbose",
+                  "Got task {} from controls sockets connection", [t])
+            sched_list.append(t)
             pass
 
         # Process controls input
-        elif t.task_type == TaskType.cntl_input:
+        elif t.task_type == TaskType.process_controls:
             debug("robot_control_event", "Processing control input")
             debug("robot_control_verbose", "Control input {}", [t.val_list])
             controls_data = t.val_list[0]
@@ -118,10 +120,7 @@ class Robot(Node):
         sched_list = []
 
         if settings.USE_CONTROLS_SOCKETS:
-            controller_data = self.socket_connection.request_data()
-            t = Task(TaskType.cntl_input, TaskPriority.high, [controller_data])
-            debug("robot_verbose",
-                  "Got task {} from controls sockets connection", [t])
+            t = Task(TaskType.get_controls, TaskPriority.high, [])
             sched_list.append(t)
         else:
             debug("robot", "Sockets disabled, queuing blink task")
@@ -150,7 +149,15 @@ class Robot(Node):
         self.store_data(settings.THROTTLE_DATA_NAME, throttle_data)
 
     def serve_throttle_data(self):
-        self.get_data(settings.THROTTLE_DATA_NAME)
+        return self.get_data(settings.THROTTLE_DATA_NAME)
+
+    def serve_telemetry_data(self)-> dict:
+        telemetry_data = {}
+        telemetry_data["throttle_data"] = self.serve_throttle_data()
+        telemetry_data["motor_data"] = self.controls_processor.motor_control.motor_values
+        telemetry_data["current_camera"] = self.controls_processor.cameras.current_camera
+        telemetry_data["int_temp_data"] = self.get_data(settings.ROBOT_INT_TEMP_NAME)
+        return telemetry_data
 
     def store_int_temp_data(self, int_temp: float):
         self.store_data(settings.ROBOT_INT_TEMP_NAME, int_temp)

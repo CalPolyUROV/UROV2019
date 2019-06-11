@@ -61,8 +61,9 @@ class Topside(Node):
             debug("execute_task", "Debug_str task: {}", [t.val_list])
 
         elif (t.task_type == TaskType.get_telemetry):
-            # TODO: Implement sockets client on topside and server on robot
-            pass
+            telemetry_data = self.telemetry_sockets_client.request_data()
+            debug("telemetry", "Recieved data: {}", [telemetry_data])
+            self.store_telemetry_data(telemetry_data)
 
         else:
             debug("execute_task",
@@ -108,7 +109,7 @@ class Topside(Node):
         return controls
 
     def store_telemetry_data(self, telemetry_data: dict):
-        self.store_data(settings.TELEMETRY_DATA_NAME)
+        self.store_data(settings.TELEMETRY_DATA_NAME, telemetry_data)
 
     def fetch_ui_data(self, key: str):
         return self.get_data(key)

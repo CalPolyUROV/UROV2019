@@ -5,8 +5,8 @@ from typing import Callable, List, Union
 
 class TaskType(Enum):
     debug_str = "debug_str"
-    get_cntl = "get_cntl"
-    cntl_input = "cntl_input"
+    get_controls = "get_controls"
+    process_controls = "process_controls"
     get_telemetry = "get_telemetry"
     serial_com = "serial_com"
     blink_test = "blink_test"

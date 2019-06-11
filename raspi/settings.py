@@ -191,8 +191,8 @@ CONTROLS_SOCKETS_CONFIG = SocketsConfig(controls_server_ip,
                                         REQUIRE_CONTROLS_SOCKETS)
 
 # Telemetry Sockets Connection
-USE_TELEMETRY_SOCKETS = False
-REQUIRE_TELEMETRY_SOCKETS = False
+USE_TELEMETRY_SOCKETS = True
+REQUIRE_TELEMETRY_SOCKETS = True
 telemetry_server_ip = ROBOT_IP
 telemetry_server_port = 9121
 TELEMETRY_SOCKETS_CONFIG = SocketsConfig(telemetry_server_ip,
