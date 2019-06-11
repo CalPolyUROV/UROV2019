@@ -3,7 +3,7 @@ from collections import deque
 from typing import Callable
 
 import settings
-from snr_utils import debug
+from snr_utils import debug, Profiler
 from snr_lib import AsyncEndpoint
 
 CMD = "vcgencmd measure_temp"
@@ -29,10 +29,11 @@ class IntTempMon(AsyncEndpoint):
     class because topside and robot toggles for this device are separate
     """
 
-    def __init__(self, name: str, store_data: Callable):
+    def __init__(self, name: str, store_data: Callable, profiler: Profiler):
         super().__init__(name,
                          self.monitor_temp,
-                         settings.INT_TEMP_MON_TICK_RATE)
+                         settings.INT_TEMP_MON_TICK_RATE,
+                         profiler)
         self.store_data = store_data
         self.deque = deque()
         self.sum = 0.0

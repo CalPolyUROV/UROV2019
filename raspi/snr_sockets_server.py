@@ -9,7 +9,7 @@ from typing import Tuple, Callable
 import settings
 from snr_lib import AsyncEndpoint
 from snr_datastore import DatastoreGetter
-from snr_utils import debug, sleep
+from snr_utils import debug, sleep, Profiler
 from snr_sockets import SocketsConfig
 
 
@@ -17,8 +17,8 @@ class SocketsServer(AsyncEndpoint):
     """Asynchronous sockets server which sends commands to robot
     """
 
-    def __init__(self,  config: SocketsConfig, get_data: Callable):
-        super().__init__("sockets_server", self.sub_loop_handler, 0)
+    def __init__(self, config: SocketsConfig, get_data: Callable, profiler: Profiler):
+        super().__init__("sockets_server", self.sub_loop_handler, 0, profiler)
         self.config = config
         self.get_data = get_data
 

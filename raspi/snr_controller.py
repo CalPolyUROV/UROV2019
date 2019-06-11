@@ -11,7 +11,7 @@ import pygame
 import _thread
 import settings
 from snr_lib import AsyncEndpoint
-from snr_utils import debug, sleep, u_exit
+from snr_utils import debug, sleep, u_exit, Profiler
 
 # Sytem imports
 print("Importing pygame:")
@@ -20,7 +20,7 @@ print("Importing pygame:")
 
 
 class Controller(AsyncEndpoint):
-    def __init__(self, name: str, store_data: Callable):
+    def __init__(self, name: str, store_data: Callable, profiler: Profiler):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")
             return
@@ -32,7 +32,8 @@ class Controller(AsyncEndpoint):
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
         self.joystick_data = dict({})
         super().__init__(name, self.monitor_controller,
-                         settings.CONTROLLER_INIT_TICK_RATE)
+                         settings.CONTROLLER_INIT_TICK_RATE,
+                         profiler)
 
         self.store_data = store_data
 

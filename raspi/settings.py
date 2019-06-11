@@ -23,6 +23,11 @@ DEBUG_CHANNELS = {
     "execute_task": False,
     "execute_task_verbose": False,
 
+    "profiling_avg": False,
+    "task_profiling": False,
+    "endpoint_profiling": False,
+    "profiling_dump": True,
+
     "clui": True,
 
     "datastore": True,
@@ -98,6 +103,8 @@ DEBUG_CHANNELS = {
 }
 THREAD_END_WAIT_S = 2
 DISABLE_SLEEP = False
+ENABLE_PROFILING = True
+PROFILING_AVG_WINDOW_LEN = 32
 
 
 # Command Line User Interface

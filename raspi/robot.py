@@ -23,7 +23,7 @@ class Robot(Node):
         super().__init__(self.handle_task, self.get_new_tasks)
         self.mode = mode
 
-        self.controls_processor = ControlsProcessor(self.store_throttle_data)
+        self.controls_processor = ControlsProcessor(self.store_throttle_data, self.profiler)
 
         self.serial_connection = SerialConnection()
 
@@ -42,13 +42,14 @@ class Robot(Node):
             # Start sockets server endpoint
             if mode.__eq__("debug"):
                 settings.TELEMETRY_SOCKETS_CONFIG.ip = "localhost"
-            self.telemetry_server = SocketsServer(settings.
-                                                  TELEMETRY_SOCKETS_CONFIG,
-                                                  self.serve_throttle_data)
+            self.telemetry_server = SocketsServer(settings.TELEMETRY_SOCKETS_CONFIG,
+                                                  self.serve_telemetry_data,
+                                                  self.profiler)
 
         if settings.USE_ROBOT_PI_TEMP_MON:
             self.temp_mon = IntTempMon(settings.ROBOT_INT_TEMP_NAME,
-                                       self.store_int_temp_data)
+                                       self.store_int_temp_data,
+                                       self.profiler)
 
     def handle_task(self, t: Task) -> SomeTasks:
         debug("execute_task_verbose", "Executing task: {}", [t])

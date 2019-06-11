@@ -43,12 +43,8 @@ class Task:
         )
 
     def __repr__(self):
-        if self.task_type == TaskType.cntl_input:
-            return "Task: type: {}, priority: {}, val_list: {}".format(
-                self.task_type, self.priority, self.val_list)
         return "Task: type: {}, priority: {}, val_list: {}".format(
-            self.task_type, self.priority, self.val_list
-        )
+            self.task_type, self.priority, self.val_list)
 
 
 SomeTasks = Union[Task, List[Task], None]

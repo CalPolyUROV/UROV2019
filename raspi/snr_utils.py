@@ -2,14 +2,14 @@
 Attempts to document propper usage of such functions
 """
 
-# System imports
 import os  # For exit
 import sys  # For exit
 import time  # For sleep
-from typing import Callable, Union, Any, List
+from collections import deque
+from typing import Any, Callable, List, Union
 
-# Our imports
 import settings
+from snr_task import TaskType
 
 
 def print_usage() -> None:
@@ -94,7 +94,7 @@ def sleep(time_s: Union[int, float]):
     if time_s == 0:
         return
         
-        time.sleep(time_s)
+    time.sleep(time_s)
 
 
 def debug_delay():
@@ -143,3 +143,32 @@ def attempt(action: Callable[[], bool],
             return
         fail_once()
         attempts += 1
+
+
+class Profiler:
+    def __init__(self):
+        self.time_dict = {}
+        self.moving_avg_len = settings.PROFILING_AVG_WINDOW_LEN
+
+    def log_task(self, task_type: TaskType, runtime: float):
+        # Make sure queue exists
+        if self.time_dict.get(task_type) is None:
+            self.init_task_type(task_type)
+        # Shift elements
+        self.time_dict[task_type].append(runtime)
+        debug("profiling_avg", "Task {} has average runtime {:6.3f} us",
+              [task_type, self.avg_us(task_type)])
+
+    def init_task_type(self, task_type: TaskType):
+        self.time_dict[task_type] = deque(maxlen=self.moving_avg_len)
+
+    def avg_us(self, task_type: TaskType) -> float:
+        return 1000000 * sum(self.time_dict[task_type]) / len(self.time_dict[task_type])
+
+    def dump(self):
+        debug("profiling_dump", "Type: \t\tAvg runtime: ")
+        for k in self.time_dict.keys():
+            debug("profiling_dump", "{}: {:6.3f} us", [k, self.avg_us(k)])
+
+    def terminate(self):
+        self.dump()

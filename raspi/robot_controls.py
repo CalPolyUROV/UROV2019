@@ -5,7 +5,7 @@ from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
 from snr_datastore import DatastoreSetter
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, init_dict
+from snr_utils import debug, init_dict, Profiler
 
 # TODO: Split this class into robot_processing and datastore.py
 
@@ -28,12 +28,12 @@ class ControlsProcessor:
         -Mission tools
     """
 
-    def __init__(self, db_store_throttle: callable):
+    def __init__(self, db_store_throttle: callable, profiler: Profiler):
         """Create data structures to hold implented data
         """
         self.db_store_throttle = db_store_throttle
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
-        self.motor_control = RobotMotors(self.get_throttle_data)
+        self.motor_control = RobotMotors(self.get_throttle_data, profiler)
         # Input data
         self.control_input = {}
         self.previous_cntl_input = {}

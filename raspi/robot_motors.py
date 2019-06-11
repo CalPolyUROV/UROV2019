@@ -34,14 +34,14 @@ from typing import Callable, List
 
 from snr_task import Task, TaskType, TaskPriority, TaskScheduler, SomeTasks
 import settings
-from snr_utils import debug
+from snr_utils import debug, Profiler
 from snr_lib import AsyncEndpoint
 
 
 class RobotMotors(AsyncEndpoint):
-    def __init__(self, get_throttle_data: Callable):
+    def __init__(self, get_throttle_data: Callable, profiler: Profiler):
 
-        super().__init__("robot_motors", self.update_motor_values, settings.MOTOR_CONTROL_TICK_RATE)
+        super().__init__("robot_motors", self.update_motor_values, settings.MOTOR_CONTROL_TICK_RATE, profiler)
         self.get_throttle_data = get_throttle_data
 
         self.motor_previous = generate_motor_array()

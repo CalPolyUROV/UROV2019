@@ -4,15 +4,16 @@ Node: Task queue driven host for data and endpoints
 AsyncEndpoint: Generate and process data for Nodes
 Relay: Server data to other nodes
 """
-# System imports
 from typing import Callable, Union, List
 from collections import deque
+from time import time
 import _thread as thread
 
-# Our imports
 from snr_datastore import Datastore
-from snr_task import Task, SomeTasks, TaskSource, Handler, TaskPriority
-from snr_utils import debug, sleep, u_exit
+from snr_task import Task, SomeTasks, TaskSource, Handler, TaskPriority, TaskType
+from snr_utils import debug, sleep, u_exit, Profiler
+
+import settings
 
 
 class Node:
@@ -24,7 +25,10 @@ class Node:
         self.data = Datastore()
         self.task_handler = task_handler
         self.task_source = task_source
-
+        if settings.ENABLE_PROFILING:
+            self.profiler = Profiler()
+        else:
+            self.profiler = None
         self.terminate_flag = False  # Whether to exit main loop
 
     def loop(self):
@@ -37,11 +41,14 @@ class Node:
     def set_terminate_flag(self):
         self.terminate_flag = True
 
+        if self.profiler is not None:
+            self.profiler.terminate()
+
     def terminate(self):
         """Execute actions needed to deconstruct a Node
         """
         debug("framework", "Node termianted")
-        self.terminate_flag = True
+        self.set_terminate_flag()
 
     def step_task(self):
         # Get the next task to execute
@@ -93,7 +100,17 @@ class Node:
         if t is None:
             debug("execute_task", "Tried to execute None")
             return
-        task_result = self.task_handler(t)
+
+        if self.profiler is None:
+            task_result = self.task_handler(t)
+        else:
+            start_time = time()
+            task_result = self.task_handler(t)
+            runtime = time() - start_time
+            self.profiler.log_task(t.task_type, runtime)
+            debug("task_profiling", "Ran {} task in {:6.3f} us",
+                  [t.task_type, runtime * 1000000])
+
         if task_result is list:
             debug("schedule_verbose",
                   "Task execution resulted in {} new tasks",
@@ -148,11 +165,12 @@ class AsyncEndpoint:
     tick_rate (Hz).
     """
 
-    def __init__(self, name: str, loop_handler: Callable, tick_rate: float):
+    def __init__(self, name: str, loop_handler: Callable, tick_rate: float, profiler: Profiler):
         self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate)
+        self.profiler = profiler
 
     def set_delay(self, tick_rate: float):
         if tick_rate == 0:
@@ -166,7 +184,16 @@ class AsyncEndpoint:
 
     def threaded_loop(self):
         while not self.terminate_flag:
-            self.loop_handler()
+            if self.profiler is None:
+                self.loop_handler()
+            else:
+                start_time = time()
+                self.loop_handler()
+                runtime = time() - start_time
+                self.profiler.log_task(self.name, runtime)
+                debug("endpoint_profiling", "Ran {} task in {:6.3f} us",
+                      [self.name, runtime * 1000000])
+
             self.tick()
         debug("framework", "Async endpoint {} exited loop", [self.name])
         u_exit("Endpoint thread exited by termination")
@@ -183,7 +210,7 @@ class AsyncEndpoint:
         debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
-        """Execute actions needed to destruct a Transport
+        """Execute actions needed to destruct a AsyncEndpoint
         """
         raise NotImplementedError(
             "Subclass of endpoint does not implement terminate()")

@@ -30,7 +30,8 @@ class Topside(Node):
                 settings.CONTROLS_SOCKETS_CONFIG.ip = "localhost"
             self.controls_sockets_server = \
                 SocketsServer(settings.CONTROLS_SOCKETS_CONFIG,
-                              self.serve_controller_data)
+                              self.serve_controller_data,
+                              self.profiler)
 
         if settings.USE_TELEMETRY_SOCKETS:
             if mode.__eq__("debug"):
@@ -41,7 +42,7 @@ class Topside(Node):
 
         # Start XBox controller endpoint
         self.xbox_controller = Controller(settings.CONTROLLER_NAME,
-                                          self.store_controller_data)
+                                          self.store_controller_data, self.profiler)
 
         # Start CLUI endpoint
         self.ui = TopsideClui(settings.TOPSIDE_CLUI_NAME, self.fetch_ui_data)
