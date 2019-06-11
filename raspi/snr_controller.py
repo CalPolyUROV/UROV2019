@@ -156,7 +156,7 @@ class Controller(AsyncEndpoint):
 
         return key_val_tuple
 
-    def cast(self, value, t: type)-> object:
+    def cast(self, value, t: type) -> object:
         if t is None:
             return value
         elif t is int:
