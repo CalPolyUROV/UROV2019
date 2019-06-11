@@ -93,11 +93,8 @@ def sleep(time_s: Union[int, float]):
         return
     if time_s == 0:
         return
-    try:
+        
         time.sleep(time_s)
-    except KeyboardInterrupt:
-        debug("sleep", "Interupted by user")
-        u_exit("Interrupted by user")
 
 
 def debug_delay():
