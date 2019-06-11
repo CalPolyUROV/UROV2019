@@ -57,7 +57,7 @@ class Controller(AsyncEndpoint):
         else:
             s = "Controller not found but not required, simulating input"
             debug("controller", s)
-            settings.USE_CONTROLLER = False
+            settings.SIMULATE_INPUT = True
             return
 
     def monitor_controller(self):
@@ -65,13 +65,26 @@ class Controller(AsyncEndpoint):
             debug("controller_event", "Simulating input")
             joystick_data = simulate_input()
         else:
+            # if not pygame.joystick.get_init():
+
             debug("controller_verbose", "Reading input")
             try:
+                num_controllers = pygame.joystick.get_count()
+                if num_controllers < 1:
+                    raise pygame.error
                 joystick_data = self.read_joystick()
             except pygame.error as error:
-                debug("controller_error", "{}, simulating input",
+                debug("controller_error", "Controller error: {}",
                       [error.__repr__()])
-                joystick_data = simulate_input()
+                if not settings.REQUIRE_CONTROLLER:
+                    debug("controller_error",
+                          "Missing controller not required, simulating input")
+                    joystick_data = simulate_input()
+                else:
+                    debug("controller_error",
+                          "Lost connection to controller, {} found",
+                          [num_controllers])
+                    raise Exception("Lost connection to controller")
         new_data = self.map_input_dict(joystick_data)
         controls_dict = self.check_trigger_zeroed(new_data)
 
