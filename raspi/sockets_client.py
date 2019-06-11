@@ -22,7 +22,6 @@ class SocketsClient():
                  task_scheduler: TaskScheduler):
         self.config = config
         self.task_scheduler = task_scheduler
-        # self.s = None
         debug("sockets_status", "Sockets client created")
 
     def request_data(self) -> SomeTasks:
@@ -125,6 +124,7 @@ class SocketsClient():
         self.s = None
 
     def terminate(self):
+        # Not used since connection is short lived
         # self.close_socket()
         # settings.USE_SOCKETS = False
         pass

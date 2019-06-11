@@ -21,7 +21,7 @@ PACKET_SIZE = 3
 # TODO: Move command list to external file (maybe .txt or .csv),
 #       write script to generate in Arduino source and python
 #       source will not be needed on topside Pi, only on robot
-SET_MOT_CMD = 0x20      # set motor (call)
+SET_MOT_CMD = 0x20      # set motor speed
 SET_CAM_CMD = 0x33      # set camera feed
 RD_SENS_CMD = 0x40      # request read sensor value
 BLINK_CMD = 0x80
