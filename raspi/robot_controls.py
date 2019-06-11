@@ -5,7 +5,7 @@ from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
 from snr_datastore import DatastoreSetter
 from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, init_dict, try_key
+from snr_utils import debug, init_dict
 
 # TODO: Split this class into robot_processing and datastore.py
 

@@ -93,7 +93,6 @@ DEBUG_CHANNELS = {
     # "chksum_verbose": False,
 
     "sleep": True,
-    "try_key": False,
 
     "test": True,
 }

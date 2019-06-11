@@ -1,6 +1,6 @@
 from typing import Union, Callable, Any
 
-from snr_utils import debug, try_key
+from snr_utils import debug
 
 
 class Page:
@@ -23,7 +23,7 @@ class Datastore:
         self.database[key] = Page(data)
 
     def is_fresh(self, data_type: str) -> bool:
-        page = try_key(self.database, data_type)
+        page = self.database.get(data_type)
         if page is not None:
             return page.fresh
         return False
@@ -31,7 +31,7 @@ class Datastore:
     def get(self, key: str):
         """Get a value from the data store without marking it as unfresh
         """
-        page = try_key(self.database, key)
+        page = self.database.get(key)
 
         if page is None:
             debug("datastore_event", "Page for {} was empty", [key])

@@ -104,18 +104,6 @@ def debug_delay():
     sleep(settings.DEBUGGING_DELAY_S)
 
 
-def try_key(d: dict, k: str) -> Any:
-    """Access the value of a key in a dict, return None if not found
-    """
-    if type(d) is not dict:
-        return None
-    try:
-        return d[k]
-    except KeyError as _meh:
-        debug("try_key", "Unknown key: {}", [k])
-        return None
-
-
 def init_dict(keys: List[str], val: Any) -> dict:
     d = {}
     for k in keys:

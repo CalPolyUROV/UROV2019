@@ -11,7 +11,7 @@ import pygame
 import _thread
 import settings
 from snr_lib import AsyncEndpoint
-from snr_utils import debug, sleep, try_key, u_exit
+from snr_utils import debug, sleep, u_exit
 
 # Sytem imports
 print("Importing pygame:")
@@ -93,8 +93,8 @@ class Controller(AsyncEndpoint):
     def check_trigger_zeroed(self, data: dict):
         if self.triggers_zeroed:
             return data
-        left = try_key(data, "trigger_left")
-        right = try_key(data, "trigger_right")
+        left = data.get("trigger_left")
+        right = data.get("trigger_right")
         if (left == 0) and (right == 0):
             self.triggers_zeroed = True
             self.set_delay(settings.CONTROLLER_TICK_RATE)
@@ -118,7 +118,7 @@ class Controller(AsyncEndpoint):
     def map_input(self, key: str, value):
         """Maps an individual KV pair to our controls
         """
-        map_list = try_key(settings.control_mappings, key)
+        map_list = settings.control_mappings.get(key)
 
         new_key = map_list[0]
 
