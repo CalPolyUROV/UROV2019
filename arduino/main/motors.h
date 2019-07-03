@@ -79,13 +79,11 @@ void set_motor_target(int thruster_index, int input) {
 
 void update_motor_target(int thruster_index) {
   switch (thruster_index) {
-    // TODO: move logic out into another function to remove repeat code
-    // TODO: switch to summing x, y, and yaw as simple control system
     case MOTOR_1:
       set_motor_target(MOTOR_1, axis[X_AXIS] + axis[Y_AXIS] - axis[YAW_AXIS]);
       break;
     case MOTOR_2:
-      set_motor_target(MOTOR_2, -axis[X_AXIS] + axis[Y_AXIS] - axis[YAW_AXIS]);
+      set_motor_target(MOTOR_2, 0 - axis[X_AXIS] + axis[Y_AXIS] - axis[YAW_AXIS]);
       break;
     case MOTOR_3:
       set_motor_target(MOTOR_3, axis[Z_AXIS] + axis[ROLL_AXIS]);
@@ -94,7 +92,7 @@ void update_motor_target(int thruster_index) {
       set_motor_target(MOTOR_4, axis[Z_AXIS] - axis[ROLL_AXIS]);
       break;
     case MOTOR_5:
-      set_motor_target(MOTOR_5, - axis[X_AXIS] + axis[Y_AXIS] + axis[YAW_AXIS]);
+      set_motor_target(MOTOR_5, 0 - axis[X_AXIS] + axis[Y_AXIS] + axis[YAW_AXIS]);
       break;
     case MOTOR_6:
       set_motor_target(MOTOR_6, axis[X_AXIS] + axis[Y_AXIS] + axis[YAW_AXIS]);
