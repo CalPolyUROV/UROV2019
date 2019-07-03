@@ -20,7 +20,7 @@ DEBUG_CHANNELS = {
     "framework": True,
     "schedule": True,
     "schedule_verbose": False,
-    "execute_task": True,
+    "execute_task": False,
     "execute_task_verbose": False,
 
     "clui": True,
@@ -57,6 +57,9 @@ DEBUG_CHANNELS = {
     "throttle_verbose": False,
     "axis_update_verbose": False,
 
+    "motor_control": False,
+    "motor_control_verbose": False,
+
     "sockets": True,
     "sockets_client": True,
     "sockets_server": True,
@@ -85,9 +88,9 @@ DEBUG_CHANNELS = {
     "serial_warning": True,
     "serial_verbose": False,
 
-    "serial_packet": True,
-    "chksum_error": True,
-    "chksum_verbose": False,
+    "serial_packet": False,
+    # "chksum_error": True,
+    # "chksum_verbose": False,
 
     "sleep": True,
     "try_key": False,
@@ -106,8 +109,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
+REQUIRE_CONTROLLER = False
 SIMULATE_INPUT = False
-REQUIRE_CONTROLLER = True
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -150,6 +153,15 @@ control_mappings = {
 
 # Robot Control
 THROTTLE_DATA_NAME = "robot_throttle_data"
+
+# Motor control
+MOTOR_CONTROL_NAME = "motor_control_data"
+MOTOR_CONTROL_TICK_RATE = 20
+DEFAULT_MOTOR_VALUE = 0
+NUM_MOTORS = 6
+MOTOR_MAX_DELTA = 5
+
+# Cameras
 NUM_ANALOG_CAMERAS = 2
 
 # Sockets Connection
@@ -191,9 +203,9 @@ TELEMETRY_DATA_NAME = "telemetry_data"
 
 
 # Serial Connection
-USE_SERIAL = False
-REQUIRE_SERIAL = False
-SERIAL_BAUD = 9600  # Serial Baudrate
+USE_SERIAL = True
+REQUIRE_SERIAL = True
+SERIAL_BAUD = 115200  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection
 SERIAL_TIMEOUT = 4
