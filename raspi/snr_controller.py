@@ -103,7 +103,7 @@ class Controller(AsyncEndpoint):
             return data
         left = data.get("trigger_left")
         right = data.get("trigger_right")
-        if (left == 0) and (right == 0):
+        if ((left == 0) and (right == 0)) or settings.SIMULATE_INPUT:
             self.triggers_zeroed = True
             self.set_delay(settings.CONTROLLER_TICK_RATE)
             debug("controller",
