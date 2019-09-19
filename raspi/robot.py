@@ -81,6 +81,15 @@ class Robot(Node):
             debug("execute_task", "Executing task: {}", [t.val_list])
             # TODO: Read sensor values from serial  and store in datastore
 
+            data = {}
+            data["throttle_data"] = self.controls_processor.throttle
+            data["motor_data"] = self.controls_processor.motor_control.\
+                motor_values
+            data["current_camera"] = self.controls_processor.cameras.\
+                current_camera
+            data["int_temp_data"] = self.get_data(settings.ROBOT_INT_TEMP_NAME)
+            self.store_data(settings.TELEMETRY_DATA_NAME, data)
+
         # Send serial data
         elif t.task_type == TaskType.serial_com:
             debug("serial_verbose",
@@ -156,12 +165,7 @@ class Robot(Node):
         return self.get_data(settings.THROTTLE_DATA_NAME)
 
     def serve_telemetry_data(self) -> dict:
-        data = {}
-        data["throttle_data"] = self.controls_processor.throttle
-        data["motor_data"] = self.controls_processor.motor_control.motor_values
-        data["current_camera"] = self.controls_processor.cameras.current_camera
-        data["int_temp_data"] = self.get_data(settings.ROBOT_INT_TEMP_NAME)
-        return data
+        return self.get_data(settings.TELEMETRY_DATA_NAME)
 
     def store_int_temp_data(self, int_temp: float):
         self.store_data(settings.ROBOT_INT_TEMP_NAME, int_temp)
