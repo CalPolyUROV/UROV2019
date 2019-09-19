@@ -108,7 +108,6 @@ venv.bak/
 .DS_Store
 .idea
 
-robot/raspi/todo.txt
 raspi/todo.txt
 .vscode/*
 raspi/.vscode/*

@@ -12,7 +12,7 @@ void camera_setup(){
   
   digitalWrite(CAMERA_MUX_PIN_1, LOW);
   digitalWrite(CAMERA_MUX_PIN_2, LOW);
-  digitalWrite(CAMERA_MUX_PIN_3, HIGH);
+  digitalWrite(CAMERA_MUX_PIN_3, LOW);
 }
 
 void set_camera(int i){
