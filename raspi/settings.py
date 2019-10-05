@@ -85,7 +85,7 @@ DEBUG_CHANNELS = {
     "decode": False,
     "decode_verbose": False,
 
-    "telemetry_verbose": True,
+    "telemetry_verbose": False,
 
     "int_temp_mon": True,
 
@@ -116,8 +116,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-REQUIRE_CONTROLLER = False
-SIMULATE_INPUT = True
+REQUIRE_CONTROLLER = True
+SIMULATE_INPUT = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -135,12 +135,12 @@ to drop a value use "pygame_name": [None],
 control_mappings = {
     "number": [None],
     "name": ["controller_name"],
-    "axis_0": ["stick_left_x", int,  100],
-    "axis_1": ["stick_left_y", int, -100],
-    "axis_2": ["trigger_left", int, 50, 50],
-    "axis_3": ["stick_right_x", int, 100],
-    "axis_4": ["stick_right_y", int, -100],
-    "axis_5": ["trigger_right", int, 50, 50],
+    "axis_0": ["stick_left_x", int,  100, 0, 0],
+    "axis_1": ["stick_left_y", int, -100, 0, 0],
+    "axis_2": ["trigger_left", int, 50, 50, 0],
+    "axis_3": ["stick_right_x", int, 100, 0, 0],
+    "axis_4": ["stick_right_y", int, -100, 0, 0],
+    "axis_5": ["trigger_right", int, 50, 50, 0],
     "button_0": ["button_a", bool],
     "button_1": ["button_b", bool],
     "button_2": ["button_x", bool],
