@@ -40,7 +40,7 @@ DEBUG_CHANNELS = {
     "controller_event": False,
     "controller_verbose": False,
     "controls_reader": True,
-    "controls_reader_verbose": False,
+    "controls_reader_verbose": True,
     "control_mappings": False,
     "control_mappings_verbose": False,
     "simulation": False,
