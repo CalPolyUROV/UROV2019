@@ -1,8 +1,8 @@
 """Manage state for analog camera switching
 """
 
-from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug
+from snr.task import SomeTasks, Task, TaskPriority, TaskType
+from snr.utils import debug
 
 
 class RobotCameras:

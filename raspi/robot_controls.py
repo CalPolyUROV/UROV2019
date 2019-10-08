@@ -7,8 +7,8 @@ from typing import List
 import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
-from snr_task import SomeTasks
-from snr_utils import Profiler, debug, init_dict
+from snr.task import SomeTasks
+from snr.utils import Profiler, debug, init_dict
 
 # TODO: Split this class into robot_processing and datastore.py
 

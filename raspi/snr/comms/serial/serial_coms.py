@@ -7,11 +7,11 @@ from typing import Union
 
 import serial
 
-import serial_finder
 import settings
-from serial_packet import Packet
-from snr_task import SomeTasks
-from snr_utils import attempt, debug, sleep, u_exit
+import snr.comms.serial.serial_finder
+from snr.comms.serial.packet import Packet
+from snr.task import SomeTasks
+from snr.utils import attempt, debug, sleep, u_exit
 
 # encoding scheme
 ENCODING = 'ascii'

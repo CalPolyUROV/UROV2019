@@ -6,7 +6,7 @@ other copies. In other words, if a setting here is changed from inside
 a specific file, it will not be updated for other files.
 """
 
-from snr_sockets import SocketsConfig
+from snr.comms.sockets.config import SocketsConfig
 
 # TODO: Investigate converting settings values to an object
 # (Maybe keeping a per Node settings object)
@@ -116,8 +116,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-REQUIRE_CONTROLLER = True
-SIMULATE_INPUT = False
+REQUIRE_CONTROLLER = False
+SIMULATE_INPUT = True
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)

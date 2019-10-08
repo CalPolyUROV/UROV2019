@@ -26,16 +26,16 @@ the robot.
  \/              \/ 
 Yaw is clockwise rotation of the XY Plane around the Z axis
 Roll is rotation of the YZ Plane around the X axis
-The thruster configuration does not enable Pitch control, which must be 
-achieved by bouyancy
+The thruster configuration does not enable Pitch control, which must
+be achieved by bouyancy
 """
 
 from typing import Callable, List
 
 import settings
-from snr_lib import AsyncEndpoint
-from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import Profiler, debug
+from snr.async_endpoint import AsyncEndpoint
+from snr.task import SomeTasks, Task, TaskPriority, TaskType
+from snr.utils import Profiler, debug
 
 
 class RobotMotors(AsyncEndpoint):

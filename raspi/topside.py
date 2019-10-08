@@ -4,12 +4,12 @@ Called by main
 """
 
 import settings
-from snr_controller import Controller
-from snr_lib import Node
-from snr_sockets_server import SocketsServer
-from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, sleep
-from sockets_client import SocketsClient
+from snr.comms.sockets.client import SocketsClient
+from snr.comms.sockets.server import SocketsServer
+from snr.controller import Controller
+from snr.node import Node
+from snr.task import SomeTasks, Task, TaskPriority, TaskType
+from snr.utils import debug, sleep
 from topside_clui import TopsideClui
 
 

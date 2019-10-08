@@ -6,7 +6,7 @@ and previous value
 
 from typing import Callable, Any
 
-from snr_utils import debug
+from snr.utils import debug
 
 
 class Page:
