@@ -10,7 +10,7 @@ from typing import Callable
 import serial
 
 import settings
-from snr_utils import attempt, debug, sleep
+from snr.utils import attempt, debug, sleep
 
 
 def get_port_to_use(set_port: Callable) -> str:

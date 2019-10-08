@@ -4,8 +4,8 @@ Provides a visual interface for the terminal for the topside unit"""
 from typing import Callable
 
 import settings
-from snr_lib import AsyncEndpoint
-from snr_utils import debug
+from snr.async_endpoint import AsyncEndpoint
+from snr.utils import debug
 
 
 class TopsideClui(AsyncEndpoint):

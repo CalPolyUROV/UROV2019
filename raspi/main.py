@@ -11,7 +11,7 @@ respectively.
 from sys import argv
 
 from robot import Robot
-from snr_utils import debug, print_usage, u_exit
+from snr.utils import debug, print_usage, u_exit
 from topside import Topside
 
 

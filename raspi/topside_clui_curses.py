@@ -5,8 +5,8 @@ from curses import wrapper
 from typing import Callable
 
 import settings
-from snr_lib import AsyncEndpoint
-from snr_utils import debug
+from snr.lib import AsyncEndpoint
+from snr.utils import debug
 
 
 class TopsideCluiCurses(AsyncEndpoint):

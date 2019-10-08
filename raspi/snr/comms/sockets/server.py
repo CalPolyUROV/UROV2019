@@ -6,9 +6,9 @@ import socket
 from typing import Callable
 
 import settings
-from snr_lib import AsyncEndpoint
-from snr_sockets import SocketsConfig
-from snr_utils import Profiler, debug, sleep
+from snr.async_endpoint import AsyncEndpoint
+from snr.comms.sockets.config import SocketsConfig
+from snr.utils import Profiler, debug, sleep
 
 
 class SocketsServer(AsyncEndpoint):

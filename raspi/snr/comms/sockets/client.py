@@ -7,9 +7,9 @@ from json import JSONDecodeError
 from typing import Union
 
 import settings
-from snr_sockets import SocketsConfig
-from snr_task import SomeTasks, TaskScheduler
-from snr_utils import attempt, debug, sleep, u_exit
+from snr.comms.sockets.config import SocketsConfig
+from snr.task import SomeTasks, TaskScheduler
+from snr.utils import attempt, debug, sleep, u_exit
 
 
 class SocketsClient():

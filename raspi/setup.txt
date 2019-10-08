@@ -1,4 +1,6 @@
-1. Get python
+1. Install Make
+
+2. Get python
     Check version with:
     "make py_version"
     If python3.whatever is availble fromthe package manager, try to install with:
@@ -6,19 +8,19 @@
     If not, build from scratch with:
     "make py_build"
 
-2. Install pip
+3. Install pip
     Pray that the packagemanager has it
     "make pip_install"
     Upgrade pip
     "make pip_upgrade"
 
-3. Install pygame
+4. Install pygame
     see if pip will let you have it
     "make pygame_install"
     YOLO build it from source
     "make pygame_build"
 
-4. Run all the programs
+5. Run all the programs
     To debug topside and robot on one machine:
         In separate terminals
         "make topside local_debug"

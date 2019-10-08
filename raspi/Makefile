@@ -3,11 +3,12 @@
 # 	binary and rename a copy of it to python3.exe
 
 PYTHON_CMD = python3
-# PYTHON_FLAGS = -B
+PYTHON_DBG_FLAGS = -B
 
 MAIN_SRC = main.py
 TEST_SRC = tests.py
 LAUNCH_CMD = $(PYTHON_CMD) $(MAIN_SRC)
+DBG_LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_DBG_FLAGS) $(MAIN_SRC)
 
 ROBOT_IP = 10.0.10.11
 USERNAME = ubuntu
@@ -19,10 +20,10 @@ topside:
 	$(LAUNCH_CMD) topside
 
 debug_robot:
-	$(LAUNCH_CMD) robot -d
+	$(DBG_LAUNCH_CMD) robot -d
 
 debug_topside:
-	$(LAUNCH_CMD) topside -d
+	$(DBG_LAUNCH_CMD) topside -d
 
 dr: debug_robot
 
@@ -96,7 +97,7 @@ todo:
 	cat todo.txt
 
 clean:
-	rm -rf __pycache__
+	rm -rf */*/__pycache__ */__pycache__ __pycache__
 
 gource:
 	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm

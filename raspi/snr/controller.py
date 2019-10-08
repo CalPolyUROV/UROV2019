@@ -7,10 +7,9 @@ import random
 from typing import Callable
 
 import pygame
-
 import settings
-from snr_lib import AsyncEndpoint
-from snr_utils import Profiler, debug
+from snr.async_endpoint import AsyncEndpoint
+from snr.utils import Profiler, debug
 
 
 class Controller(AsyncEndpoint):

@@ -10,12 +10,12 @@ Arduino/Teensy and topside raspberry Pi respectively.
 import settings
 from internal_temp import IntTempMon
 from robot_controls import ControlsProcessor
-from serial_coms import SerialConnection
-from snr_lib import Node
-from snr_sockets_server import SocketsServer
-from snr_task import SomeTasks, Task, TaskPriority, TaskType
-from snr_utils import debug, debug_delay
-from sockets_client import SocketsClient
+from snr.comms.serial.serial_coms import SerialConnection
+from snr.comms.sockets.client import SocketsClient
+from snr.comms.sockets.server import SocketsServer
+from snr.node import Node
+from snr.task import SomeTasks, Task, TaskPriority, TaskType
+from snr.utils import debug, debug_delay
 
 
 class Robot(Node):

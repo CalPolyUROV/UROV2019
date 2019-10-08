@@ -9,7 +9,7 @@ from collections import deque
 from typing import Any, Callable, List, Union
 
 import settings
-from snr_task import TaskType
+from snr.task import TaskType
 
 
 def print_usage() -> None:
