@@ -1,29 +1,57 @@
-
 from collections import deque
 from time import time
-from typing import Callable, Union
+from typing import Callable, List, Union
 
 import _thread as thread
 import settings
 from snr.datastore import Datastore
+from snr.factory import Factory
 from snr.task import Handler, SomeTasks, Task, TaskPriority, TaskSource
 from snr.utils import Profiler, debug, sleep, u_exit
 
 
 class Node:
-    """Main thread object contianing task queue
-    """
-
-    def __init__(self, task_handler: Handler, task_source: TaskSource):
+    def __init__(self, mode: str, components: list):
+        self.mode = mode
         self.task_queue = deque()
         self.data = Datastore()
-        self.task_handler = task_handler
-        self.task_source = task_source
+
+        self.task_sources = []
+        self.task_handlers = []
+        self.endpoints = []
+
+        self.profiler = None
         if settings.ENABLE_PROFILING:
             self.profiler = Profiler()
-        else:
-            self.profiler = None
+
         self.terminate_flag = False  # Whether to exit main loop
+
+        self.add_components(components)
+        debug("framework",
+              "Initialized with {} task sources,\
+ {} task handlers,\
+ {} endpoints",
+              [len(self.task_sources),
+               len(self.task_handlers),
+               len(self.endpoints)])
+
+    def add_components(self, new_components: List[Factory]):
+        debug("framework_verbose", "Adding {} components",
+              [len(new_components)])
+        for c in new_components:
+            source, handler, endpoints = c.get_task_callables(self.mode)
+
+            if source is not None:
+                self.task_sources.append(source)
+
+            if handler is not None:
+                self.task_handlers.append(handler)
+
+            for e in endpoints:
+                self.endpoints.append(e)
+
+            debug("framework_verbose", "Component {} added {}, {}, {}",
+                  [c, source, handler, endpoints])
 
     def loop(self):
         while not self.terminate_flag:
@@ -31,6 +59,57 @@ class Node:
             debug("schedule_verbose", "Task queue: \n{}",
                   [self.repr_task_queue()])
         self.terminate()
+
+    def schedule_new_tasks(self):
+        """Retrieve tasks from constructor supplied source function
+        Task or list of tasks are queued
+        """
+        new_tasks = []
+        for s in self.task_sources:
+            t = s()
+            if t is Task:
+                new_tasks.append(t)
+            elif t is List[Task]:
+                for _t in t:
+                    new_tasks.append(_t)
+        debug("schedule_verbose", "Scheduling new tasks {}", [new_tasks])
+        self.schedule_task(new_tasks)
+
+    def execute_task(self, t: Union[Task, None]):
+        """Execute the given task
+
+        The handler is provided at construction by the owner of the scheduler
+        object.
+        Note that the task is pass in and can be provided on the fly rather
+        than needing to be in the queue.
+        """
+        if t is None:
+            debug("execute_task", "Tried to execute None")
+            return
+
+        task_result = []
+
+        if self.profiler is None:
+
+            for h in self.task_handlers:
+                task_result.append(h(t))
+
+        else:
+            start_time = time()
+
+            for h in self.task_handlers:
+                task_result.append(h(t))
+
+            runtime = time() - start_time
+            self.profiler.log_task(t.task_type, runtime)
+            debug("task_profiling", "Ran {} task in {:6.3f} us",
+                  [t.task_type, runtime * 1000000])
+
+        if task_result is list:
+            debug("schedule_verbose",
+                  "Task execution resulted in {} new tasks",
+                  [len(list(task_result))])
+        self.schedule_task(task_result)
 
     def set_terminate_flag(self):
         self.terminate_flag = True
@@ -48,6 +127,11 @@ class Node:
         # Get the next task to execute
         t = self.get_next_task()
         self.execute_task(t)
+
+    def has_tasks(self) -> bool:
+        """Report whether there are enough tasks left in the queue
+        """
+        return len(self.task_queue) > 0
 
     def schedule_task(self, t: SomeTasks):
         """ Adds a Task or a list of Tasks to the node's queue
@@ -82,47 +166,6 @@ class Node:
         else:
             debug("schedule", "Cannot schedule task with priority: {}", [
                 t.priority])
-
-    def execute_task(self, t: Union[Task, None]):
-        """Execute the given task
-
-        The handler is provided at construction by the owner of the scheduler
-        object.
-        Note that the task is pass in and can be provided on the fly rather
-        than needing to be in the queue.
-        """
-        if t is None:
-            debug("execute_task", "Tried to execute None")
-            return
-
-        if self.profiler is None:
-            task_result = self.task_handler(t)
-        else:
-            start_time = time()
-            task_result = self.task_handler(t)
-            runtime = time() - start_time
-            self.profiler.log_task(t.task_type, runtime)
-            debug("task_profiling", "Ran {} task in {:6.3f} us",
-                  [t.task_type, runtime * 1000000])
-
-        if task_result is list:
-            debug("schedule_verbose",
-                  "Task execution resulted in {} new tasks",
-                  [len(list(task_result))])
-        self.schedule_task(task_result)
-
-    def has_tasks(self) -> bool:
-        """Report whether there are enough tasks left in the queue
-        """
-        return len(self.task_queue) > 0
-
-    def schedule_new_tasks(self):
-        """Retrieve tasks from constructor supplied source function
-        Task or list of tasks are queued
-        """
-        new_tasks = self.task_source()
-        debug("schedule_verbose", "Scheduling new tasks {}", [new_tasks])
-        self.schedule_task(new_tasks)
 
     def get_next_task(self) -> Union[Task, None]:
         """Take the next task off the queue

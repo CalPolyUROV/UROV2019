@@ -18,6 +18,10 @@ def print_usage() -> None:
     print("usage: python3 main.py (robot | topside)")
 
 
+def print_mode(mode: str):
+    print("Running as {}".format(mode))
+
+
 def u_exit(reason: str) -> None:
     """Kills the program after printing the supplied str reason
     """

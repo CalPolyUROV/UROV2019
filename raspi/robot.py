@@ -58,26 +58,8 @@ class Robot(Node):
 
         sched_list = []
 
-        # Get controls input
-        if t.task_type == TaskType.get_controls:
-            controller_data = self.socket_connection.request_data()
-            t = Task(TaskType.process_controls,
-                     TaskPriority.high, [controller_data])
-            debug("robot_verbose",
-                  "Got task {} from controls sockets connection", [t])
-            sched_list.append(t)
-            pass
-
-        # Process controls input
-        elif t.task_type == TaskType.process_controls:
-            debug("robot_control_event", "Processing control input")
-            debug("robot_control_verbose", "Control input {}", [t.val_list])
-            controls_data = t.val_list[0]
-            new_task = self.controls_processor.receive_controls(controls_data)
-            sched_list.append(new_task)
-
         # Read sensor data
-        elif t.task_type == TaskType.get_telemetry:
+        if t.task_type == TaskType.get_telemetry:
             debug("execute_task", "Executing task: {}", [t.val_list])
             # TODO: Read sensor values from serial  and store in datastore
 

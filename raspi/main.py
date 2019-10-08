@@ -7,12 +7,12 @@ robot. The scheduling module used in this program manages the serial and
 sockets connections to the Arduino/Teensy and topside raspberry Pi
 respectively.
 """
-
 from sys import argv
 
-from robot import Robot
-from snr.utils import debug, print_usage, u_exit
-from topside import Topside
+from snr.utils import debug, print_usage, u_exit, print_mode
+from snr.factory import *
+from snr.node import Node
+from robot_controls import RobotControlsFactory
 
 
 def main():
@@ -20,26 +20,40 @@ def main():
     if argc < 2:
         print_usage()
         u_exit("Improper usage")
+    device_selection = str(argv[1])
 
-    role = str(argv[1])  # Command line argument
+    print_mode(device_selection)
 
     mode = "deployed"
-
     if "-d" in argv:
         mode = "debug"
 
-    node = None
-    if role.__eq__("robot"):
-        debug("framework", "Running as robot in mode: {}", [mode])
-        node = Robot(mode)
-    elif role.__eq__("topside"):
-        debug("framework", "Running as server in mode: {}", [mode])
-        node = Topside(mode)
-    else:
-        debug("framework", "Invalid role {} given as command line arg", [role])
-        print_usage()
-        u_exit("Unknown role")
+    # Connections between devices
+    controls_link = EthernetLink(9230, 9131, "controls_data")
+    telemetry_link = EthernetLink(9120, 9121, "telemetry_data")
+    serial_link = SerialFactory("motor_data", "sensor_data",
+                                "path_to_arduino_program")
 
+    # Controls and motor processing
+    robot_controls = RobotControlsFactory("controls_data", "thruster_data")
+    robot_motors = RobotMotorsFactory("thruster_data", "motors_data")
+
+    # XBox Controller
+    controller = ControllerFactory("controls_data")
+    components = []
+    if device_selection.__eq__("robot"):
+        components = [controls_link.client,
+                      telemetry_link.server,
+                      robot_controls,
+                      robot_motors,
+                      serial_link]
+
+    elif device_selection.__eq__("topside"):
+        components = [controls_link.server,
+                      telemetry_link.client,
+                      controller]
+
+    node = Node(mode, components)
     # Run the node's loop
     try:
         node.loop()

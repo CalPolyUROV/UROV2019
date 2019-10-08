@@ -7,10 +7,37 @@ from typing import List
 import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
-from snr.task import SomeTasks
+from snr.task import SomeTasks, TaskType, TaskPriority, Task
 from snr.utils import Profiler, debug, init_dict
+from snr.factory import Factory
 
-# TODO: Split this class into robot_processing and datastore.py
+
+class RobotControlsFactory(Factory):
+    def __init__(self, input_data_name: str,
+                 output_data_name: str):
+        super().__init__(self.get_tasks, self.task_handler, [])
+        self.input_data_name = input_data_name
+        self.output_data_name = output_data_name
+
+    def get_tasks(self) -> SomeTasks:
+        return Task(TaskType.get_controls, TaskPriority.high, [])
+
+    def task_handler(self, t: Task) -> SomeTasks:
+        # Get controls input
+        if t.task_type == TaskType.get_controls:
+            controller_data = self.socket_connection.request_data()
+            t = Task(TaskType.process_controls,
+                     TaskPriority.high, [controller_data])
+            debug("robot_verbose",
+                  "Got task {} from controls sockets connection", [t])
+            return t
+
+        # Process controls input
+        elif t.task_type == TaskType.process_controls:
+            debug("robot_control_event", "Processing control input")
+            debug("robot_control_verbose", "Control input {}", [t.val_list])
+            controls_data = t.val_list[0]
+            return self.controls_processor.receive_controls(controls_data)
 
 
 class ControlsProcessor:

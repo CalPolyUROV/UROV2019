@@ -20,12 +20,12 @@ DEBUG_CHANNELS = {
     "framework": True,
     "schedule": True,
     "schedule_verbose": False,
-    "execute_task": False,
-    "execute_task_verbose": False,
+    "execute_task": True,
+    "execute_task_verbose": True,
 
-    "profiling_avg": False,
-    "task_profiling": False,
-    "endpoint_profiling": False,
+    "profiling_avg": True,
+    "task_profiling": True,
+    "endpoint_profiling": True,
     "profiling_dump": True,
 
     "clui": True,
@@ -89,8 +89,8 @@ DEBUG_CHANNELS = {
 
     "int_temp_mon": True,
 
-    "serial_finder": True,
     "serial": True,
+    "serial_finder": True,
     "serial_error": True,
     "serial_warning": True,
     "serial_verbose": False,
@@ -227,4 +227,4 @@ INT_TEMP_MON_TICK_RATE = 0.25  # Hz (Readings per second)
 INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
-ROBOT_NAME = "S5"
+ROBOT_NAME = "Seaymor"
