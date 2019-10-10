@@ -46,6 +46,9 @@ py_install:
 	sudo apt update
 	sudo apt install python3
 	
+py:
+	$(PYTHON_CMD)
+
 py_build:
 	# According to https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f
 	cd ../../..
