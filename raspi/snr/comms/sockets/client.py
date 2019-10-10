@@ -9,7 +9,7 @@ from typing import Union
 import settings
 from snr.comms.sockets.config import SocketsConfig
 from snr.task import SomeTasks, TaskScheduler
-from snr.utils import attempt, debug, sleep, u_exit
+from snr.utils import attempt, debug, sleep, print_exit
 
 
 class SocketsClient():
@@ -95,7 +95,7 @@ class SocketsClient():
                 debug("sockets_critical",
                       "Could not connect to server at {}:{} after {} tries.",
                       [self.config.ip, str(self.config.port), tries])
-                u_exit("Start required sockets connection")
+                print_exit("Start required sockets connection")
             else:
                 debug("ssockets_error",
                       "Abort sockets connection after {} tries. Not required.",

@@ -25,8 +25,6 @@ class Robot(Node):
 
         self.controls_processor = ControlsProcessor(self.profiler)
 
-        self.serial_connection = SerialConnection()
-
         if settings.USE_CONTROLS_SOCKETS:
             debug("sockets", "Using sockets as enabled in settings")
 
@@ -73,24 +71,7 @@ class Robot(Node):
             self.store_data(settings.TELEMETRY_DATA_NAME, data)
 
         # Send serial data
-        elif t.task_type == TaskType.serial_com:
-            debug("serial_verbose",
-                  "Executing serial com task: {}", [t.val_list])
-            result = self.serial_connection.send_receive(t.val_list[0],
-                                                         t.val_list[1::])
-            if result is None:
-                debug("robot",
-                      "Received no data in response from serial message")
-            elif type(result) == Task:
-                sched_list.append(result)
-            elif type(result) == list:
-                for new_task in list(result):
-                    sched_list.append(new_task)
-
-        # Blink test
-        elif t.task_type == TaskType.blink_test:
-            self.serial_connection.send_receive("blink", t.val_list)
-
+        
         # Debug string command
         elif t.task_type == TaskType.debug_str:
             debug("execute_task", "Executing task: {}", t.val_list)

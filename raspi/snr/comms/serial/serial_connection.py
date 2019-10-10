@@ -9,28 +9,17 @@ import serial
 
 import settings
 import snr.comms.serial.serial_finder
-from snr.comms.serial.packet import Packet
-from snr.task import SomeTasks
-from snr.utils import attempt, debug, sleep, u_exit
-
-# encoding scheme
-ENCODING = 'ascii'
-PACKET_SIZE = 3
-
-""" List of codes for each command """
-# TODO: Move command list to external file (maybe .txt or .csv),
-#       write script to generate in Arduino source and python
-#       source will not be needed on topside Pi, only on robot
-SET_MOT_CMD = 0x20      # set motor speed
-SET_CAM_CMD = 0x33      # set camera feed
-RD_SENS_CMD = 0x40      # request read sensor value
-BLINK_CMD = 0x80
-INV_CMD_ACK = 0xFF      # Invalid command, value2 of response contains cmd
+from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
+                                     SET_MOT_CMD, Packet)
+from snr.endpoint import Endpoint
+from snr.task import SomeTasks, Task, TaskType
+from snr.utils import attempt, debug, pass_fn, sleep, print_exit
 
 
-class SerialConnection():
+class SerialConnection(Endpoint):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self):
+        super().__init__(pass_fn, task_handler, self)
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
@@ -48,11 +37,32 @@ class SerialConnection():
             debug("serial_error",
                   "Could not open serial port after {} tries.",
                   [tries])
-            u_exit("Could not open serial port")
+            print_exit("Could not open serial port")
 
         attempt(self.try_open_serial,
                 settings.SERIAL_MAX_ATTEMPTS,
                 fail_once, failure)
+
+    def task_handler(self, t: Task) -> SomeTasks:
+        sched_list = []
+        if t.task_type == TaskType.serial_com:
+            debug("serial_verbose",
+                  "Executing serial com task: {}", [t.val_list])
+            result = self.serial_connection.send_receive(t.val_list[0],
+                                                         t.val_list[1::])
+            if result is None:
+                debug("robot",
+                      "Received no data in response from serial message")
+            elif type(result) == Task:
+                sched_list.append(result)
+            elif type(result) == list:
+                for new_task in list(result):
+                    sched_list.append(new_task)
+
+        # Blink test
+        elif t.task_type == TaskType.blink_test:
+            self.serial_connection.send_receive("blink", t.val_list)
+        return sched_list
 
     def set_port(self, port: str):
         debug("serial", "Setting port to {}", [port])

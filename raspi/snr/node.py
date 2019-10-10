@@ -6,8 +6,8 @@ import _thread as thread
 import settings
 from snr.datastore import Datastore
 from snr.factory import Factory
-from snr.task import Handler, SomeTasks, Task, TaskPriority, TaskSource
-from snr.utils import Profiler, debug, sleep, u_exit
+from snr.task import TaskHandler, SomeTasks, Task, TaskPriority, TaskSource
+from snr.utils import Profiler, debug, sleep, print_exit
 
 
 class Node:
@@ -39,7 +39,7 @@ class Node:
         debug("framework_verbose", "Adding {} components",
               [len(new_components)])
         for c in new_components:
-            source, handler, endpoints = c.get_task_callables(self.mode)
+            source, handler, endpoint = c.get_task_callables(self.mode)
 
             if source is not None:
                 self.task_sources.append(source)
@@ -47,11 +47,12 @@ class Node:
             if handler is not None:
                 self.task_handlers.append(handler)
 
-            for e in endpoints:
-                self.endpoints.append(e)
+            debug("framework_verbose", str(c))
+            if endpoint is not None:
+                self.endpoints.append(endpoint)
 
             debug("framework_verbose", "Component {} added {}, {}, {}",
-                  [c, source, handler, endpoints])
+                  [c, source, handler, endpoint])
 
     def loop(self):
         while not self.terminate_flag:

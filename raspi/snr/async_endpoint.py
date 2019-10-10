@@ -12,11 +12,12 @@ from typing import Callable, Union
 import _thread as thread
 import settings
 from snr.datastore import Datastore
-from snr.task import Handler, SomeTasks, Task, TaskPriority, TaskSource
-from snr.utils import Profiler, debug, sleep, u_exit
+from snr.task import TaskHandler, SomeTasks, Task, TaskPriority, TaskSource
+from snr.utils import Profiler, debug, sleep, print_exit
+from snr.endpoint import Endpoint
 
 
-class AsyncEndpoint:
+class AsyncEndpoint(Endpoint):
     """An Asynchronous endpoint of data for a node
 
     An AsyncEndpoint is part of a node, and runs in its own thread. An
@@ -57,7 +58,7 @@ class AsyncEndpoint:
 
             self.tick()
         debug("framework", "Async endpoint {} exited loop", [self.name])
-        u_exit("Endpoint thread exited by termination")
+        print_exit("Endpoint thread exited by termination")
 
     def get_name(self):
         return self.name

@@ -22,7 +22,7 @@ def print_mode(mode: str):
     print("Running as {}".format(mode))
 
 
-def u_exit(reason: str) -> None:
+def print_exit(reason: str) -> None:
     """Kills the program after printing the supplied str reason
     """
     print("\nExiting: " + reason.__repr__())
@@ -31,6 +31,10 @@ def u_exit(reason: str) -> None:
     except SystemExit:
         os._exit(0)
     # This point should be unreachable, just die already
+
+
+def pass_fn():
+    pass
 
 
 def debug(channel: str, *args: Union[list,  str]):

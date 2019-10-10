@@ -9,17 +9,19 @@ respectively.
 """
 from sys import argv
 
-from snr.utils import debug, print_usage, u_exit, print_mode
+from snr.utils import debug, print_usage, print_exit, print_mode
 from snr.factory import *
+from snr.comms.serial.factory import SerialFactory
 from snr.node import Node
 from robot_controls import RobotControlsFactory
+from snr.io.controller.factory import ControllerFactory
 
 
 def main():
     argc = len(argv)
     if argc < 2:
         print_usage()
-        u_exit("Improper usage")
+        print_exit("Improper usage")
     device_selection = str(argv[1])
 
     print_mode(device_selection)
@@ -63,7 +65,7 @@ def main():
 
     node.terminate()
     debug("framework", "Node terminated")
-    u_exit("Ya done now")
+    print_exit("Ya done now")
 
 
 if __name__ == "__main__":
