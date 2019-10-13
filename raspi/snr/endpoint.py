@@ -1,8 +1,15 @@
-from snr.factory import Factory
-from snr.task import TaskHandler, TaskSource
+from snr.task import TaskHandler, TaskSource, SomeTasks
 
 
-class Endpoint(Factory):
-    def __init__(self, get_tasks: TaskSource, task_handler: TaskHandler,
-                 endpoint):
-        super().__init__(get_tasks, task_handler, endpoint)
+class Endpoint:
+    def __init__(self):
+        pass
+
+    def get_new_tasks(self) -> SomeTasks:
+        pass
+
+    def task_handler(self, task) -> SomeTasks:
+        raise NotImplementedError
+
+    def terminate(self):
+        raise NotImplementedError

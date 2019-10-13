@@ -53,7 +53,7 @@ class AsyncEndpoint(Endpoint):
                 self.loop_handler()
                 runtime = time() - start_time
                 self.profiler.log_task(self.name, runtime)
-                debug("endpoint_profiling", "Ran {} task in {:6.3f} us",
+                debug("profiling_endpoint", "Ran {} task in {:6.3f} us",
                       [self.name, runtime * 1000000])
 
             self.tick()

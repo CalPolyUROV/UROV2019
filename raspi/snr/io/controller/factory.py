@@ -1,14 +1,19 @@
 from typing import Callable
 
+from snr.datastore import Datastore
+from snr.endpoint import Endpoint
 from snr.factory import Factory
 from snr.io.controller.controller import Controller
-from snr.utils import pass_fn, Profiler
+from snr.utils import Profiler, pass_fn
 
 
 class ControllerFactory(Factory):
     def __init__(self, output_data_name: str):
-        super().__init__(pass_fn, pass_fn, self.get_endpoint)
+        super().__init__()
         self.output_data_name = output_data_name
 
-    def get_endpoint(self, store_data: Callable, profiler: Profiler):
-        return Controller(self.output_data_name, store_data, profiler)
+    def get(self, mode: str,
+            profiler: Profiler,
+            datastore: Datastore) -> Endpoint:
+        return Controller(mode, profiler, datastore,
+                          self.output_data_name)

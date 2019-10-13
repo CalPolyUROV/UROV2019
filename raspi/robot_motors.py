@@ -36,20 +36,41 @@ import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.task import SomeTasks, Task, TaskPriority, TaskType
 from snr.utils import Profiler, debug
+from snr.factory import Factory
+from snr.datastore import Datastore
+from snr.endpoint import Endpoint
+
+
+class RobotMotorsFactory(Factory):
+    def __init__(self, input_data_name: str,
+                 output_data_name: str):
+        super().__init__()
+        self.input_data_name = input_data_name
+        self.output_data_name = output_data_name
+
+    def get(self, mode: str,
+            profiler: Profiler,
+            datastore: Datastore) -> Endpoint:
+        return RobotMotors(mode, profiler, datastore,
+                           self.input_data_name, self.output_data_name)
 
 
 class RobotMotors(AsyncEndpoint):
-    def __init__(self, get_throttle_data: Callable, profiler: Profiler):
+    def __init__(self, mode: str, profiler: Profiler, datastore: Datastore,
+                 input_name: str, output_name: str):
 
         super().__init__("robot_motors", self.update_motor_values,
                          settings.MOTOR_CONTROL_TICK_RATE, profiler)
-        self.get_throttle_data = get_throttle_data
+        self.input_data_name = input_name
 
         self.motor_previous = generate_motor_array()
         self.motor_values = generate_motor_array()
         self.motor_targets = generate_motor_array()
 
         self.loop()
+
+    def get_throttle_data(self):
+        return self.datastore.use(self.input_data_name)
 
     # def motor_control_tick(self):
     #     self.update_motor_targets(self.get_throttle_data())

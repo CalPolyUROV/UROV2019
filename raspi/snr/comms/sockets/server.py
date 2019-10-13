@@ -9,18 +9,22 @@ import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.comms.sockets.config import SocketsConfig
 from snr.utils import Profiler, debug, sleep
+from snr.datastore import Datastore
 
 
 class SocketsServer(AsyncEndpoint):
     """Asynchronous sockets server which sends commands to robot
     """
 
-    def __init__(self, config: SocketsConfig,
-                 get_data: Callable,
-                 profiler: Profiler):
+    def __init__(self, mode: str,
+                 profiler: Profiler,
+                 datastore: Datastore,
+                 config: SocketsConfig, data_name: str):
         super().__init__("sockets_server", self.sub_loop_handler, 0, profiler)
         self.config = config
-        self.get_data = get_data
+        self.datastore = datastore
+
+        self.data_name = data_name
 
         self.initialize_server()
         self.loop()
@@ -56,7 +60,10 @@ class SocketsServer(AsyncEndpoint):
         # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
         debug("sockets_status", "Socket created")
         try:
-            self.s.bind(self.config.tuple())
+            host_tuple = self.config.tuple()
+            debug("sockets_verbose", "Configuring with tuple: {}",
+                  [host_tuple])
+            self.s.bind(host_tuple)
             debug("sockets_event", "Socket bound to {}",
                   [self.config.tuple()])
         except socket.error as socket_error:
@@ -88,7 +95,7 @@ class SocketsServer(AsyncEndpoint):
     def send_data(self):
         """Automatically send controls data as soon as the client connects.
         """
-        controls = self.get_data()
+        controls = self.datastore.use(self.data_name)
         data = json.dumps(controls).encode()
         self.conn.sendall(data)
         debug("sockets_verbose", "Data sent")

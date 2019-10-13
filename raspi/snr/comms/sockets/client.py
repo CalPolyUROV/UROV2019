@@ -8,21 +8,26 @@ from typing import Union
 
 import settings
 from snr.comms.sockets.config import SocketsConfig
+from snr.datastore import Datastore
 from snr.task import SomeTasks, TaskScheduler
-from snr.utils import attempt, debug, sleep, print_exit
+from snr.utils import Profiler, attempt, debug, print_exit, sleep
+from snr.endpoint import Endpoint
 
 
-class SocketsClient():
+class SocketsClient(Endpoint):
     """ Requests data from sockets server,
     located on the robot or topside unit
     """
 
-    def __init__(self,
-                 config: SocketsConfig,
-                 task_scheduler: TaskScheduler):
+    def __init__(self, mode: str,
+                 profiler: Profiler,
+                 datastore: Datastore,
+                 config: SocketsConfig, data_name: str):
         self.config = config
-        self.task_scheduler = task_scheduler
         debug("sockets_status", "Sockets client created")
+
+    def get_new_tasks(self) -> SomeTasks:
+        pass
 
     def request_data(self) -> SomeTasks:
         """Main continual entry point for sending data over sockets

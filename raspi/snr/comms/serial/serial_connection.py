@@ -13,13 +13,16 @@ from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
                                      SET_MOT_CMD, Packet)
 from snr.endpoint import Endpoint
 from snr.task import SomeTasks, Task, TaskType
-from snr.utils import attempt, debug, pass_fn, sleep, print_exit
+from snr.utils import attempt, debug, pass_fn, sleep, print_exit, Profiler
+from snr.datastore import Datastore
 
 
 class SerialConnection(Endpoint):
     # Default port arg finds a serial port for the arduino/Teensy
-    def __init__(self):
-        super().__init__(pass_fn, task_handler, self)
+    def __init__(self, mode: str,
+                 profiler: Profiler, datastore: Datastore,
+                 input: str, output: str):
+        super().__init__()
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
@@ -42,6 +45,9 @@ class SerialConnection(Endpoint):
         attempt(self.try_open_serial,
                 settings.SERIAL_MAX_ATTEMPTS,
                 fail_once, failure)
+
+    def get_new_tasks(self):
+        pass
 
     def task_handler(self, t: Task) -> SomeTasks:
         sched_list = []

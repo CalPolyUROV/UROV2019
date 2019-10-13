@@ -6,18 +6,17 @@ import _thread as thread
 import settings
 from snr.datastore import Datastore
 from snr.factory import Factory
-from snr.task import TaskHandler, SomeTasks, Task, TaskPriority, TaskSource
-from snr.utils import Profiler, debug, sleep, print_exit
+from snr.task import SomeTasks, Task, TaskHandler, TaskPriority, TaskSource
+from snr.utils import Profiler, debug, print_exit, sleep
 
 
 class Node:
-    def __init__(self, mode: str, components: list):
+    def __init__(self, role: str, mode: str, factories: list):
+        self.role = role
         self.mode = mode
         self.task_queue = deque()
-        self.data = Datastore()
+        self.datastore = Datastore()
 
-        self.task_sources = []
-        self.task_handlers = []
         self.endpoints = []
 
         self.profiler = None
@@ -26,33 +25,39 @@ class Node:
 
         self.terminate_flag = False  # Whether to exit main loop
 
-        self.add_components(components)
+        self.assign_node_ip()
+
+        self.add_endpoints(factories)
         debug("framework",
-              "Initialized with {} task sources,\
- {} task handlers,\
- {} endpoints",
-              [len(self.task_sources),
-               len(self.task_handlers),
-               len(self.endpoints)])
+              "Initialized with  {} endpoints",
+              [len(self.endpoints)])
 
-    def add_components(self, new_components: List[Factory]):
+    def add_endpoints(self, factories: List[Factory]):
         debug("framework_verbose", "Adding {} components",
-              [len(new_components)])
-        for c in new_components:
-            source, handler, endpoint = c.get_task_callables(self.mode)
-
-            if source is not None:
-                self.task_sources.append(source)
-
-            if handler is not None:
-                self.task_handlers.append(handler)
-
-            debug("framework_verbose", str(c))
+              [len(factories)])
+        for f in factories:
+            endpoint = f.get(self.mode, self.profiler, self.datastore)
             if endpoint is not None:
                 self.endpoints.append(endpoint)
 
-            debug("framework_verbose", "Component {} added {}, {}, {}",
-                  [c, source, handler, endpoint])
+            debug("framework_verbose", "Factory {} added {}",
+                  [f, endpoint])
+
+    def assign_node_ip(self):
+        ip = "localhost"
+        if self.mode is not "debug":
+            if self.role is "robot":
+                ip = settings.ROBOT_IP
+            elif self.role is "topside":
+                ip = settings.TOPSIDE_IP
+            else:
+                # Panic
+                debug("node",
+                      "Node role {} not recognized. Counld not select IP",
+                      [self.role])
+        debug("node", "Assigned {} node ip: {}",
+              [self.role, ip])
+        self.datastore.store("node_ip_address", ip)
 
     def loop(self):
         while not self.terminate_flag:
@@ -66,8 +71,8 @@ class Node:
         Task or list of tasks are queued
         """
         new_tasks = []
-        for s in self.task_sources:
-            t = s()
+        for e in self.endpoints:
+            t = e.get_new_tasks()
             if t is Task:
                 new_tasks.append(t)
             elif t is List[Task]:
@@ -76,11 +81,9 @@ class Node:
         debug("schedule_verbose", "Scheduling new tasks {}", [new_tasks])
         self.schedule_task(new_tasks)
 
-    def execute_task(self, t: Union[Task, None]):
+    def execute_task(self, t: Task):
         """Execute the given task
 
-        The handler is provided at construction by the owner of the scheduler
-        object.
         Note that the task is pass in and can be provided on the fly rather
         than needing to be in the queue.
         """
@@ -92,14 +95,14 @@ class Node:
 
         if self.profiler is None:
 
-            for h in self.task_handlers:
-                task_result.append(h(t))
+            for e in self.endpoints:
+                task_result.append(e.task_handler(t))
 
         else:
             start_time = time()
 
-            for h in self.task_handlers:
-                task_result.append(h(t))
+            for e in self.endpoints:
+                task_result.append(e.task_handler(t))
 
             runtime = time() - start_time
             self.profiler.log_task(t.task_type, runtime)
@@ -114,6 +117,8 @@ class Node:
 
     def set_terminate_flag(self):
         self.terminate_flag = True
+
+        self.datastore.terminate()
 
         if self.profiler is not None:
             self.profiler.terminate()
@@ -179,13 +184,13 @@ class Node:
         return self.task_queue.pop()
 
     def store_data(self, key: str, data):
-        self.data.store(key, data)
+        self.datastore.store(key, data)
 
     def get_data(self, key: str):
-        return self.data.get(key)
+        return self.datastore.get(key)
 
     def use_data(self, key: str):
-        return self.data.use(key)
+        return self.datastore.use(key)
 
     def repr_task_queue(self) -> str:
         s = ""

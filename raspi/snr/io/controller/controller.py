@@ -9,11 +9,14 @@ from typing import Callable
 import pygame
 import settings
 from snr.async_endpoint import AsyncEndpoint
+from snr.datastore import Datastore
 from snr.utils import Profiler, debug
+from snr.task import SomeTasks
 
 
 class Controller(AsyncEndpoint):
-    def __init__(self, name: str, store_data: Callable, profiler: Profiler):
+    def __init__(self, mode: str, profiler: Profiler, datastore: Datastore,
+                 name: str):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")
             return
@@ -28,10 +31,19 @@ class Controller(AsyncEndpoint):
                          settings.CONTROLLER_INIT_TICK_RATE,
                          profiler)
 
-        self.store_data = store_data
+        self.datastore = datastore
 
         self.init_controller()
         self.loop()
+
+    def get_new_tasks(self) -> SomeTasks:
+        pass
+
+    def task_handler(self, task):
+        pass
+
+    def store_data(self, data):
+        self.datastore.store(self.name, data)
 
     def init_controller(self):
         if settings.SIMULATE_INPUT:

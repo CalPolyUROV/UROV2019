@@ -53,13 +53,20 @@ class Datastore:
             debug("datastore_error", "Cannot mark unfresh, key not found")
         return self.get(key)
 
+    def terminate(self):
+        self.dump()
 
-# Sets data with a given key
-DatastoreSetter = Callable[[str, Any], None]
-# Calls a DatastoreSetter with a set key
-DataSetter = Callable[[Any], None]
+    def dump(self):
+        for k in self.database.keys():
+            debug("datastore_dump", "k: {} v: {}",
+                  [k, self.get(k)])
 
-# Gets data with a given key from data store
-DatastoreGetter = Callable[[str], Any]
-# Calls a DatastoreGetter with set key
-DataGetter = Callable[[], Any]
+# # Sets data with a given key
+# DatastoreSetter = Callable[[str, Any], None]
+# # Calls a DatastoreSetter with a set key
+# DataSetter = Callable[[Any], None]
+
+# # Gets data with a given key from data store
+# DatastoreGetter = Callable[[str], Any]
+# # Calls a DatastoreGetter with set key
+# DataGetter = Callable[[], Any]

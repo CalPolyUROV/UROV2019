@@ -23,17 +23,10 @@ DEBUG_CHANNELS = {
     "execute_task": True,
     "execute_task_verbose": True,
 
-    "profiling_avg": True,
+    "profiling_avg": False,
     "task_profiling": True,
-    "endpoint_profiling": True,
+    "profiling_endpoint": False,
     "profiling_dump": True,
-
-    "clui": True,
-
-    "datastore": True,
-    "datastore_error": True,
-    "datastore_event": False,
-    "datastore_verbose": False,
 
     "controller": True,
     "controller_error": True,
@@ -43,8 +36,24 @@ DEBUG_CHANNELS = {
     "controls_reader_verbose": True,
     "control_mappings": False,
     "control_mappings_verbose": False,
-    "simulation": False,
-    "simulation_verbose": False,
+
+    "clui": True,
+
+    "datastore": True,
+    "datastore_dump": True,
+    "datastore_error": True,
+    "datastore_event": False,
+    "datastore_verbose": False,
+
+    "encode": False,
+    "encode_verbose": False,
+    "decode": False,
+    "decode_verbose": False,
+
+    "int_temp_mon": True,
+
+    "motor_control": False,
+    "motor_control_verbose": False,
 
     "robot": True,
     "robot_verbose": False,
@@ -52,42 +61,7 @@ DEBUG_CHANNELS = {
     "robot_control": True,
     "robot_control_warning": True,
     "robot_control_event": False,
-    "robot_control_verbose": False,
-
-    "thrust_vec": True,
-    "thrust_vec_verbose": False,
-
-    "throttle": True,
-    "throttle_values": True,
-    "throttle_verbose": False,
-    "axis_update_verbose": False,
-
-    "motor_control": False,
-    "motor_control_verbose": False,
-
-    "sockets": True,
-    "sockets_client": True,
-    "sockets_server": True,
-    "sockets_error": True,
-    "sockets_warning": True,
-    "sockets_event": False,
-    "sockets_status": False,
-    "sockets_verbose": False,
-
-    "sockets_send": True,
-    "sockets_send_verbose": False,
-
-    "sockets_receive": False,
-    "sockets_receive_verbose": False,
-
-    "encode": False,
-    "encode_verbose": False,
-    "decode": False,
-    "decode_verbose": False,
-
-    "telemetry_verbose": False,
-
-    "int_temp_mon": True,
+    "robot_control_verbose": True,
 
     "serial": True,
     "serial_finder": True,
@@ -98,9 +72,39 @@ DEBUG_CHANNELS = {
 
     "serial_packet": False,
 
+    "simulation": True,
+    "simulation_verbose": False,
+
     "sleep": True,
 
+    "sockets": True,
+    "sockets_client": True,
+    "sockets_server": True,
+    "sockets_error": True,
+    "sockets_warning": True,
+    "sockets_event": False,
+    "sockets_status": False,
+    "sockets_verbose": True,
+
+    "sockets_send": True,
+    "sockets_send_verbose": False,
+
+    "sockets_receive": False,
+    "sockets_receive_verbose": False,
+
+    "telemetry_verbose": False,
+
     "test": True,
+
+    "thrust_vec": True,
+    "thrust_vec_verbose": False,
+
+    "throttle": True,
+    "throttle_values": True,
+    "throttle_verbose": False,
+    "axis_update_verbose": False,
+
+
 }
 THREAD_END_WAIT_S = 2
 DISABLE_SLEEP = False

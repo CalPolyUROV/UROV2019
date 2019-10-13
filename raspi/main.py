@@ -15,6 +15,8 @@ from snr.comms.serial.factory import SerialFactory
 from snr.node import Node
 from robot_controls import RobotControlsFactory
 from snr.io.controller.factory import ControllerFactory
+from snr.comms.sockets.factory import EthernetLink
+from robot_motors import RobotMotorsFactory
 
 
 def main():
@@ -22,9 +24,9 @@ def main():
     if argc < 2:
         print_usage()
         print_exit("Improper usage")
-    device_selection = str(argv[1])
+    role = str(argv[1])
 
-    print_mode(device_selection)
+    print_mode(role)
 
     mode = "deployed"
     if "-d" in argv:
@@ -43,19 +45,19 @@ def main():
     # XBox Controller
     controller = ControllerFactory("controls_data")
     components = []
-    if device_selection.__eq__("robot"):
+    if role.__eq__("robot"):
         components = [controls_link.client,
                       telemetry_link.server,
                       robot_controls,
-                      robot_motors,
+                      # robot_motors,
                       serial_link]
 
-    elif device_selection.__eq__("topside"):
+    elif role.__eq__("topside"):
         components = [controls_link.server,
                       telemetry_link.client,
                       controller]
 
-    node = Node(mode, components)
+    node = Node(role, mode, components)
     # Run the node's loop
     try:
         node.loop()

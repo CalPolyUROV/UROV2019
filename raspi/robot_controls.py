@@ -10,34 +10,23 @@ from robot_motors import RobotMotors
 from snr.task import SomeTasks, TaskType, TaskPriority, Task
 from snr.utils import Profiler, debug, init_dict
 from snr.factory import Factory
+from snr.datastore import Datastore
+from snr.endpoint import Endpoint
 
 
 class RobotControlsFactory(Factory):
     def __init__(self, input_data_name: str,
                  output_data_name: str):
-        super().__init__(self.get_tasks, self.task_handler, [])
+        super().__init__()
         self.input_data_name = input_data_name
         self.output_data_name = output_data_name
 
-    def get_tasks(self) -> SomeTasks:
-        return Task(TaskType.get_controls, TaskPriority.high, [])
-
-    def task_handler(self, t: Task) -> SomeTasks:
-        # Get controls input
-        if t.task_type == TaskType.get_controls:
-            controller_data = self.socket_connection.request_data()
-            t = Task(TaskType.process_controls,
-                     TaskPriority.high, [controller_data])
-            debug("robot_verbose",
-                  "Got task {} from controls sockets connection", [t])
-            return t
-
-        # Process controls input
-        elif t.task_type == TaskType.process_controls:
-            debug("robot_control_event", "Processing control input")
-            debug("robot_control_verbose", "Control input {}", [t.val_list])
-            controls_data = t.val_list[0]
-            return self.controls_processor.receive_controls(controls_data)
+    def get(self, mode: str,
+            profiler: Profiler,
+            datastore: Datastore) -> Endpoint:
+        return ControlsProcessor(mode, profiler, datastore,
+                                 self.input_data_name,
+                                 self.output_data_name)
 
 
 class ControlsProcessor:
@@ -58,11 +47,13 @@ class ControlsProcessor:
         -Mission tools
     """
 
-    def __init__(self, profiler: Profiler):
+    def __init__(self, mode: str, profiler: Profiler,
+                 datastore: Datastore, input_name: str, output_name: str):
         """Create data structures to hold implented data
         """
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
-        self.motor_control = RobotMotors(self.get_throttle_data, profiler)
+        self.motor_control = RobotMotors(mode, profiler, datastore,
+                                         input_name, output_name)
         # Input data
         self.control_input = {}
         self.previous_cntl_input = {}
@@ -76,6 +67,28 @@ class ControlsProcessor:
         self.buttons = init_dict(self.buttons_list, False)
         self.previous_buttons = init_dict(self.buttons_list, False)
         # Pitch cannot be acheive with current motor configuration
+
+    # SNR endpoint function
+    def get_new_tasks(self) -> SomeTasks:
+        return Task(TaskType.get_controls, TaskPriority.high, [])
+
+    # SNR endpoint function
+    def task_handler(self, t: Task) -> SomeTasks:
+        # Get controls input
+        if t.task_type == TaskType.get_controls:
+            controller_data = self.socket_connection.request_data()
+            t = Task(TaskType.process_controls,
+                     TaskPriority.high, [controller_data])
+            debug("robot_verbose",
+                  "Got task {} from controls sockets connection", [t])
+            return t
+
+        # Process controls input
+        elif t.task_type == TaskType.process_controls:
+            debug("robot_control_event", "Processing control input")
+            debug("robot_control_verbose", "Control input {}", [t.val_list])
+            controls_data = t.val_list[0]
+            return self.controls_processor.receive_controls(controls_data)
 
     def get_throttle_data(self):
         return self.throttle
