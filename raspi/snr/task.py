@@ -49,7 +49,7 @@ class Task:
             self.task_type, self.priority, self.val_list)
 
 
-SomeTasks = Union[None, Task, List[Task]]
+SomeTasks = Union[None, Task, List]
 TaskHandler = Callable[[Task], SomeTasks]
 TaskSource = Callable[[], SomeTasks]
 TaskScheduler = Callable[[SomeTasks], None]

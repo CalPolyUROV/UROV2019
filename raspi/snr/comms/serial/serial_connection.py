@@ -12,17 +12,16 @@ import snr.comms.serial.serial_finder
 from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
                                      SET_MOT_CMD, Packet)
 from snr.endpoint import Endpoint
+from snr.node import Node
 from snr.task import SomeTasks, Task, TaskType
-from snr.utils import attempt, debug, pass_fn, sleep, print_exit, Profiler
-from snr.datastore import Datastore
+from snr.utils import attempt, debug, print_exit, sleep
 
 
 class SerialConnection(Endpoint):
     # Default port arg finds a serial port for the arduino/Teensy
-    def __init__(self, mode: str,
-                 profiler: Profiler, datastore: Datastore,
+    def __init__(self, parent: Node,
                  input: str, output: str):
-        super().__init__()
+        super().__init__(parent)
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
@@ -59,9 +58,9 @@ class SerialConnection(Endpoint):
             if result is None:
                 debug("robot",
                       "Received no data in response from serial message")
-            elif type(result) == Task:
+            elif isinstance(result, Task):
                 sched_list.append(result)
-            elif type(result) == list:
+            elif isinstance(result, list):
                 for new_task in list(result):
                     sched_list.append(new_task)
 
@@ -209,7 +208,7 @@ class SerialConnection(Endpoint):
     def map_thrust_value(self, speed: int) -> int:
         if speed > 100:
             return 255
-        elif speed < -100:
+        if speed < -100:
             return 0
         val = int((speed * 1.275) + 127)
         debug("serial_packet",
@@ -229,7 +228,7 @@ class SerialConnection(Endpoint):
 
         return Packet(cmd, val1, val2)
 
-    def make_packet(self, cmd: int, val1: int, val2: int, chksum: int):
+    def make_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets (chksum is given)
         """
         return Packet(cmd, val1, val2)

@@ -4,18 +4,19 @@ https://www.pygame.org/docs/ref/joystick.html
 """
 
 import random
-from typing import Callable
+from typing import Dict, Tuple, Union
 
 import pygame
+
 import settings
 from snr.async_endpoint import AsyncEndpoint
-from snr.datastore import Datastore
-from snr.utils import Profiler, debug
+from snr.node import Node
 from snr.task import SomeTasks
+from snr.utils import debug
 
 
 class Controller(AsyncEndpoint):
-    def __init__(self, mode: str, profiler: Profiler, datastore: Datastore,
+    def __init__(self, parent: Node,
                  name: str):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")
@@ -26,12 +27,11 @@ class Controller(AsyncEndpoint):
         # Triggers zerod indicated whether the triggers no longer need to be
         # zeroed
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
-        self.joystick_data = {}
-        super().__init__(name, self.monitor_controller,
-                         settings.CONTROLLER_INIT_TICK_RATE,
-                         profiler)
+        self.joystick_data: Dict = {}
+        super().__init__(parent, name, self.monitor_controller,
+                         settings.CONTROLLER_INIT_TICK_RATE)
 
-        self.datastore = datastore
+        self.datastore = self.parent.datastore
 
         self.init_controller()
         self.loop()
@@ -106,24 +106,26 @@ class Controller(AsyncEndpoint):
         self.store_data(controls_dict)
 
     def print_data(self, d: dict):
-        for val in self.joystick_data:
-            print(str(val) + ":\t" + str(self.joystick_data[val]))
+        for val in d:
+            print(str(val) + ":\t" + str(d[val]))
 
     def check_trigger_zeroed(self, data: dict):
         if self.triggers_zeroed:
             return data
         left = data.get("trigger_left")
         right = data.get("trigger_right")
+
         if ((left == 0) and (right == 0)) or settings.SIMULATE_INPUT:
             self.triggers_zeroed = True
             self.set_delay(settings.CONTROLLER_TICK_RATE)
             debug("controller",
                   "Triggers successfully zeroed. Controller ready.")
             return data
-        else:
-            debug("controller_error",
-                  "Please zero triggers: left: {}, right: {}", [left, right])
-            return {}
+
+        debug("controller_error",
+              "Please zero triggers: left: {}, right: {}",
+              [left, right])
+        return {}
 
     def map_input_dict(self, joystick_data: dict) -> dict:
         """Convert pygame input names to our names based off settings
@@ -135,10 +137,13 @@ class Controller(AsyncEndpoint):
                 control_data[new_key] = new_value
         return control_data
 
-    def map_input(self, key: str, value):
+    def map_input(self, key: str, value) -> Tuple:
         """Maps an individual KV pair to our controls
         """
         map_list = settings.control_mappings.get(key)
+
+        if not isinstance(map_list, list):
+            return key, value
 
         new_key = map_list[0]
 
@@ -175,24 +180,23 @@ class Controller(AsyncEndpoint):
 
         return key_val_tuple
 
-    def cast(self, value, t: type) -> object:
+    def cast(self, value, t: Union[type, None]):
         if t is None:
             return value
-        elif t is int:
+        if t is int:
             return int(value)
-        elif t is bool:
+        if t is bool:
             return value != 0
-        elif t is tuple:
+        if t is tuple:
             if value is tuple:
                 return value
-            elif type(value) is float:
+            if isinstance(value, float):
                 return (int((float(value) * 4) - 2),
                         int((float(value) * -4) + 2))
-            else:
-                debug("control_mappings_verbose",
-                      "Trying to cast {}: {} as tuple", [
-                          type(value), value])
-                return value
+            debug("control_mappings_verbose",
+                  "Trying to cast {}: {} as tuple", [
+                      type(value), value])
+        return value
 
     def read_joystick(self) -> dict:
         """Function run in separate thread to update control data
@@ -259,7 +263,7 @@ def simulate_input() -> dict:
     """
     debug("simulation", "Simulating control input")
     sim_data = {}
-    for key in settings.control_mappings.keys():
+    for key in settings.control_mappings:
         debug("simulation_verbose", "Simulating key: {}", [key])
         sim_data[key] = random_val()
     debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])

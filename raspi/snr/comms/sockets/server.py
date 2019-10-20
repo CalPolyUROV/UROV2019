@@ -3,26 +3,23 @@
 
 import json
 import socket
-from typing import Callable
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.comms.sockets.config import SocketsConfig
-from snr.utils import Profiler, debug, sleep
-from snr.datastore import Datastore
+from snr.utils import debug, sleep
+from snr.node import Node
 
 
 class SocketsServer(AsyncEndpoint):
     """Asynchronous sockets server which sends commands to robot
     """
 
-    def __init__(self, mode: str,
-                 profiler: Profiler,
-                 datastore: Datastore,
+    def __init__(self, parent: Node,
                  config: SocketsConfig, data_name: str):
-        super().__init__("sockets_server", self.sub_loop_handler, 0, profiler)
+        super().__init__(parent, "sockets_server", self.sub_loop_handler, 0)
         self.config = config
-        self.datastore = datastore
+        self.datastore = self.parent.datastore
 
         self.data_name = data_name
 

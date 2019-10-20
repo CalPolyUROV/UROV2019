@@ -1,4 +1,4 @@
-""" Main Python code that runs on the Raspberry Pi on robot and surface unit
+"""Main Python code that runs on the Raspberry Pi on robot and surface unit.
 
 This is the python program is meant to run on the Raspberry Pi's located on
 the robot and one the surface unit. This program acts as a intermediary
@@ -9,14 +9,12 @@ respectively.
 """
 from sys import argv
 
-from snr.utils import debug, print_usage, print_exit, print_mode
-from snr.factory import *
-from snr.comms.serial.factory import SerialFactory
-from snr.node import Node
 from robot_controls import RobotControlsFactory
-from snr.io.controller.factory import ControllerFactory
+from snr.comms.serial.factory import SerialFactory
 from snr.comms.sockets.factory import EthernetLink
-from robot_motors import RobotMotorsFactory
+from snr.io.controller.factory import ControllerFactory
+from snr.node import Node
+from snr.utils import debug, print_exit, print_mode, print_usage
 
 
 def main():
@@ -40,16 +38,15 @@ def main():
 
     # Controls and motor processing
     robot_controls = RobotControlsFactory("controls_data", "thruster_data")
-    robot_motors = RobotMotorsFactory("thruster_data", "motors_data")
 
     # XBox Controller
     controller = ControllerFactory("controls_data")
+
     components = []
     if role.__eq__("robot"):
         components = [controls_link.client,
                       telemetry_link.server,
                       robot_controls,
-                      # robot_motors,
                       serial_link]
 
     elif role.__eq__("topside"):

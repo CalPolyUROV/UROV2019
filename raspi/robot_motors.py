@@ -39,6 +39,7 @@ from snr.utils import Profiler, debug
 from snr.factory import Factory
 from snr.datastore import Datastore
 from snr.endpoint import Endpoint
+from snr.node import Node
 
 
 class RobotMotorsFactory(Factory):
@@ -48,19 +49,16 @@ class RobotMotorsFactory(Factory):
         self.input_data_name = input_data_name
         self.output_data_name = output_data_name
 
-    def get(self, mode: str,
-            profiler: Profiler,
-            datastore: Datastore) -> Endpoint:
-        return RobotMotors(mode, profiler, datastore,
-                           self.input_data_name, self.output_data_name)
+    def get(self, parent: Node) -> Endpoint:
+        return RobotMotors(parent, self.input_data_name, self.output_data_name)
 
 
 class RobotMotors(AsyncEndpoint):
-    def __init__(self, mode: str, profiler: Profiler, datastore: Datastore,
+    def __init__(self,parent: Node,
                  input_name: str, output_name: str):
 
-        super().__init__("robot_motors", self.update_motor_values,
-                         settings.MOTOR_CONTROL_TICK_RATE, profiler)
+        super().__init__(parent, "robot_motors", self.update_motor_values,
+                         settings.MOTOR_CONTROL_TICK_RATE)
         self.input_data_name = input_name
 
         self.motor_previous = generate_motor_array()

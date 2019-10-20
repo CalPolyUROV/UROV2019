@@ -2,9 +2,8 @@ from snr.factory import Factory
 from snr.comms.sockets.server import SocketsServer
 from snr.comms.sockets.client import SocketsClient
 from snr.comms.sockets.config import SocketsConfig
-from snr.datastore import Datastore
 from snr.endpoint import Endpoint
-from snr.utils import Profiler
+from snr.node import Node
 
 
 class EthernetLink:
@@ -22,16 +21,13 @@ class EthServerFactory(Factory):
         super().__init__()
         self.link = link
 
-    def get(self, mode: str,
-            profiler: Profiler,
-            datastore: Datastore) -> Endpoint:
+    def get(self, parent: Node) -> Endpoint:
 
         # TODO: Get proper socket requirement value
-        config = SocketsConfig(datastore.get("node_ip_address"),
+        config = SocketsConfig(parent.datastore.get("node_ip_address"),
                                self.link.server_port, False)
 
-        return SocketsServer(mode, profiler, datastore,
-                             config, self.link.data_name)
+        return SocketsServer(parent, config, self.link.data_name)
 
 
 class EthClientFactory(Factory):
@@ -39,10 +35,7 @@ class EthClientFactory(Factory):
         super().__init__()
         self.link = link
 
-    def get(self, mode: str,
-            profiler: Profiler,
-            datastore: Datastore) -> Endpoint:
-        config = SocketsConfig(datastore.get("node_ip_address"),
+    def get(self, parent: Node) -> Endpoint:
+        config = SocketsConfig(parent.datastore.get("node_ip_address"),
                                self.link.client_port, False)
-        return SocketsClient(mode, profiler, datastore,
-                             config, self.link.data_name)
+        return SocketsClient(parent, config, self.link.data_name)

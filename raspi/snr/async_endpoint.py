@@ -5,16 +5,13 @@ AsyncEndpoint: Generate and process data for Nodes
 Relay: Server data to other nodes
 """
 
-from collections import deque
 from time import time
-from typing import Callable, Union
+from typing import Callable
 
 import _thread as thread
-import settings
-from snr.datastore import Datastore
-from snr.task import TaskHandler, SomeTasks, Task, TaskPriority, TaskSource
-from snr.utils import Profiler, debug, sleep, print_exit
 from snr.endpoint import Endpoint
+from snr.node import Node
+from snr.utils import debug, print_exit, sleep
 
 
 class AsyncEndpoint(Endpoint):
@@ -26,13 +23,15 @@ class AsyncEndpoint(Endpoint):
     tick_rate (Hz).
     """
 
-    def __init__(self, name: str, loop_handler: Callable,
-                 tick_rate: float, profiler: Profiler):
+    def __init__(
+        self, parent: Node, name: str, loop_handler: Callable, tick_rate: float
+    ):
+        self.parent = parent
         self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate)
-        self.profiler = profiler
+        self.profiler = parent.profiler
 
     def set_delay(self, tick_rate: float):
         if tick_rate == 0:
@@ -53,8 +52,11 @@ class AsyncEndpoint(Endpoint):
                 self.loop_handler()
                 runtime = time() - start_time
                 self.profiler.log_task(self.name, runtime)
-                debug("profiling_endpoint", "Ran {} task in {:6.3f} us",
-                      [self.name, runtime * 1000000])
+                debug(
+                    "profiling_endpoint",
+                    "Ran {} task in {:6.3f} us",
+                    [self.name, runtime * 1000000],
+                )
 
             self.tick()
         debug("framework", "Async endpoint {} exited loop", [self.name])
@@ -72,7 +74,4 @@ class AsyncEndpoint(Endpoint):
         debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
-        """Execute actions needed to destruct a AsyncEndpoint
-        """
-        raise NotImplementedError(
-            "Subclass of endpoint does not implement terminate()")
+        raise NotImplementedError

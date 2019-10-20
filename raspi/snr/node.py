@@ -1,20 +1,18 @@
 from collections import deque
 from time import time
-from typing import Callable, List, Union
+from typing import List, Union, Deque
 
-import _thread as thread
 import settings
 from snr.datastore import Datastore
-from snr.factory import Factory
-from snr.task import SomeTasks, Task, TaskHandler, TaskPriority, TaskSource
-from snr.utils import Profiler, debug, print_exit, sleep
+from snr.task import SomeTasks, Task, TaskPriority
+from snr.utils import Profiler, debug
 
 
 class Node:
     def __init__(self, role: str, mode: str, factories: list):
         self.role = role
         self.mode = mode
-        self.task_queue = deque()
+        self.task_queue: Deque[Task] = deque()
         self.datastore = Datastore()
 
         self.endpoints = []
@@ -32,31 +30,30 @@ class Node:
               "Initialized with  {} endpoints",
               [len(self.endpoints)])
 
-    def add_endpoints(self, factories: List[Factory]):
-        debug("framework_verbose", "Adding {} components",
-              [len(factories)])
+    def add_endpoints(self, factories: List):
+        debug("framework_verbose", "Adding {} components", [len(factories)])
         for f in factories:
-            endpoint = f.get(self.mode, self.profiler, self.datastore)
+            endpoint = f.get(self)
             if endpoint is not None:
                 self.endpoints.append(endpoint)
 
-            debug("framework_verbose", "Factory {} added {}",
-                  [f, endpoint])
+            debug("framework_verbose", "Factory {} added {}", [f, endpoint])
 
     def assign_node_ip(self):
         ip = "localhost"
-        if self.mode is not "debug":
-            if self.role is "robot":
+        if not self.mode == "debug":
+            if self.role == "robot":
                 ip = settings.ROBOT_IP
-            elif self.role is "topside":
+            elif self.role == "topside":
                 ip = settings.TOPSIDE_IP
             else:
                 # Panic
-                debug("node",
-                      "Node role {} not recognized. Counld not select IP",
-                      [self.role])
-        debug("node", "Assigned {} node ip: {}",
-              [self.role, ip])
+                debug(
+                    "node",
+                    "Node role {} not recognized. Counld not select IP",
+                    [self.role],
+                )
+        debug("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
 
     def loop(self):
@@ -91,7 +88,7 @@ class Node:
             debug("execute_task", "Tried to execute None")
             return
 
-        task_result = []
+        task_result: List[SomeTasks] = []
 
         if self.profiler is None:
 
@@ -106,13 +103,18 @@ class Node:
 
             runtime = time() - start_time
             self.profiler.log_task(t.task_type, runtime)
-            debug("task_profiling", "Ran {} task in {:6.3f} us",
-                  [t.task_type, runtime * 1000000])
+            debug(
+                "task_profiling",
+                "Ran {} task in {:6.3f} us",
+                [t.task_type, runtime * 1000000],
+            )
 
         if task_result is list:
-            debug("schedule_verbose",
-                  "Task execution resulted in {} new tasks",
-                  [len(list(task_result))])
+            debug(
+                "schedule_verbose",
+                "Task execution resulted in {} new tasks",
+                [len(list(task_result))],
+            )
         self.schedule_task(task_result)
 
     def set_terminate_flag(self):
@@ -145,16 +147,19 @@ class Node:
         if t is None:
             debug("schedule", "Cannot schedule None")
             return
-        if type(t) is list:
+        if isinstance(t, list):
             # Recursively handle lists
-            debug("schedule_verbose",
-                  "Recursively scheduling list of {} tasks", [len(t)])
+            debug(
+                "schedule_verbose",
+                "Recursively scheduling list of {} tasks",
+                [len(t)]
+            )
             for item in t:
                 debug("schedule_verbose", "Recursively scheduling {}", [item])
                 self.schedule_task(item)
             return
 
-        if type(t) is not Task:
+        if not isinstance(t, Task):
             # Handle non task objects
             debug("schedule_warning",
                   "Cannot schedule {} object {}", [type(t), t])
@@ -170,8 +175,8 @@ class Node:
         elif t.priority == TaskPriority.low:
             self.task_queue.appendleft(t)  # Normal priotity at end (left)
         else:
-            debug("schedule", "Cannot schedule task with priority: {}", [
-                t.priority])
+            debug("schedule", "Cannot schedule task with priority: {}",
+                  [t.priority])
 
     def get_next_task(self) -> Union[Task, None]:
         """Take the next task off the queue
@@ -179,8 +184,10 @@ class Node:
         while not self.has_tasks():
             debug("schedule_verbose", "Ran out of tasks, getting more")
             self.schedule_new_tasks()
-        debug("schedule_verbose", "Popping task, {} remaining",
-              [len(self.task_queue) - 1])
+        debug(
+            "schedule_verbose", "Popping task, {} remaining", [
+                len(self.task_queue) - 1]
+        )
         return self.task_queue.pop()
 
     def store_data(self, key: str, data):

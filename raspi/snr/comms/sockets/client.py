@@ -8,10 +8,10 @@ from typing import Union
 
 import settings
 from snr.comms.sockets.config import SocketsConfig
-from snr.datastore import Datastore
-from snr.task import SomeTasks, TaskScheduler
-from snr.utils import Profiler, attempt, debug, print_exit, sleep
+from snr.task import SomeTasks
+from snr.utils import attempt, debug, print_exit, sleep
 from snr.endpoint import Endpoint
+from snr.node import Node
 
 
 class SocketsClient(Endpoint):
@@ -19,9 +19,7 @@ class SocketsClient(Endpoint):
     located on the robot or topside unit
     """
 
-    def __init__(self, mode: str,
-                 profiler: Profiler,
-                 datastore: Datastore,
+    def __init__(self, parent: Node,
                  config: SocketsConfig, data_name: str):
         self.config = config
         debug("sockets_status", "Sockets client created")

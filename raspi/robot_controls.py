@@ -8,10 +8,10 @@ import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
 from snr.task import SomeTasks, TaskType, TaskPriority, Task
-from snr.utils import Profiler, debug, init_dict
+from snr.utils import debug, init_dict
 from snr.factory import Factory
-from snr.datastore import Datastore
 from snr.endpoint import Endpoint
+from snr.node import Node
 
 
 class RobotControlsFactory(Factory):
@@ -21,10 +21,8 @@ class RobotControlsFactory(Factory):
         self.input_data_name = input_data_name
         self.output_data_name = output_data_name
 
-    def get(self, mode: str,
-            profiler: Profiler,
-            datastore: Datastore) -> Endpoint:
-        return ControlsProcessor(mode, profiler, datastore,
+    def get(self, parent: Node) -> Endpoint:
+        return ControlsProcessor(parent,
                                  self.input_data_name,
                                  self.output_data_name)
 
@@ -47,12 +45,11 @@ class ControlsProcessor:
         -Mission tools
     """
 
-    def __init__(self, mode: str, profiler: Profiler,
-                 datastore: Datastore, input_name: str, output_name: str):
+    def __init__(self, parent: Node, input_name: str, output_name: str):
         """Create data structures to hold implented data
         """
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
-        self.motor_control = RobotMotors(mode, profiler, datastore,
+        self.motor_control = RobotMotors(parent,
                                          input_name, output_name)
         # Input data
         self.control_input = {}
