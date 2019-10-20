@@ -18,15 +18,9 @@ DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
     "framework": True,
-    "schedule": True,
-    "schedule_verbose": False,
+
     "execute_task": True,
     "execute_task_verbose": True,
-
-    "profiling_avg": False,
-    "task_profiling": True,
-    "profiling_endpoint": False,
-    "profiling_dump": True,
 
     "controller": True,
     "controller_error": True,
@@ -55,6 +49,11 @@ DEBUG_CHANNELS = {
     "motor_control": False,
     "motor_control_verbose": False,
 
+    "profiling_avg": False,
+    "profiling_task": False,
+    "profiling_endpoint": False,
+    "profiling_dump": True,
+
     "robot": True,
     "robot_verbose": False,
 
@@ -62,6 +61,12 @@ DEBUG_CHANNELS = {
     "robot_control_warning": True,
     "robot_control_event": False,
     "robot_control_verbose": True,
+
+    "schedule": True,
+    "schedule_warn": True,
+    "schedule_event": False,
+    "schedule_verbose": False,
+    "schedule_new_tasks": False,
 
     "serial": True,
     "serial_finder": True,
@@ -72,7 +77,7 @@ DEBUG_CHANNELS = {
 
     "serial_packet": False,
 
-    "simulation": True,
+    "simulation": False,
     "simulation_verbose": False,
 
     "sleep": True,
@@ -82,15 +87,15 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": False,
-    "sockets_status": False,
+    "sockets_event": True,
+    "sockets_status": True,
     "sockets_verbose": True,
 
     "sockets_send": True,
-    "sockets_send_verbose": False,
+    "sockets_send_verbose": True,
 
-    "sockets_receive": False,
-    "sockets_receive_verbose": False,
+    "sockets_receive": True,
+    "sockets_receive_verbose": True,
 
     "telemetry_verbose": False,
 
@@ -103,9 +108,8 @@ DEBUG_CHANNELS = {
     "throttle_values": True,
     "throttle_verbose": False,
     "axis_update_verbose": False,
-
-
 }
+
 THREAD_END_WAIT_S = 2
 DISABLE_SLEEP = False
 ENABLE_PROFILING = True
@@ -201,6 +205,8 @@ controls_server_port = 9120
 CONTROLS_SOCKETS_CONFIG = SocketsConfig(controls_server_ip,
                                         controls_server_port,
                                         REQUIRE_CONTROLS_SOCKETS)
+
+CONTROLS_DATA_NAME = "controls_data"
 
 # Telemetry Sockets Connection
 USE_TELEMETRY_SOCKETS = True

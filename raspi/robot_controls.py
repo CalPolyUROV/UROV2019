@@ -7,7 +7,7 @@ from typing import List
 import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
-from snr.task import SomeTasks, TaskType, TaskPriority, Task
+from snr.task import SomeTasks, TaskPriority, Task
 from snr.utils import debug, init_dict
 from snr.factory import Factory
 from snr.endpoint import Endpoint
@@ -22,12 +22,12 @@ class RobotControlsFactory(Factory):
         self.output_data_name = output_data_name
 
     def get(self, parent: Node) -> Endpoint:
-        return ControlsProcessor(parent,
+        return ControlsProcessor(parent, "Robot Controls Processor",
                                  self.input_data_name,
                                  self.output_data_name)
 
 
-class ControlsProcessor:
+class ControlsProcessor(Endpoint):
     """Stores data for the robot
     Data includes sensor values and control inputs
     Implemented sensors:
@@ -45,12 +45,15 @@ class ControlsProcessor:
         -Mission tools
     """
 
-    def __init__(self, parent: Node, input_name: str, output_name: str):
-        """Create data structures to hold implented data
-        """
+    def __init__(self, parent: Node, name: str,
+                 input_name: str, output_name: str):
+        super().__init__(parent, name)
+        self.datastore = parent.datastore
+
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
-        self.motor_control = RobotMotors(parent,
+        self.motor_control = RobotMotors(parent, "Robot Motor Controller",
                                          input_name, output_name)
+
         # Input data
         self.control_input = {}
         self.previous_cntl_input = {}
@@ -67,25 +70,27 @@ class ControlsProcessor:
 
     # SNR endpoint function
     def get_new_tasks(self) -> SomeTasks:
-        return Task(TaskType.get_controls, TaskPriority.high, [])
+        return Task("get_controls_data", TaskPriority.high, [])
 
     # SNR endpoint function
     def task_handler(self, t: Task) -> SomeTasks:
-        # Get controls input
-        if t.task_type == TaskType.get_controls:
-            controller_data = self.socket_connection.request_data()
-            t = Task(TaskType.process_controls,
-                     TaskPriority.high, [controller_data])
-            debug("robot_verbose",
-                  "Got task {} from controls sockets connection", [t])
-            return t
+        # # Get controls input
+        # if t.task_type == "TaskType.get_controls":
+        #     controller_data = self.socket_connection.request_data()
+        #     t = Task(TaskType.process_controls,
+        #              TaskPriority.high, [controller_data])
+        #     debug("robot_verbose",
+        #           "Got task {} from controls sockets connection", [t])
+        #     return t
 
         # Process controls input
-        elif t.task_type == TaskType.process_controls:
+        if t.task_type == "process_" + settings.CONTROLS_DATA_NAME:
             debug("robot_control_event", "Processing control input")
-            debug("robot_control_verbose", "Control input {}", [t.val_list])
-            controls_data = t.val_list[0]
-            return self.controls_processor.receive_controls(controls_data)
+            controls_data = self.datastore.use(settings.CONTROLS_DATA_NAME)
+            debug("robot_control_verbose", "Control input {}", [controls_data])
+            return self.receive_controls(controls_data)
+
+        return None
 
     def get_throttle_data(self):
         return self.throttle
@@ -262,7 +267,6 @@ class ControlsProcessor:
             debug("axis_update_verbose", "{} axis unchanged: {}",
                   [axis, self.throttle[axis]])
             return False
-        else:
-            debug("axis_update_verbose", "{} axis updated from {} to {}",
-                  [axis, self.previous_throttle[axis], self.throttle[axis]])
-            return True
+        debug("axis_update_verbose", "{} axis updated from {} to {}",
+              [axis, self.previous_throttle[axis], self.throttle[axis]])
+        return True

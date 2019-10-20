@@ -17,7 +17,7 @@ class SocketsServer(AsyncEndpoint):
 
     def __init__(self, parent: Node,
                  config: SocketsConfig, data_name: str):
-        super().__init__(parent, "sockets_server", self.sub_loop_handler, 0)
+        super().__init__(parent, "sockets_server", self.serve_data, 0)
         self.config = config
         self.datastore = self.parent.datastore
 
@@ -26,7 +26,7 @@ class SocketsServer(AsyncEndpoint):
         self.initialize_server()
         self.loop()
 
-    def sub_loop_handler(self):
+    def serve_data(self):
         # Create connection to a specific client
         # if not settings.USE_SOCKETS:
         #     self.set_terminate_flag()
@@ -85,7 +85,7 @@ class SocketsServer(AsyncEndpoint):
         """
         # if not settings.USE_SOCKETS:
         #     return
-        debug("sockets_verbose", "Blocking on accept_connection")
+        debug("sockets_event", "Blocking on accept_connection")
         # now keep talking with the client
         self.conn, self.addr = self.s.accept()
 

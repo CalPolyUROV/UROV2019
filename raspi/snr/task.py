@@ -5,15 +5,15 @@ from enum import Enum
 from typing import Callable, List, Union
 
 
-class TaskType(Enum):
-    debug_str = "debug_str"
-    get_controls = "get_controls"
-    process_controls = "process_controls"
-    get_telemetry = "get_telemetry"
-    serial_com = "serial_com"
-    blink_test = "blink_test"
-    update_ui = "update_ui"
-    terminate_robot = "terminate_robot"
+# class TaskType(Enum):
+#     debug_str = "debug_str"
+#     get_controls = "get_controls"
+#     process_controls = "process_controls"
+#     get_telemetry = "get_telemetry"
+#     serial_com = "serial_com"
+#     blink_test = "blink_test"
+#     update_ui = "update_ui"
+#     terminate_robot = "terminate_robot"
 
 
 class TaskPriority(Enum):
@@ -29,7 +29,7 @@ class Task:
     raspberry pi or the surface unit raspberry pi
     """
 
-    def __init__(self, task_type: TaskType,
+    def __init__(self, task_type: str,
                  priority: TaskPriority,
                  val_list: list):
         self.task_type = task_type

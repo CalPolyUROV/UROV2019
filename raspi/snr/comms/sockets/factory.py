@@ -7,9 +7,8 @@ from snr.node import Node
 
 
 class EthernetLink:
-    def __init__(self, server_port: int, client_port: int, data_name: str):
+    def __init__(self, server_port: int, data_name: str):
         self.server_port = server_port
-        self.client_port = client_port
         self.data_name = data_name
 
         self.server = EthServerFactory(self)
@@ -37,5 +36,6 @@ class EthClientFactory(Factory):
 
     def get(self, parent: Node) -> Endpoint:
         config = SocketsConfig(parent.datastore.get("node_ip_address"),
-                               self.link.client_port, False)
-        return SocketsClient(parent, config, self.link.data_name)
+                               self.link.server_port, False)
+        return SocketsClient(parent, "Sockets Server",
+                             config, self.link.data_name)

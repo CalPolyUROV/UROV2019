@@ -34,30 +34,32 @@ from typing import Callable, List
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
-from snr.task import SomeTasks, Task, TaskPriority, TaskType
-from snr.utils import Profiler, debug
+from snr.task import SomeTasks, Task, TaskPriority
+from snr.utils import debug
+from snr.profiler import Profiler
 from snr.factory import Factory
 from snr.datastore import Datastore
 from snr.endpoint import Endpoint
 from snr.node import Node
 
 
-class RobotMotorsFactory(Factory):
-    def __init__(self, input_data_name: str,
-                 output_data_name: str):
-        super().__init__()
-        self.input_data_name = input_data_name
-        self.output_data_name = output_data_name
+# class RobotMotorsFactory(Factory):
+#     def __init__(self, input_data_name: str,
+#                  output_data_name: str):
+#         super().__init__()
+#         self.input_data_name = input_data_name
+#         self.output_data_name = output_data_name
 
-    def get(self, parent: Node) -> Endpoint:
-        return RobotMotors(parent, self.input_data_name, self.output_data_name)
+#     def get(self, parent: Node) -> Endpoint:
+#         return RobotMotors(parent, "Robot motors control",
+#                            self.input_data_name, self.output_data_name)
 
 
 class RobotMotors(AsyncEndpoint):
-    def __init__(self,parent: Node,
+    def __init__(self, parent: Node, name: str,
                  input_name: str, output_name: str):
-
-        super().__init__(parent, "robot_motors", self.update_motor_values,
+        super().__init__(parent, name,
+                         self.update_motor_values,
                          settings.MOTOR_CONTROL_TICK_RATE)
         self.input_data_name = input_name
 
@@ -111,7 +113,7 @@ class RobotMotors(AsyncEndpoint):
         task_list = []
         for index in range(settings.NUM_MOTORS):
             if not self.motor_values[index] == self.motor_previous[index]:
-                t = Task(TaskType.serial_com, TaskPriority.high,
+                t = Task("serial_com", TaskPriority.high,
                          ["set_motor", index, self.motor_values[index]])
                 task_list.append(t)
 

@@ -13,6 +13,6 @@ class SerialFactory(Factory):
         self.firmware_path = firmware_path  # Not used
 
     def get(self, parent: Node) -> Endpoint:
-        return SerialConnection(parent,
+        return SerialConnection(parent, "Serial Connection",
                                 self.transmit_data_name,
                                 self.query_data_name)

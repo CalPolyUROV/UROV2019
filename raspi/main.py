@@ -9,6 +9,7 @@ respectively.
 """
 from sys import argv
 
+import settings
 from robot_controls import RobotControlsFactory
 from snr.comms.serial.factory import SerialFactory
 from snr.comms.sockets.factory import EthernetLink
@@ -31,27 +32,30 @@ def main():
         mode = "debug"
 
     # Connections between devices
-    controls_link = EthernetLink(9230, 9131, "controls_data")
-    telemetry_link = EthernetLink(9120, 9121, "telemetry_data")
+    controls_link = EthernetLink(settings.CONTROLS_SOCKETS_CONFIG.port,
+                                 settings.CONTROLS_DATA_NAME)
+    telemetry_link = EthernetLink(settings.TELEMETRY_SOCKETS_CONFIG.port,
+                                  settings.TELEMETRY_DATA_NAME)
     serial_link = SerialFactory("motor_data", "sensor_data",
                                 "path_to_arduino_program")
 
     # Controls and motor processing
-    robot_controls = RobotControlsFactory("controls_data", "thruster_data")
+    robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
+                                          "thruster_data")
 
     # XBox Controller
-    controller = ControllerFactory("controls_data")
+    controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
 
     components = []
     if role.__eq__("robot"):
         components = [controls_link.client,
-                      telemetry_link.server,
+                      #   telemetry_link.server,
                       robot_controls,
                       serial_link]
 
     elif role.__eq__("topside"):
         components = [controls_link.server,
-                      telemetry_link.client,
+                      #   telemetry_link.client,
                       controller]
 
     node = Node(role, mode, components)

@@ -5,7 +5,8 @@ from typing import List, Union, Deque
 import settings
 from snr.datastore import Datastore
 from snr.task import SomeTasks, Task, TaskPriority
-from snr.utils import Profiler, debug
+from snr.utils import debug
+from snr.profiler import Profiler, Timer
 
 
 class Node:
@@ -63,20 +64,15 @@ class Node:
                   [self.repr_task_queue()])
         self.terminate()
 
-    def schedule_new_tasks(self):
-        """Retrieve tasks from constructor supplied source function
-        Task or list of tasks are queued
+    def get_new_tasks(self):
+        """Retrieve tasks from endpoints and queue them.
         """
-        new_tasks = []
+        # new_tasks = [e.get_new_tasks() for e in self.endpoints]
         for e in self.endpoints:
             t = e.get_new_tasks()
-            if t is Task:
-                new_tasks.append(t)
-            elif t is List[Task]:
-                for _t in t:
-                    new_tasks.append(_t)
-        debug("schedule_verbose", "Scheduling new tasks {}", [new_tasks])
-        self.schedule_task(new_tasks)
+            if (t is not None) and isinstance(t, (Task, list)) and t:
+                debug("schedule_new_tasks", "Endpoint {} provided: {}", [e, t])
+                self.schedule_task(t)
 
     def execute_task(self, t: Task):
         """Execute the given task
@@ -88,34 +84,31 @@ class Node:
             debug("execute_task", "Tried to execute None")
             return
 
-        task_result: List[SomeTasks] = []
+        task_result = []
 
         if self.profiler is None:
 
             for e in self.endpoints:
-                task_result.append(e.task_handler(t))
+                r = e.task_handler(t)
+                if r is not None:
+                    task_result.append(r)
 
         else:
-            start_time = time()
+            timer = Timer()
 
             for e in self.endpoints:
-                task_result.append(e.task_handler(t))
+                r = e.task_handler(t)
+                if r is not None:
+                    task_result.append(r)
 
-            runtime = time() - start_time
-            self.profiler.log_task(t.task_type, runtime)
-            debug(
-                "task_profiling",
-                "Ran {} task in {:6.3f} us",
-                [t.task_type, runtime * 1000000],
-            )
+            self.profiler.log_task(t.task_type, timer.end())
 
-        if task_result is list:
-            debug(
-                "schedule_verbose",
-                "Task execution resulted in {} new tasks",
-                [len(list(task_result))],
-            )
-        self.schedule_task(task_result)
+        debug("schedule_verbose",
+              "Task execution resulted in {} new tasks",
+              [len(list(task_result))])
+        if task_result:
+            # Only procede if not empty
+            self.schedule_task(task_result)
 
     def set_terminate_flag(self):
         self.terminate_flag = True
@@ -144,18 +137,22 @@ class Node:
     def schedule_task(self, t: SomeTasks):
         """ Adds a Task or a list of Tasks to the node's queue
         """
-        if t is None:
-            debug("schedule", "Cannot schedule None")
+        if not t:  # t is False if None or empty
+            if t is None:
+                debug("schedule_warning", "Cannot schedule None")
+            elif isinstance(t, list):
+                debug("schedule_warning", "Cannot schedule empty list")
             return
+
         if isinstance(t, list):
             # Recursively handle lists
-            debug(
-                "schedule_verbose",
-                "Recursively scheduling list of {} tasks",
-                [len(t)]
-            )
+            debug("schedule_verbose",
+                  "Recursively scheduling list of {} tasks",
+                  [len(t)])
             for item in t:
-                debug("schedule_verbose", "Recursively scheduling {}", [item])
+                debug("schedule_verbose",
+                      "Recursively scheduling item {}",
+                      [item])
                 self.schedule_task(item)
             return
 
@@ -182,8 +179,8 @@ class Node:
         """Take the next task off the queue
         """
         while not self.has_tasks():
-            debug("schedule_verbose", "Ran out of tasks, getting more")
-            self.schedule_new_tasks()
+            debug("schedule_event", "Ran out of tasks, getting more")
+            self.get_new_tasks()
         debug(
             "schedule_verbose", "Popping task, {} remaining", [
                 len(self.task_queue) - 1]

@@ -8,10 +8,10 @@ from typing import Union
 
 import settings
 from snr.comms.sockets.config import SocketsConfig
-from snr.task import SomeTasks
-from snr.utils import attempt, debug, print_exit, sleep
 from snr.endpoint import Endpoint
 from snr.node import Node
+from snr.task import SomeTasks, Task, TaskPriority
+from snr.utils import attempt, debug, print_exit, sleep
 
 
 class SocketsClient(Endpoint):
@@ -19,24 +19,32 @@ class SocketsClient(Endpoint):
     located on the robot or topside unit
     """
 
-    def __init__(self, parent: Node,
+    def __init__(self, parent: Node, name: str,
                  config: SocketsConfig, data_name: str):
+        super().__init__(parent, name)
         self.config = config
+        self.data_name = data_name
         debug("sockets_status", "Sockets client created")
 
     def get_new_tasks(self) -> SomeTasks:
         pass
 
-    def request_data(self) -> SomeTasks:
+    def task_handler(self, t: Task)-> SomeTasks:
+        if t.task_type == "get_" + self.data_name:
+            self.request_data()
+            return Task("process_" + self.data_name, TaskPriority.high, [])
+        return None
+
+    def request_data(self):
         """Main continual entry point for sending data over sockets
         """
         self.create_connection()
-        # reply = self.send_data(data)
         data_bytes = self.receive_data()
         self.close_socket()
 
         if data_bytes is None:
-            return None
+            # TODO: Throw an exception
+            return
 
         data_str = data_bytes.decode()
         try:
@@ -45,10 +53,12 @@ class SocketsClient(Endpoint):
                   [data_str.__class__, data_str])
             data_dict = json.loads(data_str)
             debug("decode_verbose", "Decoded control input: {}", [data_dict])
-            return data_dict
+            self.parent.datastore.store(self.data_name, data_dict)
+
         except JSONDecodeError as error:
             debug("JSON_Error", "{}", [error])
-            return None
+            # TODO: Throw an exception
+            return
 
     def receive_data(self) -> Union[bytes, None]:
         debug("sockets_verbose",

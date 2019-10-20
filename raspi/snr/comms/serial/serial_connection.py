@@ -13,15 +13,15 @@ from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
                                      SET_MOT_CMD, Packet)
 from snr.endpoint import Endpoint
 from snr.node import Node
-from snr.task import SomeTasks, Task, TaskType
+from snr.task import SomeTasks, Task
 from snr.utils import attempt, debug, print_exit, sleep
 
 
 class SerialConnection(Endpoint):
     # Default port arg finds a serial port for the arduino/Teensy
-    def __init__(self, parent: Node,
+    def __init__(self, parent: Node, name: str,
                  input: str, output: str):
-        super().__init__(parent)
+        super().__init__(parent, name)
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
@@ -50,11 +50,11 @@ class SerialConnection(Endpoint):
 
     def task_handler(self, t: Task) -> SomeTasks:
         sched_list = []
-        if t.task_type == TaskType.serial_com:
+        if t.task_type == "serial_com":
             debug("serial_verbose",
                   "Executing serial com task: {}", [t.val_list])
-            result = self.serial_connection.send_receive(t.val_list[0],
-                                                         t.val_list[1::])
+            result = self.send_receive(t.val_list[0],
+                                       t.val_list[1::])
             if result is None:
                 debug("robot",
                       "Received no data in response from serial message")
@@ -65,8 +65,9 @@ class SerialConnection(Endpoint):
                     sched_list.append(new_task)
 
         # Blink test
-        elif t.task_type == TaskType.blink_test:
+        elif t.task_type == "blink_test":
             self.serial_connection.send_receive("blink", t.val_list)
+            
         return sched_list
 
     def set_port(self, port: str):

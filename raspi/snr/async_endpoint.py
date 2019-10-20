@@ -23,9 +23,8 @@ class AsyncEndpoint(Endpoint):
     tick_rate (Hz).
     """
 
-    def __init__(
-        self, parent: Node, name: str, loop_handler: Callable, tick_rate: float
-    ):
+    def __init__(self, parent: Node, name: str,
+                 loop_handler: Callable, tick_rate: float):
         self.parent = parent
         self.name = name
         self.loop_handler = loop_handler
