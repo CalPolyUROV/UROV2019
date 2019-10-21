@@ -60,7 +60,7 @@ DEBUG_CHANNELS = {
     "robot_control": True,
     "robot_control_warning": True,
     "robot_control_event": False,
-    "robot_control_verbose": True,
+    "robot_control_verbose": False,
 
     "schedule": True,
     "schedule_warn": True,
@@ -87,15 +87,15 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": True,
-    "sockets_status": True,
-    "sockets_verbose": True,
+    "sockets_event": False,
+    "sockets_status": False,
+    "sockets_verbose": False,
 
     "sockets_send": True,
-    "sockets_send_verbose": True,
+    "sockets_send_verbose": False,
 
     "sockets_receive": True,
-    "sockets_receive_verbose": True,
+    "sockets_receive_verbose": False,
 
     "telemetry_verbose": False,
 
