@@ -34,14 +34,13 @@ from typing import Callable, List
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
-from snr.task import SomeTasks, Task, TaskPriority
-from snr.utils import debug
-from snr.profiler import Profiler
-from snr.factory import Factory
 from snr.datastore import Datastore
 from snr.endpoint import Endpoint
+from snr.factory import Factory
 from snr.node import Node
-
+from snr.profiler import Profiler
+from snr.task import SomeTasks, Task, TaskPriority
+from snr.utils import debug
 
 # class RobotMotorsFactory(Factory):
 #     def __init__(self, input_data_name: str,

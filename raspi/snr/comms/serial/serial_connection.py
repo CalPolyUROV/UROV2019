@@ -67,7 +67,7 @@ class SerialConnection(Endpoint):
         # Blink test
         elif t.task_type == "blink_test":
             self.serial_connection.send_receive("blink", t.val_list)
-            
+
         return sched_list
 
     def set_port(self, port: str):

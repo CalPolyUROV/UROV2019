@@ -7,11 +7,11 @@ from typing import List
 import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
-from snr.task import SomeTasks, TaskPriority, Task
-from snr.utils import debug, init_dict
-from snr.factory import Factory
 from snr.endpoint import Endpoint
+from snr.factory import Factory
 from snr.node import Node
+from snr.task import SomeTasks, Task, TaskPriority
+from snr.utils import debug, init_dict
 
 
 class RobotControlsFactory(Factory):
@@ -211,7 +211,7 @@ class ControlsProcessor(Endpoint):
         # task_list = []
         # for axis in self.axis_list:
         #     if self.axis_changed(axis):
-        #         t = Task(TaskType.serial_com, TaskPriority.high,
+        #         t = Task("serial_com", TaskPriority.high,
         #                  ["set_motor", axis, self.throttle[axis]])
         #         self.previous_throttle[axis] = self.throttle[axis]
         #         task_list.append(t)

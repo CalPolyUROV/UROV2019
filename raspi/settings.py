@@ -17,11 +17,6 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": True,
-
-    "execute_task": True,
-    "execute_task_verbose": True,
-
     "controller": True,
     "controller_error": True,
     "controller_event": False,
@@ -39,10 +34,15 @@ DEBUG_CHANNELS = {
     "datastore_event": False,
     "datastore_verbose": False,
 
+    "execute_task": True,
+    "execute_task_verbose": True,
+
     "encode": False,
     "encode_verbose": False,
     "decode": False,
     "decode_verbose": False,
+
+    "framework": True,
 
     "int_temp_mon": True,
 
@@ -237,4 +237,4 @@ INT_TEMP_MON_TICK_RATE = 0.25  # Hz (Readings per second)
 INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
-ROBOT_NAME = "Seaymor"
+ROBOT_NAME = "Seaymour"

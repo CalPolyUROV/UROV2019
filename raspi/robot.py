@@ -71,7 +71,7 @@
 #             self.store_data(settings.TELEMETRY_DATA_NAME, data)
 
 #         # Send serial data
-        
+
 #         # Debug string command
 #         elif t.task_type == TaskType.debug_str:
 #             debug("execute_task", "Executing task: {}", t.val_list)

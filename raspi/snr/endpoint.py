@@ -16,5 +16,5 @@ class Endpoint:
     def terminate(self):
         raise NotImplementedError
 
-    def __repr__(self)-> str:
+    def __repr__(self) -> str:
         return self.name

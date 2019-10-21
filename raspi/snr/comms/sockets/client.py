@@ -27,9 +27,19 @@ class SocketsClient(Endpoint):
         debug("sockets_status", "Sockets client created")
 
     def get_new_tasks(self) -> SomeTasks:
-        pass
+        return
 
-    def task_handler(self, t: Task)-> SomeTasks:
+    def task_handler(self, t: Task) -> SomeTasks:
+        # Get controls input
+        if t.task_type == "get_controls":
+            controller_data = self.request_data()
+            t = Task("process_controls",
+                     TaskPriority.high, [controller_data])
+            debug("robot_verbose",
+                  "Got task {} from controls sockets connection", [t])
+            return t
+
+    def task_handler(self, t: Task) -> SomeTasks:
         if t.task_type == "get_" + self.data_name:
             self.request_data()
             return Task("process_" + self.data_name, TaskPriority.high, [])

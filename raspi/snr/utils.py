@@ -145,4 +145,3 @@ def attempt(action: Callable[[], bool],
             return
         fail_once()
         attempts += 1
-
