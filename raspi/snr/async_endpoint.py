@@ -12,6 +12,7 @@ import _thread as thread
 from snr.endpoint import Endpoint
 from snr.node import Node
 from snr.utils import debug, print_exit, sleep
+from snr.profiler import Timer
 
 
 class AsyncEndpoint(Endpoint):
@@ -47,15 +48,14 @@ class AsyncEndpoint(Endpoint):
             if self.profiler is None:
                 self.loop_handler()
             else:
-                start_time = time()
+                time = Timer()
                 self.loop_handler()
-                runtime = time() - start_time
-                self.profiler.log_task(self.name, runtime)
-                debug(
-                    "profiling_endpoint",
-                    "Ran {} task in {:6.3f} us",
-                    [self.name, runtime * 1000000],
-                )
+                self.profiler.log_task(self.name, time.end())
+                # debug(
+                #     "profiling_endpoint",
+                #     "Ran {} task in {:6.3f} us",
+                #     [self.name, runtime * 1000000],
+                # )
 
             self.tick()
         debug("framework", "Async endpoint {} exited loop", [self.name])
