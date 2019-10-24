@@ -94,7 +94,7 @@ def select_port(ports) -> str or None:
     if platform == "linux" or platform == "linux2":
         debug("serial_finder", "Linux detected")
         for p in ports:
-            # return '/dev/ttyS0'  
+            # return '/dev/ttyS0'
             # # If using raspi GPIO for serial, just pick this port
             if ("USB" in p) or ("ACM" in p):
                 return p

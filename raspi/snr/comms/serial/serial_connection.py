@@ -8,7 +8,7 @@ from typing import Union
 import serial
 
 import settings
-import snr.comms.serial.serial_finder
+from snr.comms.serial.serial_finder import *
 from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
                                      SET_MOT_CMD, Packet)
 from snr.endpoint import Endpoint

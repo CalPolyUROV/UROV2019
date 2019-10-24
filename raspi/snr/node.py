@@ -57,6 +57,18 @@ class Node:
         debug("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
 
+    def get_remote_ip(self):
+        if not self.mode == "debug":
+            if self.role == "robot":
+                return settings.TOPSIDE_IP
+            if self.role == "topside":
+                return settings.ROBOT_IP
+            # Panic
+            debug("node",
+                  "Node role {} not recognized. Counld not get remote IP",
+                  [self.role])
+        return "localhost"
+
     def loop(self):
         while not self.terminate_flag:
             self.step_task()
