@@ -4,7 +4,7 @@ https://www.pygame.org/docs/ref/joystick.html
 """
 
 import random
-from typing import Dict, Tuple, Union
+from typing import Tuple, Union
 
 import pygame
 
@@ -27,7 +27,7 @@ class Controller(AsyncEndpoint):
         # Triggers zerod indicated whether the triggers no longer need to be
         # zeroed
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
-        self.joystick_data: Dict = {}
+        self.joystick_data = {}
         super().__init__(parent, name, self.monitor_controller,
                          settings.CONTROLLER_INIT_TICK_RATE)
 

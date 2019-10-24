@@ -28,7 +28,7 @@ class SerialConnection(Endpoint):
             return
 
         debug("serial_verbose", "Finding serial port")
-        serial_finder.get_port_to_use(self.set_port)
+        get_port_to_use(self.set_port)
         debug("serial", "Selected port {}", [self.serial_port])
 
         def fail_once():

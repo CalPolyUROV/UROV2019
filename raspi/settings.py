@@ -220,7 +220,7 @@ TELEMETRY_DATA_NAME = "telemetry_data"
 
 
 # Serial Connection
-SIMULATE_SERIAL = True
+SIMULATE_SERIAL = False
 SERIAL_BAUD = 115200  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection

@@ -1,6 +1,6 @@
 from collections import deque
 from time import time
-from typing import List, Union, Deque
+from typing import List, Union
 
 import settings
 from snr.datastore import Datastore
@@ -13,7 +13,7 @@ class Node:
     def __init__(self, role: str, mode: str, factories: list):
         self.role = role
         self.mode = mode
-        self.task_queue: Deque[Task] = deque()
+        self.task_queue = deque()
         self.datastore = Datastore()
 
         self.endpoints = []
@@ -56,6 +56,15 @@ class Node:
                 )
         debug("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
+   
+    def get_remote_ip(self):
+        if not self.mode == "debug":
+            if self.role == "robot":
+                return settings.TOPSIDE_IP
+            if self.role == "topside":
+                return settings.ROBOT_IP
+            debug("node", "Node role {} not recognized. Could not get remote IP", [self.role])
+        return "localhost"    
 
     def get_remote_ip(self):
         if not self.mode == "debug":
