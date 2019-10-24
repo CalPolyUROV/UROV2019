@@ -8,7 +8,7 @@ from typing import Union
 import serial
 
 import settings
-import snr.comms.serial.serial_finder
+from snr.comms.serial.serial_finder import *
 from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
                                      SET_MOT_CMD, Packet)
 from snr.endpoint import Endpoint
@@ -28,7 +28,7 @@ class SerialConnection(Endpoint):
             return
 
         debug("serial_verbose", "Finding serial port")
-        serial_finder.get_port_to_use(self.set_port)
+        get_port_to_use(self.set_port)
         debug("serial", "Selected port {}", [self.serial_port])
 
         def fail_once():

@@ -35,7 +35,7 @@ class EthClientFactory(Factory):
         self.link = link
 
     def get(self, parent: Node) -> Endpoint:
-        config = SocketsConfig(parent.datastore.get("node_ip_address"),
+        config = SocketsConfig(parent.get_remote_ip(),
                                self.link.server_port, False)
         return SocketsClient(parent, "Sockets Server",
                              config, self.link.data_name)
