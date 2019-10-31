@@ -5,5 +5,5 @@ topside:
 	cd raspi && make topside
 
 robot:
-	cd rasp	&& make robot
+	cd raspi && make robot
 
