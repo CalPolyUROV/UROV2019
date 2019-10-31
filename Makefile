@@ -4,3 +4,6 @@ ssh_pi:
 topside:
 	cd raspi && make topside
 
+robot:
+	cd rasp	&& make robot
+
