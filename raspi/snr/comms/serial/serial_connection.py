@@ -94,6 +94,10 @@ class SerialConnection(Endpoint):
                       [self.serial_port, settings.SERIAL_BAUD])
                 sleep(settings.SERIAL_SETUP_WAIT_POST)
                 while self.serial_connection.in_waiting > 0:
+                    if self.serial_connection.in_waiting > PACKET_SIZE:
+                        debug("serial_warning",
+                              "Extra inbound bytes on serial: {}",
+                              [self.serial_connection.in_waiting])
                     self.serial_connection.read()
                 return True
             return False
