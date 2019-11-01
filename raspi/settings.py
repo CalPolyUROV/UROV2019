@@ -46,7 +46,7 @@ DEBUG_CHANNELS = {
 
     "int_temp_mon": True,
 
-    "motor_control": False,
+    "motor_control": True,
     "motor_control_verbose": False,
 
     "profiling_avg": False,
@@ -63,10 +63,11 @@ DEBUG_CHANNELS = {
     "robot_control_verbose": False,
 
     "schedule": True,
-    "schedule_warn": True,
+    "schedule_warning": True,
     "schedule_event": False,
     "schedule_verbose": False,
     "schedule_new_tasks": False,
+    "schedule_empty_list":False,
 
     "serial": True,
     "serial_finder": True,

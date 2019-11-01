@@ -153,7 +153,7 @@ class Node:
             if t is None:
                 debug("schedule_warning", "Cannot schedule None")
             elif isinstance(t, list):
-                debug("schedule_warning", "Cannot schedule empty list")
+                debug("schedule_empty_list", "Cannot schedule empty list")
             return
 
         if isinstance(t, list):
