@@ -210,13 +210,13 @@ class Controller(AsyncEndpoint):
         if joystick.get_numaxes() == 5:
             joystick_data["axis_0"] = joystick.get_axis(0)
             joystick_data["axis_1"] = joystick.get_axis(1)
-            if joystick.get_axis(2) > 0:
+            if joystick.get_axis(2) > 0.000001:
                 joystick_data["axis_2"] = joystick.get_axis(2)
             else:
                 joystick_data["axis_2"] = 0
             joystick_data["axis_3"] = joystick.get_axis(3)
             joystick_data["axis_4"] = joystick.get_axis(4)
-            if joystick.get_axis(2) < 0:
+            if joystick.get_axis(2) < -0.000001:
                 joystick_data["axis_5"] = -joystick.get_axis(2)
             else:
                 joystick_data["axis_5"] = 0
