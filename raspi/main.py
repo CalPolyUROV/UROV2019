@@ -1,4 +1,4 @@
-""" Main Python code that runs on the Raspberry Pi on robot and surface unit
+"""Main Python code that runs on the Raspberry Pi on robot and surface unit.
 
 This is the python program is meant to run on the Raspberry Pi's located on
 the robot and one the surface unit. This program acts as a intermediary
@@ -7,39 +7,58 @@ robot. The scheduling module used in this program manages the serial and
 sockets connections to the Arduino/Teensy and topside raspberry Pi
 respectively.
 """
-
 from sys import argv
 
-from robot import Robot
-from snr.utils import debug, print_usage, u_exit
-from topside import Topside
+import settings
+from robot_controls import RobotControlsFactory
+from snr.comms.serial.factory import SerialFactory
+from snr.comms.sockets.factory import EthernetLink
+from snr.io.controller.factory import ControllerFactory
+from snr.node import Node
+from snr.utils import debug, print_exit, print_mode, print_usage
 
 
 def main():
     argc = len(argv)
     if argc < 2:
         print_usage()
-        u_exit("Improper usage")
+        print_exit("Improper usage")
+    role = str(argv[1])
 
-    role = str(argv[1])  # Command line argument
+    print_mode(role)
 
     mode = "deployed"
-
     if "-d" in argv:
         mode = "debug"
 
-    node = None
-    if role.__eq__("robot"):
-        debug("framework", "Running as robot in mode: {}", [mode])
-        node = Robot(mode)
-    elif role.__eq__("topside"):
-        debug("framework", "Running as server in mode: {}", [mode])
-        node = Topside(mode)
-    else:
-        debug("framework", "Invalid role {} given as command line arg", [role])
-        print_usage()
-        u_exit("Unknown role")
+    # Connections between devices
+    controls_link = EthernetLink(settings.CONTROLS_SOCKETS_CONFIG.port,
+                                 settings.CONTROLS_DATA_NAME)
+    telemetry_link = EthernetLink(settings.TELEMETRY_SOCKETS_CONFIG.port,
+                                  settings.TELEMETRY_DATA_NAME)
+    serial_link = SerialFactory("motor_data", "sensor_data",
+                                "path_to_arduino_program")
 
+    # Controls and motor processing
+    robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
+                                          "thruster_data")
+
+    # XBox Controller
+    controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
+
+    components = []
+    if role.__eq__("robot"):
+        components = [controls_link.client,
+                      #   telemetry_link.server,
+                      robot_controls,
+                      serial_link]
+
+    elif role.__eq__("topside"):
+        components = [controls_link.server,
+                      #   telemetry_link.client,
+                      controller]
+
+    node = Node(role, mode, components)
     # Run the node's loop
     try:
         node.loop()
@@ -49,7 +68,7 @@ def main():
 
     node.terminate()
     debug("framework", "Node terminated")
-    u_exit("Ya done now")
+    print_exit("Ya done now")
 
 
 if __name__ == "__main__":

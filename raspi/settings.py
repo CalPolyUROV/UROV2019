@@ -17,24 +17,6 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "framework": True,
-    "schedule": True,
-    "schedule_verbose": False,
-    "execute_task": False,
-    "execute_task_verbose": False,
-
-    "profiling_avg": False,
-    "task_profiling": False,
-    "endpoint_profiling": False,
-    "profiling_dump": True,
-
-    "clui": True,
-
-    "datastore": True,
-    "datastore_error": True,
-    "datastore_event": False,
-    "datastore_verbose": False,
-
     "controller": True,
     "controller_error": True,
     "controller_event": False,
@@ -43,8 +25,34 @@ DEBUG_CHANNELS = {
     "controls_reader_verbose": True,
     "control_mappings": False,
     "control_mappings_verbose": False,
-    "simulation": False,
-    "simulation_verbose": False,
+
+    "clui": True,
+
+    "datastore": True,
+    "datastore_dump": True,
+    "datastore_error": True,
+    "datastore_event": False,
+    "datastore_verbose": False,
+
+    "execute_task": True,
+    "execute_task_verbose": True,
+
+    "encode": False,
+    "encode_verbose": False,
+    "decode": False,
+    "decode_verbose": False,
+
+    "framework": True,
+
+    "int_temp_mon": True,
+
+    "motor_control": False,
+    "motor_control_verbose": False,
+
+    "profiling_avg": False,
+    "profiling_task": False,
+    "profiling_endpoint": False,
+    "profiling_dump": True,
 
     "robot": True,
     "robot_verbose": False,
@@ -54,16 +62,25 @@ DEBUG_CHANNELS = {
     "robot_control_event": False,
     "robot_control_verbose": False,
 
-    "thrust_vec": True,
-    "thrust_vec_verbose": False,
+    "schedule": True,
+    "schedule_warn": True,
+    "schedule_event": False,
+    "schedule_verbose": False,
+    "schedule_new_tasks": False,
 
-    "throttle": True,
-    "throttle_values": True,
-    "throttle_verbose": False,
-    "axis_update_verbose": False,
+    "serial": True,
+    "serial_finder": True,
+    "serial_error": True,
+    "serial_warning": True,
+    "serial_verbose": False,
+    "serial_sim": False,
 
-    "motor_control": False,
-    "motor_control_verbose": False,
+    "serial_packet": False,
+
+    "simulation": False,
+    "simulation_verbose": False,
+
+    "sleep": True,
 
     "sockets": True,
     "sockets_client": True,
@@ -77,31 +94,22 @@ DEBUG_CHANNELS = {
     "sockets_send": True,
     "sockets_send_verbose": False,
 
-    "sockets_receive": False,
+    "sockets_receive": True,
     "sockets_receive_verbose": False,
-
-    "encode": False,
-    "encode_verbose": False,
-    "decode": False,
-    "decode_verbose": False,
 
     "telemetry_verbose": False,
 
-    "int_temp_mon": True,
-
-    "serial_finder": True,
-    "serial": True,
-    "serial_error": True,
-    "serial_warning": True,
-    "serial_verbose": False,
-    "serial_sim": False,
-
-    "serial_packet": False,
-
-    "sleep": True,
-
     "test": True,
+
+    "thrust_vec": True,
+    "thrust_vec_verbose": False,
+
+    "throttle": True,
+    "throttle_values": True,
+    "throttle_verbose": False,
+    "axis_update_verbose": False,
 }
+
 THREAD_END_WAIT_S = 2
 DISABLE_SLEEP = False
 ENABLE_PROFILING = True
@@ -116,8 +124,8 @@ TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 
 # XBox Controller
 USE_CONTROLLER = True
-REQUIRE_CONTROLLER = False
-SIMULATE_INPUT = True
+REQUIRE_CONTROLLER = True
+SIMULATE_INPUT = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -198,6 +206,8 @@ CONTROLS_SOCKETS_CONFIG = SocketsConfig(controls_server_ip,
                                         controls_server_port,
                                         REQUIRE_CONTROLS_SOCKETS)
 
+CONTROLS_DATA_NAME = "controls_data"
+
 # Telemetry Sockets Connection
 USE_TELEMETRY_SOCKETS = True
 REQUIRE_TELEMETRY_SOCKETS = True
@@ -210,7 +220,7 @@ TELEMETRY_DATA_NAME = "telemetry_data"
 
 
 # Serial Connection
-SIMULATE_SERIAL = True
+SIMULATE_SERIAL = False
 SERIAL_BAUD = 115200  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection
@@ -227,4 +237,4 @@ INT_TEMP_MON_TICK_RATE = 0.25  # Hz (Readings per second)
 INT_TEMP_MON_AVG_PERIOD = 4  # Number of readings to average over
 
 # Robot selection
-ROBOT_NAME = "S5"
+ROBOT_NAME = "Seaymour"

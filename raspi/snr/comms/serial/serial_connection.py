@@ -8,36 +8,27 @@ from typing import Union
 import serial
 
 import settings
-import snr.comms.serial.serial_finder
-from snr.comms.serial.packet import Packet
-from snr.task import SomeTasks
-from snr.utils import attempt, debug, sleep, u_exit
-
-# encoding scheme
-ENCODING = 'ascii'
-PACKET_SIZE = 3
-
-""" List of codes for each command """
-# TODO: Move command list to external file (maybe .txt or .csv),
-#       write script to generate in Arduino source and python
-#       source will not be needed on topside Pi, only on robot
-SET_MOT_CMD = 0x20      # set motor speed
-SET_CAM_CMD = 0x33      # set camera feed
-RD_SENS_CMD = 0x40      # request read sensor value
-BLINK_CMD = 0x80
-INV_CMD_ACK = 0xFF      # Invalid command, value2 of response contains cmd
+from snr.comms.serial.serial_finder import *
+from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
+                                     SET_MOT_CMD, Packet)
+from snr.endpoint import Endpoint
+from snr.node import Node
+from snr.task import SomeTasks, Task
+from snr.utils import attempt, debug, print_exit, sleep
 
 
-class SerialConnection():
+class SerialConnection(Endpoint):
     # Default port arg finds a serial port for the arduino/Teensy
-    def __init__(self):
+    def __init__(self, parent: Node, name: str,
+                 input: str, output: str):
+        super().__init__(parent, name)
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
             return
 
         debug("serial_verbose", "Finding serial port")
-        serial_finder.get_port_to_use(self.set_port)
+        get_port_to_use(self.set_port)
         debug("serial", "Selected port {}", [self.serial_port])
 
         def fail_once():
@@ -48,11 +39,36 @@ class SerialConnection():
             debug("serial_error",
                   "Could not open serial port after {} tries.",
                   [tries])
-            u_exit("Could not open serial port")
+            print_exit("Could not open serial port")
 
         attempt(self.try_open_serial,
                 settings.SERIAL_MAX_ATTEMPTS,
                 fail_once, failure)
+
+    def get_new_tasks(self):
+        pass
+
+    def task_handler(self, t: Task) -> SomeTasks:
+        sched_list = []
+        if t.task_type == "serial_com":
+            debug("serial_verbose",
+                  "Executing serial com task: {}", [t.val_list])
+            result = self.send_receive(t.val_list[0],
+                                       t.val_list[1::])
+            if result is None:
+                debug("robot",
+                      "Received no data in response from serial message")
+            elif isinstance(result, Task):
+                sched_list.append(result)
+            elif isinstance(result, list):
+                for new_task in list(result):
+                    sched_list.append(new_task)
+
+        # Blink test
+        elif t.task_type == "blink_test":
+            self.serial_connection.send_receive("blink", t.val_list)
+
+        return sched_list
 
     def set_port(self, port: str):
         debug("serial", "Setting port to {}", [port])
@@ -193,7 +209,7 @@ class SerialConnection():
     def map_thrust_value(self, speed: int) -> int:
         if speed > 100:
             return 255
-        elif speed < -100:
+        if speed < -100:
             return 0
         val = int((speed * 1.275) + 127)
         debug("serial_packet",
@@ -213,7 +229,7 @@ class SerialConnection():
 
         return Packet(cmd, val1, val2)
 
-    def make_packet(self, cmd: int, val1: int, val2: int, chksum: int):
+    def make_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets (chksum is given)
         """
         return Packet(cmd, val1, val2)

@@ -1,7 +1,7 @@
 """Manage state for analog camera switching
 """
 
-from snr.task import SomeTasks, Task, TaskPriority, TaskType
+from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils import debug
 
 
@@ -35,7 +35,7 @@ class RobotCameras:
             self.serial_needs_update = False
             debug("cameras", "Produced task for serial cmd for camera #{}",
                   [self.current_camera])
-            return Task(TaskType.serial_com,
+            return Task("serial_com",
                         TaskPriority.high,
                         ["set_cam", self.current_camera])
         return None

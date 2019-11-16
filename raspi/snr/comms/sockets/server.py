@@ -3,29 +3,30 @@
 
 import json
 import socket
-from typing import Callable
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.comms.sockets.config import SocketsConfig
-from snr.utils import Profiler, debug, sleep
+from snr.utils import debug, sleep
+from snr.node import Node
 
 
 class SocketsServer(AsyncEndpoint):
     """Asynchronous sockets server which sends commands to robot
     """
 
-    def __init__(self, config: SocketsConfig,
-                 get_data: Callable,
-                 profiler: Profiler):
-        super().__init__("sockets_server", self.sub_loop_handler, 0, profiler)
+    def __init__(self, parent: Node,
+                 config: SocketsConfig, data_name: str):
+        super().__init__(parent, "sockets_server", self.serve_data, 0)
         self.config = config
-        self.get_data = get_data
+        self.datastore = self.parent.datastore
+
+        self.data_name = data_name
 
         self.initialize_server()
         self.loop()
 
-    def sub_loop_handler(self):
+    def serve_data(self):
         # Create connection to a specific client
         # if not settings.USE_SOCKETS:
         #     self.set_terminate_flag()
@@ -56,7 +57,10 @@ class SocketsServer(AsyncEndpoint):
         # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
         debug("sockets_status", "Socket created")
         try:
-            self.s.bind(self.config.tuple())
+            host_tuple = self.config.tuple()
+            debug("sockets_verbose", "Configuring with tuple: {}",
+                  [host_tuple])
+            self.s.bind(host_tuple)
             debug("sockets_event", "Socket bound to {}",
                   [self.config.tuple()])
         except socket.error as socket_error:
@@ -81,14 +85,14 @@ class SocketsServer(AsyncEndpoint):
         """
         # if not settings.USE_SOCKETS:
         #     return
-        debug("sockets_verbose", "Blocking on accept_connection")
+        debug("sockets_event", "Blocking on accept_connection")
         # now keep talking with the client
         self.conn, self.addr = self.s.accept()
 
     def send_data(self):
         """Automatically send controls data as soon as the client connects.
         """
-        controls = self.get_data()
+        controls = self.datastore.use(self.data_name)
         data = json.dumps(controls).encode()
         self.conn.sendall(data)
         debug("sockets_verbose", "Data sent")

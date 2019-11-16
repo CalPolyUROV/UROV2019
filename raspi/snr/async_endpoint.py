@@ -5,18 +5,17 @@ AsyncEndpoint: Generate and process data for Nodes
 Relay: Server data to other nodes
 """
 
-from collections import deque
 from time import time
-from typing import Callable, Union
+from typing import Callable
 
 import _thread as thread
-import settings
-from snr.datastore import Datastore
-from snr.task import Handler, SomeTasks, Task, TaskPriority, TaskSource
-from snr.utils import Profiler, debug, sleep, u_exit
+from snr.endpoint import Endpoint
+from snr.node import Node
+from snr.utils import debug, print_exit, sleep
+from snr.profiler import Timer
 
 
-class AsyncEndpoint:
+class AsyncEndpoint(Endpoint):
     """An Asynchronous endpoint of data for a node
 
     An AsyncEndpoint is part of a node, and runs in its own thread. An
@@ -25,13 +24,14 @@ class AsyncEndpoint:
     tick_rate (Hz).
     """
 
-    def __init__(self, name: str, loop_handler: Callable,
-                 tick_rate: float, profiler: Profiler):
+    def __init__(self, parent: Node, name: str,
+                 loop_handler: Callable, tick_rate: float):
+        self.parent = parent
         self.name = name
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate)
-        self.profiler = profiler
+        self.profiler = parent.profiler
 
     def set_delay(self, tick_rate: float):
         if tick_rate == 0:
@@ -48,16 +48,18 @@ class AsyncEndpoint:
             if self.profiler is None:
                 self.loop_handler()
             else:
-                start_time = time()
+                time = Timer()
                 self.loop_handler()
-                runtime = time() - start_time
-                self.profiler.log_task(self.name, runtime)
-                debug("endpoint_profiling", "Ran {} task in {:6.3f} us",
-                      [self.name, runtime * 1000000])
+                self.profiler.log_task(self.name, time.end())
+                # debug(
+                #     "profiling_endpoint",
+                #     "Ran {} task in {:6.3f} us",
+                #     [self.name, runtime * 1000000],
+                # )
 
             self.tick()
         debug("framework", "Async endpoint {} exited loop", [self.name])
-        u_exit("Endpoint thread exited by termination")
+        print_exit("Endpoint thread exited by termination")
 
     def get_name(self):
         return self.name
@@ -71,7 +73,4 @@ class AsyncEndpoint:
         debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
-        """Execute actions needed to destruct a AsyncEndpoint
-        """
-        raise NotImplementedError(
-            "Subclass of endpoint does not implement terminate()")
+        raise NotImplementedError

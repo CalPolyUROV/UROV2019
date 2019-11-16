@@ -46,6 +46,9 @@ py_install:
 	sudo apt update
 	sudo apt install python3
 	
+py:
+	$(PYTHON_CMD)
+
 py_build:
 	# According to https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f
 	cd ../../..
@@ -97,7 +100,9 @@ todo:
 	cat todo.txt
 
 clean:
-	rm -rf */*/__pycache__ */__pycache__ __pycache__
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -delete
+	# rm -rf trash
 
 gource:
 	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm

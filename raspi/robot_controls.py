@@ -7,13 +7,27 @@ from typing import List
 import settings
 from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
-from snr.task import SomeTasks
-from snr.utils import Profiler, debug, init_dict
+from snr.endpoint import Endpoint
+from snr.factory import Factory
+from snr.node import Node
+from snr.task import SomeTasks, Task, TaskPriority
+from snr.utils import debug, init_dict
 
-# TODO: Split this class into robot_processing and datastore.py
+
+class RobotControlsFactory(Factory):
+    def __init__(self, input_data_name: str,
+                 output_data_name: str):
+        super().__init__()
+        self.input_data_name = input_data_name
+        self.output_data_name = output_data_name
+
+    def get(self, parent: Node) -> Endpoint:
+        return ControlsProcessor(parent, "Robot Controls Processor",
+                                 self.input_data_name,
+                                 self.output_data_name)
 
 
-class ControlsProcessor:
+class ControlsProcessor(Endpoint):
     """Stores data for the robot
     Data includes sensor values and control inputs
     Implemented sensors:
@@ -31,11 +45,15 @@ class ControlsProcessor:
         -Mission tools
     """
 
-    def __init__(self, profiler: Profiler):
-        """Create data structures to hold implented data
-        """
+    def __init__(self, parent: Node, name: str,
+                 input_name: str, output_name: str):
+        super().__init__(parent, name)
+        self.datastore = parent.datastore
+
         self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
-        self.motor_control = RobotMotors(self.get_throttle_data, profiler)
+        self.motor_control = RobotMotors(parent, "Robot Motor Controller",
+                                         input_name, output_name)
+
         # Input data
         self.control_input = {}
         self.previous_cntl_input = {}
@@ -49,6 +67,30 @@ class ControlsProcessor:
         self.buttons = init_dict(self.buttons_list, False)
         self.previous_buttons = init_dict(self.buttons_list, False)
         # Pitch cannot be acheive with current motor configuration
+
+    # SNR endpoint function
+    def get_new_tasks(self) -> SomeTasks:
+        return Task("get_controls_data", TaskPriority.high, [])
+
+    # SNR endpoint function
+    def task_handler(self, t: Task) -> SomeTasks:
+        # # Get controls input
+        # if t.task_type == "TaskType.get_controls":
+        #     controller_data = self.socket_connection.request_data()
+        #     t = Task(TaskType.process_controls,
+        #              TaskPriority.high, [controller_data])
+        #     debug("robot_verbose",
+        #           "Got task {} from controls sockets connection", [t])
+        #     return t
+
+        # Process controls input
+        if t.task_type == "process_" + settings.CONTROLS_DATA_NAME:
+            debug("robot_control_event", "Processing control input")
+            controls_data = self.datastore.use(settings.CONTROLS_DATA_NAME)
+            debug("robot_control_verbose", "Control input {}", [controls_data])
+            return self.receive_controls(controls_data)
+
+        return None
 
     def get_throttle_data(self):
         return self.throttle
@@ -169,7 +211,7 @@ class ControlsProcessor:
         # task_list = []
         # for axis in self.axis_list:
         #     if self.axis_changed(axis):
-        #         t = Task(TaskType.serial_com, TaskPriority.high,
+        #         t = Task("serial_com", TaskPriority.high,
         #                  ["set_motor", axis, self.throttle[axis]])
         #         self.previous_throttle[axis] = self.throttle[axis]
         #         task_list.append(t)
@@ -225,7 +267,6 @@ class ControlsProcessor:
             debug("axis_update_verbose", "{} axis unchanged: {}",
                   [axis, self.throttle[axis]])
             return False
-        else:
-            debug("axis_update_verbose", "{} axis updated from {} to {}",
-                  [axis, self.previous_throttle[axis], self.throttle[axis]])
-            return True
+        debug("axis_update_verbose", "{} axis updated from {} to {}",
+              [axis, self.previous_throttle[axis], self.throttle[axis]])
+        return True
