@@ -251,7 +251,7 @@ class Controller(AsyncEndpoint):
         for j in range(joystick_data["num_dpad"]):
             joystick_data["dpad"] = joystick.get_hat(j)
 
-        # debug("controls_reader_verbose", "{}", [joystick_data])
+        debug("controls_reader_verbose", "{}", [joystick_data])
         return joystick_data
 
     def terminate(self):

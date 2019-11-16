@@ -144,12 +144,12 @@ to drop a value use "pygame_name": [None],
 control_mappings = {
     "number": [None],
     "name": ["controller_name"],
-    "axis_0": ["stick_left_x", int,  100, 0, 0],
-    "axis_1": ["stick_left_y", int, -100, 0, 0],
-    "axis_2": ["trigger_left", int, 100, 0, 0],
-    "axis_3": ["stick_right_x", int, 100, 0, 0],
-    "axis_4": ["stick_right_y", int, -100, 0, 0],
-    "axis_5": ["trigger_right", int, 100, 0, 0],
+    "axis_0": ["stick_left_x", int,  100, 0, 10],
+    "axis_1": ["stick_left_y", int, -100, 0, 10],
+    "axis_2": ["trigger_left", int, 50, 50, 0],
+    "axis_3": ["stick_right_x", int, 100, 0, 10],
+    "axis_4": ["stick_right_y", int, -100, 0, 10],
+    "axis_5": ["trigger_right", int, 50, 50, 0],
     "button_0": ["button_a", bool],
     "button_1": ["button_b", bool],
     "button_2": ["button_x", bool],
@@ -221,7 +221,7 @@ TELEMETRY_DATA_NAME = "telemetry_data"
 
 
 # Serial Connection
-SIMULATE_SERIAL = False
+SIMULATE_SERIAL = True 
 SERIAL_BAUD = 115200  # Serial Baudrate
 SERIAL_MAX_ATTEMPTS = 4  # Maximum number of times to try openeing serial port
 SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection
