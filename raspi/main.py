@@ -16,6 +16,7 @@ from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
+from ui.gui.factory import GUIFactory
 
 
 def main():
@@ -43,6 +44,9 @@ def main():
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
                                           "thruster_data")
 
+    # GUI
+    GUI = GUIFactory(settings.CONTROLS_DATA_NAME)
+
     # XBox Controller
     controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
 
@@ -56,7 +60,8 @@ def main():
     elif role.__eq__("topside"):
         components = [controls_link.server,
                       #   telemetry_link.client,
-                      controller]
+                      controller,
+                      GUI]
 
     node = Node(role, mode, components)
     # Run the node's loop
