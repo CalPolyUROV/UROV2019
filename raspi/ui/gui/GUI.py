@@ -43,7 +43,7 @@ class start_GUI(Endpoint):
             event, values = window.Read(
                 timeout=refresh_rate)  # Please try and use as high of a timeout value as you can
             if event is None or event == 'Quit':  # if user closed the window using X or clicked Quit button
-                break
+                self.terminate()
             if telem is not None and telem.get("stick_left_x") is not None:
                 window.Element('_0-2_').Update(
                     '{}            {}            {}'.format((telem.get("stick_left_x") // 1), (telem.get("stick_right_x") // 1),
@@ -53,8 +53,8 @@ class start_GUI(Endpoint):
                                                   (telem["trigger_right"] // 1)))
             refresh_rate = ((values[0] - 50) ** 2 + 1)
             telem = self.get_data()
-            print("My bs: ", telem)
-            print(refresh_rate)
+            # print("My bs: ", telem)
+            # print(refresh_rate)
 
     def loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
