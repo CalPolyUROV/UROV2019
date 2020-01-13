@@ -1,23 +1,15 @@
-Sockets Test:
-- retry when failing to connect
-- send arbitrary data/make our sockets test file into library
 
 Robot Pi:
 - implement boot script
-- send motor control and recieve confimation
-- serial connection to Arduino
-- parse commands from sockets
+- get sensor data from Arduino
 
 Arduino:
-- serial connection to Pi
-- parse serial commands
-- PWM control of thrusters
+- read data from BNO055
+- send sensor data to pi
 
 Topside UI:
 - implement path value
 - implement boot script
-- import legacy code
-- use sockets
 
 Data to display in UI and send over comms
 - heartbeat / is connection allive		1 byte
