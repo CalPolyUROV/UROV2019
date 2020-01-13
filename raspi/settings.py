@@ -46,7 +46,7 @@ DEBUG_CHANNELS = {
 
     "int_temp_mon": True,
 
-    "motor_control": False,
+    "motor_control": True,
     "motor_control_verbose": False,
 
     "profiling_avg": False,
