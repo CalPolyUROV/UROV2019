@@ -33,33 +33,33 @@ def main():
         mode = "debug"
 
     # Connections between devices
+    # Ethernet tether link for control data
     controls_link = EthernetLink(settings.CONTROLS_SOCKETS_CONFIG.port,
                                  settings.CONTROLS_DATA_NAME)
+    # Ethernet tether link for telemetry data
     telemetry_link = EthernetLink(settings.TELEMETRY_SOCKETS_CONFIG.port,
                                   settings.TELEMETRY_DATA_NAME)
-    serial_link = SerialFactory("motor_data", "sensor_data",
-                                "path_to_arduino_program")
-
     # Controls and motor processing
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
                                           "thruster_data")
-
     # XBox Controller
     # Zynq Zybo Z7-20: replaces serial link
     zynq_link = ZyboFactory("motor_data", "sensor_data")
     controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
+    # UART/USB link to Arduino for motor control and sensor reading
+    serial_link = SerialFactory("motor_data", "sensor_data",
+                                "path_to_arduino_program(unimplemented)")
 
     components = []
-    if role.__eq__("robot"):
+    if role.__eq__("topside"):
+        components = [controls_link.server,
+                      #   telemetry_link.client,
+                      controller]
+    elif role.__eq__("robot"):
         components = [controls_link.client,
                       #   telemetry_link.server,
                       robot_controls,
                       serial_link]
-
-    elif role.__eq__("topside"):
-        components = [controls_link.server,
-                      #   telemetry_link.client,
-                      controller]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
                       #   telemetry_link.server,

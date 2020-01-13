@@ -13,26 +13,30 @@ DBG_LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_DBG_FLAGS) $(MAIN_SRC)
 ROBOT_IP = 10.0.10.11
 USERNAME = ubuntu
 
+# Production launchers
 robot:
 	$(LAUNCH_CMD) robot
 
 topside:
 	$(LAUNCH_CMD) topside
 
-debug_robot:
-	$(DBG_LAUNCH_CMD) robot -d
 zybo: 
 	$(LAUNCH_CMD) zybo
 
+# Debug launchers
 debug_topside:
 	$(DBG_LAUNCH_CMD) topside -d
 
-dr: debug_robot
+debug_robot:
+	$(DBG_LAUNCH_CMD) robot -d
 
 debug_zybo:
 	$(DBG_LAUNCH_CMD) zybo -d
 
+# Debug shortcuts
 dt: debug_topside
+
+dr: debug_robot
 
 dz: debug_zybo
 
