@@ -14,6 +14,7 @@ from robot_controls import RobotControlsFactory
 from snr.comms.serial.factory import SerialFactory
 from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
+from snr.zynq.factory import ZyboFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
 
@@ -44,6 +45,8 @@ def main():
                                           "thruster_data")
 
     # XBox Controller
+    # Zynq Zybo Z7-20: replaces serial link
+    zynq_link = ZyboFactory("motor_data", "sensor_data")
     controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
 
     components = []
@@ -57,6 +60,11 @@ def main():
         components = [controls_link.server,
                       #   telemetry_link.client,
                       controller]
+    elif role.__eq__("zybo"):
+        components = [controls_link.client,
+                      #   telemetry_link.server,
+                      robot_controls,
+                      zynq_link]
 
     node = Node(role, mode, components)
     # Run the node's loop
