@@ -21,13 +21,20 @@ topside:
 
 debug_robot:
 	$(DBG_LAUNCH_CMD) robot -d
+zybo: 
+	$(LAUNCH_CMD) zybo
 
 debug_topside:
 	$(DBG_LAUNCH_CMD) topside -d
 
 dr: debug_robot
 
+debug_zybo:
+	$(DBG_LAUNCH_CMD) zybo -d
+
 dt: debug_topside
+
+dz: debug_zybo
 
 ssh:
 	ssh $(USERNAME)@$(ROBOT_IP)
