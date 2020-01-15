@@ -28,13 +28,13 @@ class Controller(AsyncEndpoint):
         # zeroed
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
         self.joystick_data = {}
-        super().__init__(parent, name, self.monitor_controller,
+        super().__init__(parent, name,
+                         self.monitor_controller, self.init_controller,
                          settings.CONTROLLER_INIT_TICK_RATE)
 
         self.datastore = self.parent.datastore
 
-        self.init_controller()
-        self.loop()
+        self.start_threaded_loop()
 
     def get_new_tasks(self) -> SomeTasks:
         pass

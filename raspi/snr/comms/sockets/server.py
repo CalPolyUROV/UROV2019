@@ -17,14 +17,15 @@ class SocketsServer(AsyncEndpoint):
 
     def __init__(self, parent: Node,
                  config: SocketsConfig, data_name: str):
-        super().__init__(parent, "sockets_server", self.serve_data, 0)
+        super().__init__(parent, "sockets_server",
+                         self.initialize_server, self.serve_data,
+                         0)
         self.config = config
         self.datastore = self.parent.datastore
 
         self.data_name = data_name
 
-        self.initialize_server()
-        self.loop()
+        self.start_threaded_loop()
 
     def serve_data(self):
         # Create connection to a specific client
