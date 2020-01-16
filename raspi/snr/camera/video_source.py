@@ -1,3 +1,7 @@
+"""Thus begins the era of OpenCV dependancy.
+https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html
+"""
+
 import socket
 import pickle
 import struct
