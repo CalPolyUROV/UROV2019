@@ -25,25 +25,29 @@ class AsyncEndpoint(Endpoint):
     """
 
     def __init__(self, parent: Node, name: str,
-                 loop_handler: Callable, tick_rate: float):
+                 setup_handler: Callable, loop_handler: Callable,
+                 tick_rate_hz: float):
         self.parent = parent
         self.name = name
+        self.setup = setup_handler
         self.loop_handler = loop_handler
         self.terminate_flag = False
-        self.set_delay(tick_rate)
+        self.set_delay(tick_rate_hz)
         self.profiler = parent.profiler
 
-    def set_delay(self, tick_rate: float):
-        if tick_rate == 0:
+    def set_delay(self, tick_rate_hz: float):
+        if tick_rate_hz == 0:
             self.delay = 0.0
         else:
-            self.delay = 1.0 / tick_rate
+            self.delay = 1.0 / tick_rate_hz
 
-    def loop(self):
+    def start_threaded_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
-        thread.start_new_thread(self.threaded_loop, ())
+        thread.start_new_thread(self.threaded_method, ())
 
-    def threaded_loop(self):
+    def threaded_method(self):
+        self.setup()
+
         while not self.terminate_flag:
             if self.profiler is None:
                 self.loop_handler()
@@ -51,13 +55,12 @@ class AsyncEndpoint(Endpoint):
                 time = Timer()
                 self.loop_handler()
                 self.profiler.log_task(self.name, time.end())
-                # debug(
-                #     "profiling_endpoint",
-                #     "Ran {} task in {:6.3f} us",
-                #     [self.name, runtime * 1000000],
-                # )
+                # debug("profiling_endpoint",
+                #       "Ran {} task in {:6.3f} us",
+                #       [self.name, runtime * 1000000])
 
             self.tick()
+
         debug("framework", "Async endpoint {} exited loop", [self.name])
         print_exit("Endpoint thread exited by termination")
 
@@ -65,8 +68,8 @@ class AsyncEndpoint(Endpoint):
         return self.name
 
     def tick(self):
+        # TODO: Ensure that this does not block other threads: thread.sleep()?
         sleep(self.delay)
-        # TODO: Ensure that this does not block other threads
 
     def set_terminate_flag(self):
         self.terminate_flag = True

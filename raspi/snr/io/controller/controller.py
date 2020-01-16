@@ -28,13 +28,13 @@ class Controller(AsyncEndpoint):
         # zeroed
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
         self.joystick_data = {}
-        super().__init__(parent, name, self.monitor_controller,
+        super().__init__(parent, name,
+                         self.monitor_controller, self.init_controller,
                          settings.CONTROLLER_INIT_TICK_RATE)
 
         self.datastore = self.parent.datastore
 
-        self.init_controller()
-        self.loop()
+        self.start_threaded_loop()
 
     def get_new_tasks(self) -> SomeTasks:
         pass
@@ -226,13 +226,13 @@ class Controller(AsyncEndpoint):
         if joystick.get_numaxes() == 5:
             joystick_data["axis_0"] = joystick.get_axis(0)
             joystick_data["axis_1"] = joystick.get_axis(1)
-            if joystick.get_axis(2) > 0:
+            if joystick.get_axis(2) > 0.000001:
                 joystick_data["axis_2"] = joystick.get_axis(2)
             else:
                 joystick_data["axis_2"] = 0
             joystick_data["axis_3"] = joystick.get_axis(3)
             joystick_data["axis_4"] = joystick.get_axis(4)
-            if joystick.get_axis(2) < 0:
+            if joystick.get_axis(2) < -0.000001:
                 joystick_data["axis_5"] = -joystick.get_axis(2)
             else:
                 joystick_data["axis_5"] = 0
