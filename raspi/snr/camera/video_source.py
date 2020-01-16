@@ -16,8 +16,8 @@ from snr.utils import debug
 # IP_ADDRESS = "10.155.115.129"
 # PORT = 8001
 
-FRAME_WIDTH = 640
-FRAME_HEIGHT = 480
+FRAME_WIDTH = 1280
+FRAME_HEIGHT = 720
 TICK_RATE_HZ = 0.0
 
 
@@ -55,7 +55,7 @@ class VideoSource(AsyncEndpoint):
         try:
             grabbed, frame = self.camera.read()  # grab the current frame
             # resize the frame
-            frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
+            # frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
             if grabbed:
                 data = pickle.dumps(frame)
                 size = len(data)

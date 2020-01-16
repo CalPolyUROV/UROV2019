@@ -11,6 +11,7 @@ from sys import argv
 
 import settings
 from robot_controls import RobotControlsFactory
+from snr.camera.factory import CameraManager
 from snr.comms.serial.factory import SerialFactory
 from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
@@ -46,17 +47,21 @@ def main():
     # UART/USB link to Arduino for motor control and sensor reading
     serial_link = SerialFactory("motor_data", "sensor_data",
                                 "path_to_arduino_program(unimplemented)")
+    # Cameras
+    cameras = CameraManager(["main_camera"]).get()
 
     components = []
     if role.__eq__("topside"):
         components = [controls_link.server,
                       #   telemetry_link.client,
-                      controller]
+                      controller,
+                      cameras[0].receiver]
     elif role.__eq__("robot"):
         components = [controls_link.client,
                       #   telemetry_link.server,
                       robot_controls,
-                      serial_link]
+                      serial_link,
+                      cameras[0].source]
 
     node = Node(role, mode, components)
     # Run the node's loop

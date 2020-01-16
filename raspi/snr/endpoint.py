@@ -8,10 +8,10 @@ class Endpoint:
         self.name = name
 
     def get_new_tasks(self) -> SomeTasks:
-        pass
+        return None
 
     def task_handler(self, t: Task) -> SomeTasks:
-        raise NotImplementedError
+        return None
 
     def terminate(self):
         raise NotImplementedError

@@ -11,15 +11,15 @@ import cv2
 from snr.async_endpoint import AsyncEndpoint
 from snr.node import Node
 
-# IP address that means any client can try to connect
-HOST = '0.0.0.0'
-# PORT = 8001
+HOST = "localhost"
 
 # Minimim area threshold that is boxed
 AREA_THRESHHOLD = 1000
 
+LINE_THICKNESS = 8
+
 # Number of frames to skip to calculate the box
-FRAME_SKIP_COUNT = 2
+FRAME_SKIP_COUNT = 4
 
 # Title of the window
 WINDOW_TITLE = 'Video'
@@ -66,7 +66,6 @@ class VideoReceiver(AsyncEndpoint):
         while len(self.data) < self.payload_size:
             self.data += self.conn.recv(4096)
 
-        print("1")
         packed_msg_size = self.data[:self.payload_size]
         self.data = self.data[self.payload_size:]
         msg_size = struct.unpack("=L", packed_msg_size)[0]  # CHANGED
@@ -82,14 +81,18 @@ class VideoReceiver(AsyncEndpoint):
         frame = pickle.loads(frame_data)
 
         self.count += 1
-        # if ((self.count % FRAME_SKIP_COUNT) == 0):
-        #     for rects in self.box_image(frame):
-        #         x, y, w, h = rects
-        #         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 15)
+
+        if ((self.count % FRAME_SKIP_COUNT) == 0):
+            self.rect_list = self.box_image(frame)
+
+        for rects in self.rect_list:
+            x, y, w, h = rects
+            cv2.rectangle(frame, (x, y), (x+w, y+h),
+                          (0, 255, 0), LINE_THICKNESS)
 
         # Display
         cv2.imshow('Raspberry Pi Stream', frame)
-        cv2.waitKey(2)
+        cv2.waitKey(15)
 
     # Function that takes in a image and draws boxes around suspected plants
     def box_image(self, img: np.array):

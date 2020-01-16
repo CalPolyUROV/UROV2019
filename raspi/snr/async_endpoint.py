@@ -72,7 +72,12 @@ class AsyncEndpoint(Endpoint):
 
     def tick(self):
         # TODO: Ensure that this does not block other threads: thread.sleep()?
-        sleep(self.delay)
+        if (self.delay == 0.0):
+            debug("framework_verbose",
+                  "asyncendpoint {} does not sleep (max tick rate)",
+                  [self.name])
+        else:
+            sleep(self.delay)
 
     def set_terminate_flag(self):
         self.terminate_flag = True
