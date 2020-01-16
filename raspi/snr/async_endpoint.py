@@ -33,7 +33,10 @@ class AsyncEndpoint(Endpoint):
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate_hz)
-        self.profiler = parent.profiler
+        if parent:
+            self.profiler = parent.profiler
+        else:
+            self.profiler = None
 
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
