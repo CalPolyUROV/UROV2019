@@ -13,3 +13,6 @@ class ControllerFactory(Factory):
         #  prevent crash when not present on robot
         from snr.io.controller.controller import Controller
         return Controller(parent, self.output_data_name)
+
+    def __repr__(self):
+        return "Controller Factory"

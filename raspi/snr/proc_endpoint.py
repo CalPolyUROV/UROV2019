@@ -4,18 +4,18 @@ Node: Task queue driven host for data and endpoints
 AsyncEndpoint: Generate and process data for Nodes
 Relay: Server data to other nodes
 """
-
+import signal
 from time import time
 from typing import Callable
+from multiprocessing import Process
 
-import _thread as thread
 from snr.endpoint import Endpoint
 from snr.node import Node
 from snr.utils import debug, print_exit, sleep
 from snr.profiler import Timer
 
 
-class AsyncEndpoint(Endpoint):
+class ProcEndpoint(Endpoint):
     """An Asynchronous endpoint of data for a node
 
     An AsyncEndpoint is part of a node, and runs in its own thread. An
@@ -46,25 +46,33 @@ class AsyncEndpoint(Endpoint):
 
     def start_threaded_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
-        thread.start_new_thread(self.threaded_method, ())
+        self.proc = Process(target=self.threaded_method(), daemon=True)
+        # thread.start_new_thread(self.threaded_method, ())
 
     def threaded_method(self):
+        # signal.signal(signal.SIGINT, signal.SIG_IGN)
         self.setup()
+        try:
+            while not self.terminate_flag:
+                if self.profiler is None:
+                    self.loop_handler()
+                else:
+                    self.profiler.time(self.name, self.loop_handler)
 
-        while not self.terminate_flag:
-            if self.profiler is None:
-                self.loop_handler()
+                    # debug("profiling_endpoint",
+                    #       "Ran {} task in {:6.3f} us",
+                    #       [self.name, runtime * 1000000])
+
+                self.tick()
+        except Exception as e:
+            if e is KeyboardInterrupt:
+                return
             else:
-                self.profiler.time(self.name, self.loop_handler)
-
-                # debug("profiling_endpoint",
-                #       "Ran {} task in {:6.3f} us",
-                #       [self.name, runtime * 1000000])
-
-            self.tick()
+                pass
 
         debug("framework", "Async endpoint {} exited loop", [self.name])
-        print_exit("Endpoint thread exited by termination")
+        # print_exit("Endpoint thread exited by termination")
+        return
 
     def get_name(self):
         return self.name

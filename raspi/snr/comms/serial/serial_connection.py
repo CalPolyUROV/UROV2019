@@ -22,6 +22,11 @@ class SerialConnection(Endpoint):
     def __init__(self, parent: Node, name: str,
                  input: str, output: str):
         super().__init__(parent, name)
+        self.task_handlers = {
+            "serial_com": self.handle_serial_com,
+            "blink_test": self.handle_blink_test
+        }
+
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
             self.simulated_bytes = None
@@ -31,6 +36,9 @@ class SerialConnection(Endpoint):
         get_port_to_use(self.set_port)
         debug("serial", "Selected port {}", [self.serial_port])
 
+        self.attempt_connect()
+
+    def attempt_connect(self):
         def fail_once():
             debug("serial_warning",
                   "Failed to open serial port, trying again.")
@@ -48,27 +56,23 @@ class SerialConnection(Endpoint):
     def get_new_tasks(self):
         pass
 
-    def task_handler(self, t: Task) -> SomeTasks:
-        sched_list = []
-        if t.task_type == "serial_com":
-            debug("serial_verbose",
-                  "Executing serial com task: {}", [t.val_list])
-            result = self.send_receive(t.val_list[0],
-                                       t.val_list[1::])
-            if result is None:
-                debug("robot",
-                      "Received no data in response from serial message")
-            elif isinstance(result, Task):
-                sched_list.append(result)
-            elif isinstance(result, list):
-                for new_task in list(result):
-                    sched_list.append(new_task)
+    def handle_serial_com(self, t: Task):
+        debug("serial_verbose",
+              "Executing serial com task: {}", [t.val_list])
+        result = self.send_receive(t.val_list[0],
+                                   t.val_list[1::])
+        if result is None:
+            debug("robot",
+                  "Received no data in response from serial message")
+        elif isinstance(result, Task):
+            sched_list.append(result)
+        elif isinstance(result, list):
+            for new_task in list(result):
+                sched_list.append(new_task)
 
-        # Blink test
-        elif t.task_type == "blink_test":
-            self.serial_connection.send_receive("blink", t.val_list)
-
-        return sched_list
+    def handle_blink_test(self, t: Task):
+        self.serial_connection.send_receive("blink",
+                                            t.val_list)
 
     def set_port(self, port: str):
         debug("serial", "Setting port to {}", [port])

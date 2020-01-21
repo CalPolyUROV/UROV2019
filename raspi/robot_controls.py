@@ -66,7 +66,11 @@ class ControlsProcessor(Endpoint):
         self.buttons_list = ['a']
         self.buttons = init_dict(self.buttons_list, False)
         self.previous_buttons = init_dict(self.buttons_list, False)
-        # Pitch cannot be acheive with current motor configuration
+        # Pitch cannot be acheived with current motor configuration
+
+        self.task_handlers = {
+            f"process_{settings.CONTROLS_DATA_NAME}": self.task_handler
+        }
 
     # SNR endpoint function
     def get_new_tasks(self) -> SomeTasks:
@@ -84,13 +88,11 @@ class ControlsProcessor(Endpoint):
         #     return t
 
         # Process controls input
-        if t.task_type == "process_" + settings.CONTROLS_DATA_NAME:
-            debug("robot_control_event", "Processing control input")
-            controls_data = self.datastore.use(settings.CONTROLS_DATA_NAME)
-            debug("robot_control_verbose", "Control input {}", [controls_data])
-            return self.receive_controls(controls_data)
 
-        return None
+        debug("robot_control_event", "Processing control input")
+        controls_data = self.datastore.use(settings.CONTROLS_DATA_NAME)
+        debug("robot_control_verbose", "Control input {}", [controls_data])
+        return self.receive_controls(controls_data)
 
     def get_throttle_data(self):
         return self.throttle

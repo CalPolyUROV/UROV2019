@@ -29,7 +29,8 @@ class Controller(AsyncEndpoint):
         self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
         self.joystick_data = {}
         super().__init__(parent, name,
-                         self.monitor_controller, self.init_controller,
+                         self.init_controller,
+                         self.monitor_controller,
                          settings.CONTROLLER_INIT_TICK_RATE)
 
         self.datastore = self.parent.datastore

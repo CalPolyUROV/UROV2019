@@ -22,28 +22,32 @@ class SocketsClient(Endpoint):
     def __init__(self, parent: Node, name: str,
                  config: SocketsConfig, data_name: str):
         super().__init__(parent, name)
+
         self.config = config
         self.data_name = data_name
+
+        self.task_handlers = {
+            f"get_{self.data_name}": self.task_handler
+        }
         debug("sockets_status", "Sockets client created")
 
     def get_new_tasks(self) -> SomeTasks:
         return
 
-    def task_handler(self, t: Task) -> SomeTasks:
-        # Get controls input
-        if t.task_type == "get_controls":
-            controller_data = self.request_data()
-            t = Task("process_controls",
-                     TaskPriority.high, [controller_data])
-            debug("robot_verbose",
-                  "Got task {} from controls sockets connection", [t])
-            return t
+    # Why a duplicate? is it an older version?
+    # def task_handler(self, t: Task) -> SomeTasks:
+    #     # Get controls input
+    #     if t.task_type == "get_controls":
+    #         controller_data = self.request_data()
+    #         t = Task("process_controls",
+    #                  TaskPriority.high, [controller_data])
+    #         debug("robot_verbose",
+    #               "Got task {} from controls sockets connection", [t])
+    #         return t
 
     def task_handler(self, t: Task) -> SomeTasks:
-        if t.task_type == "get_" + self.data_name:
-            self.request_data()
-            return Task("process_" + self.data_name, TaskPriority.high, [])
-        return None
+        self.request_data()
+        return Task("process_" + self.data_name, TaskPriority.high, [])
 
     def request_data(self):
         """Main continual entry point for sending data over sockets

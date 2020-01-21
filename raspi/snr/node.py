@@ -1,5 +1,4 @@
 from collections import deque
-from time import time
 from typing import List, Union
 
 import settings
@@ -38,7 +37,7 @@ class Node:
             if endpoint is not None:
                 self.endpoints.append(endpoint)
 
-            debug("framework_verbose", "Factory {} added {}", [f, endpoint])
+            debug("framework_verbose", "{} added {}", [f, endpoint])
 
     def assign_node_ip(self):
         ip = "localhost"
@@ -55,7 +54,7 @@ class Node:
                     [self.role],
                 )
         debug("node", "Assigned {} node ip: {}", [self.role, ip])
-        self.datastore.store("node_ip_address", ip) 
+        self.datastore.store("node_ip_address", ip)
 
     def get_remote_ip(self):
         if not self.mode == "debug":
@@ -98,22 +97,17 @@ class Node:
 
         task_result = []
 
-        if self.profiler is None:
-
-            for e in self.endpoints:
-                r = e.task_handler(t)
-                if r is not None:
-                    task_result.append(r)
-
-        else:
-            timer = Timer()
-
-            for e in self.endpoints:
-                r = e.task_handler(t)
-                if r is not None:
-                    task_result.append(r)
-
-            self.profiler.log_task(t.task_type, timer.end())
+        for e in self.endpoints:
+            handler = e.task_handlers.get(t.task_type)
+            result = None
+            if handler is not None:
+                if self.profiler is None:
+                    result = handler(t)
+                else:
+                    result = self.profiler.time(f"{t.task_type}:{e.name}",
+                                                lambda: handler(t))
+            if result is not None:
+                task_result.append(result)
 
         debug("schedule_verbose",
               "Task execution resulted in {} new tasks",

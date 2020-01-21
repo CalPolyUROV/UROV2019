@@ -8,7 +8,7 @@ import struct
 import cv2
 from cv2 import VideoCapture, destroyAllWindows
 
-from snr.async_endpoint import AsyncEndpoint
+from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
 from snr.utils import debug
 
@@ -21,7 +21,7 @@ FRAME_HEIGHT = 720
 TICK_RATE_HZ = 0.0
 
 
-class VideoSource(AsyncEndpoint):
+class VideoSource(ProcEndpoint):
     """USB camera video source for robot. Serves video over IP.
     """
 
@@ -33,6 +33,8 @@ class VideoSource(AsyncEndpoint):
         self.receiver_ip = receiver_ip
         self.receiver_port = receiver_port
         self.camera_num = camera_num
+
+        self.task_handlers = {}
 
         super().start_threaded_loop()
 

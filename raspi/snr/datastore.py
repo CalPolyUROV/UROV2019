@@ -50,7 +50,9 @@ class Datastore:
         try:
             self.database[key].fresh = False
         except KeyError:
-            debug("datastore_error", "Cannot mark unfresh, key not found")
+            debug("datastore_error",
+                  "Cannot mark unfresh, key {} not found",
+                  [key])
         return self.get(key)
 
     def terminate(self):

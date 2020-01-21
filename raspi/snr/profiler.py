@@ -1,4 +1,5 @@
 from collections import deque
+from typing import Callable
 from time import time
 
 import settings
@@ -17,6 +18,12 @@ class Profiler:
     def __init__(self):
         self.time_dict = {}
         self.moving_avg_len = settings.PROFILING_AVG_WINDOW_LEN
+
+    def time(self, name: str, handler: Callable):
+        time = Timer()
+        result = handler()
+        self.log_task(name, time.end())
+        return result
 
     def log_task(self, task_type: str, runtime: float):
         debug("profiling_task",
@@ -38,9 +45,9 @@ class Profiler:
                                 len(self.time_dict[task_type]))
 
     def dump(self):
-        debug("profiling_dump", "Type: \t\tAvg runtime: ")
+        debug("profiling_dump", "Task/Loop type:\t\tAvg runtime: ")
         for k in self.time_dict:
-            debug("profiling_dump", "{}: {}", [k, self.avg_time(k)])
+            debug("profiling_dump", "{}:\t\t{}", [k, self.avg_time(k)])
 
     def format_time(self, time_s: float) -> str:
         if time_s > 1:

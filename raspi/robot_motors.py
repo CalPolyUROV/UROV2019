@@ -9,21 +9,21 @@ the robot.
 
 
    (Eyes Forward)
-  /\     x      /\    
- /  \    A     /  \   
+  /\     x      /\
+ /  \    A     /  \
  \ 6 \   |    / 2 /    Z (Up)
   \  /   |    \  /    ^
-   \/          \/    /    
+   \/          \/    /
    __           __  /
-  /  \         /  \ 
+  /  \         /  \
  | 3  |   -->Y| 4  |
-  \__/         \__/ 
+  \__/         \__/
 
-  /\            /\  
- /  \          /  \ 
+  /\            /\
+ /  \          /  \
 / 5 /          \ 1 \
 \  /            \  /
- \/              \/ 
+ \/              \/
 Yaw is clockwise rotation of the XY Plane around the Z axis
 Roll is rotation of the YZ Plane around the X axis
 The thruster configuration does not enable Pitch control, which must
@@ -57,16 +57,20 @@ from snr.utils import debug
 class RobotMotors(AsyncEndpoint):
     def __init__(self, parent: Node, name: str,
                  input_name: str, output_name: str):
-        super().__init__(parent, name,
-                         self.update_motor_values,
-                         settings.MOTOR_CONTROL_TICK_RATE)
+
         self.input_data_name = input_name
 
+        super().__init__(parent, name,
+                         self.init_endpoint,
+                         self.update_motor_values,
+                         settings.MOTOR_CONTROL_TICK_RATE)
+
+        self.start_threaded_loop()
+
+    def init_endpoint(self):
         self.motor_previous = generate_motor_array()
         self.motor_values = generate_motor_array()
         self.motor_targets = generate_motor_array()
-
-        self.loop()
 
     def get_throttle_data(self):
         return self.datastore.use(self.input_data_name)

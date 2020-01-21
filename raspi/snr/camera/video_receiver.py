@@ -8,7 +8,7 @@ import struct
 import numpy as np
 import cv2
 
-from snr.async_endpoint import AsyncEndpoint
+from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
 
 HOST = "localhost"
@@ -27,7 +27,7 @@ WINDOW_TITLE = 'Video'
 TICK_RATE_HZ = 0.0  # never sleep the server
 
 
-class VideoReceiver(AsyncEndpoint):
+class VideoReceiver(ProcEndpoint):
     """Video stream receiving endpoint.
     Shows video received over IP in window.
     """

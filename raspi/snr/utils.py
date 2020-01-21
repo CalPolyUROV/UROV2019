@@ -64,13 +64,13 @@ def debug(channel: str, *args: Union[list,  str]):
         n = len(args)
         # Print message to console
         if n == 1:
-            print("{}:\t{}".format(channel, args[0]))
+            print("[{}]\t{}".format(channel, args[0]))
         elif n == 2:
             message = str(args[0])
-            print("{}:\t{}".format(channel, message.format(*args[1])))
+            print("[{}]\t{}".format(channel, message.format(*args[1])))
         elif 2 > 1:
             message = str(args[0])
-            print("{}:\t{}".format(channel, message.format(*args[1:])))
+            print("[{}]\t{}".format(channel, message.format(*args[1:])))
     if(settings.DEBUG_LOGGING and channel_active(channel)):
         # TODO: Output stuff to a log file
         pass
