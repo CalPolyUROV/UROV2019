@@ -1,0 +1,38 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ACCESS_REG	libuio.h	27;"	d
+FIFTY	pwmdemo.c	15;"	d	file:
+LIBPWM_H	libpwm.h	28;"	d
+LIBUIO_H	libuio.h	16;"	d
+PAGE_SIZE	libuio.h	29;"	d
+PWM	libpwm.h	/^typedef void * PWM;$/;"	t
+PWM_CTRL_OFFSET	libpwm.h	35;"	d
+PWM_Close	libpwm.c	/^uint8_t PWM_Close(PWM pwm) {$/;"	f
+PWM_DUTY_OFFSET	libpwm.h	37;"	d
+PWM_Disable	libpwm.c	/^void PWM_Disable(PWM pwm) {$/;"	f
+PWM_Enable	libpwm.c	/^void PWM_Enable(PWM pwm) {$/;"	f
+PWM_PERIOD_OFFSET	libpwm.h	36;"	d
+PWM_init	libpwm.c	/^PWM PWM_init(uint8_t uioNum, uint8_t mapNum) {$/;"	f
+TWENTYFIVE	pwmdemo.c	14;"	d	file:
+UIO	libuio.h	/^typedef struct UIO {$/;"	s
+UIO	libuio.h	/^} UIO;$/;"	t	typeref:struct:UIO
+UIO_MAP	libuio.c	/^UIO * UIO_MAP(uint8_t uioNum, uint8_t mapNum) {$/;"	f
+UIO_UNMAP	libuio.c	/^uint8_t UIO_UNMAP(void * blockToFree) {$/;"	f
+ZERO	pwmdemo.c	13;"	d	file:
+byte	libpwm.h	/^typedef uint8_t byte;$/;"	t
+exitHandler	pwmdemo.c	/^void exitHandler() {$/;"	f
+getDeviceInfo	pwmdemo.c	/^void getDeviceInfo(uint8_t * uioNum, uint8_t * mapNum) {$/;"	f
+getPwmDuty	libpwm.c	/^uint32_t getPwmDuty(PWM pwm, uint8_t pwmNum) {$/;"	f
+getPwmPeriod	libpwm.c	/^uint32_t getPwmPeriod(PWM pwm, uint8_t pwmNum) {$/;"	f
+main	pwmdemo.c	/^int main(int argc, char * argv[]) {$/;"	f
+mapPtr	libuio.h	/^	void * mapPtr;			\/\/ ptr to the virtual memory that has been mapped$/;"	m	struct:UIO
+map_size	libuio.h	/^	int map_size;			\/\/ Size of the area to map$/;"	m	struct:UIO
+pwm	pwmdemo.c	/^PWM * pwm;$/;"	v
+setPwmDuty	libpwm.c	/^void setPwmDuty(PWM pwm, uint8_t pwmNum, uint32_t duty) {$/;"	f
+setPwmPeriod	libpwm.c	/^void setPwmPeriod(PWM pwm, uint32_t period) {$/;"	f
+uio_fd	libuio.h	/^	int uio_fd;				\/\/ File descriptor$/;"	m	struct:UIO
+uios	libuio.c	/^static UIO * uios[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};$/;"	v	file:

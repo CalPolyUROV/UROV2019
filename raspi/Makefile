@@ -39,11 +39,11 @@ debug_zybo: build_zybo
 	$(DBG_LAUNCH_CMD) zybo -d
 
 # Build targets
-build_zybo: libdma.so
+ build_zybo: libdma.so
 
 libdma.so:  $(LIB_DMA_SRC)
-	cd snr/zynq/c_src && make
-	cp snr/zynq/c_src/libdma.so ./libdma.so
+	cd snr/zynq/pwm && make clean so
+#	cp snr/zynq/c_src/libdma.so ./libdma.so
 
 ssh:
 	ssh $(USERNAME)@$(ROBOT_IP)

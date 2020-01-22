@@ -6,7 +6,7 @@ https://www.pygame.org/docs/ref/joystick.html
 import random
 from typing import Tuple, Union
 
-import pygame
+# import pygame
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
@@ -21,7 +21,7 @@ class Controller(AsyncEndpoint):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")
             return
-
+        
         # Require triggers to be set to zero before operation
         # Initial value is inverse of setting
         # Triggers zerod indicated whether the triggers no longer need to be
@@ -51,7 +51,7 @@ class Controller(AsyncEndpoint):
             debug("controller", s)
             self.triggers_zeroed = True
             return
-
+        import pygame
         pygame.init()  # Initialize pygame
         pygame.joystick.init()  # Initialize the joysticks
         pygame.event.get()
