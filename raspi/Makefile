@@ -10,8 +10,6 @@ TEST_SRC = tests.py
 LAUNCH_CMD = $(PYTHON_CMD) $(MAIN_SRC)
 DBG_LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_DBG_FLAGS) $(MAIN_SRC)
 
-LIB_DMA_SRC= snr/zynq/c_src/libdma.c
-
 ROBOT_IP = 10.0.10.11
 USERNAME = ubuntu
 
@@ -41,7 +39,7 @@ debug_zybo: build_zybo
 # Build targets
  build_zybo: libdma.so
 
-libdma.so:  $(LIB_DMA_SRC)
+libdma.so:
 	cd snr/zynq/pwm && make clean so
 #	cp snr/zynq/c_src/libdma.so ./libdma.so
 
