@@ -14,7 +14,7 @@ void exitHandler();
 #define TWENTYFIVE 0x0800
 #define FIFTY 0x8000
 
-PWM* pwm;
+static PWM* pwm = NULL;
 
 void run_demo()
 {
@@ -39,8 +39,10 @@ void run_demo()
 
     //sigaction(SIGINT, &sigIntHandler, NULL);
 
-    pwm = PWM_init(uioNum, mapNum);
-    PWM_Enable(pwm);
+    if (pwm == NULL) {
+        pwm = PWM_init(uioNum, mapNum);
+        PWM_Enable(pwm);
+    }
 
     // PL Clock is 100 MHz, each successive value in the frequency register is 10ns
     // Set PWM frequency to 10 * 100000 ==  1000000 ns     ==     1 KHz
@@ -89,8 +91,8 @@ void run_demo()
         j++;
     }
 
-    PWM_Disable(pwm);
-    PWM_Close(pwm);
+    // PWM_Disable(pwm);
+    // PWM_Close(pwm);
     printf("\nYa done now\n");
     usleep(1000);
     //exit(EXIT_SUCCESS);
