@@ -1,20 +1,20 @@
-#include "libuio.h"
 #include "libpwm.h"
+#include "libuio.h"
 #include <dirent.h>
-#include <sys/types.h>
 #include <errno.h>
 #include <getopt.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
-void getDeviceInfo(uint8_t * uioNum, uint8_t * mapNum);
+void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum);
 void exitHandler();
 
-#define ZERO    0x0000
+#define ZERO 0x0000
 #define TWENTYFIVE 0x0800
-#define FIFTY   0x8000
+#define FIFTY 0x8000
 
-PWM * pwm;
+PWM* pwm;
 
 /*
 int main(int argc, char * argv[]) {
@@ -92,31 +92,31 @@ int main(int argc, char * argv[]) {
 
 */
 
-void getDeviceInfo(uint8_t * uioNum, uint8_t * mapNum) {
+void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
+{
     printf("\n");
     short num_pwm_devices = 0;
-    struct dirent * info;
+    struct dirent* info;
 
-    DIR * uio_base = opendir("/sys/class/uio");
+    DIR* uio_base = opendir("/sys/class/uio");
 
-    if(NULL == uio_base) {
+    if (NULL == uio_base) {
         perror("Could not open the uio base directory");
         exit(EXIT_FAILURE);
     }
 
-    while(1) {
+    while (1) {
         info = readdir(uio_base);
-        if(NULL == info) {
+        if (NULL == info) {
             break;
         }
 
-        if((strcmp("..", info->d_name) != 0) && (strcmp(".", info->d_name) != 0)) {
+        if ((strcmp("..", info->d_name) != 0) && (strcmp(".", info->d_name) != 0)) {
             char stub[100];
-            sprintf(stub, "/sys/class/uio/%s/name",  info->d_name);
+            sprintf(stub, "/sys/class/uio/%s/name", info->d_name);
 
-
-            FILE * name = fopen(stub, "r");
-            if(NULL == name) {
+            FILE* name = fopen(stub, "r");
+            if (NULL == name) {
                 fprintf(stderr, "Could not find the name for for this UIO device: %s\n", info->d_name);
                 break;
             }
@@ -126,25 +126,25 @@ void getDeviceInfo(uint8_t * uioNum, uint8_t * mapNum) {
             fclose(name);
 
             // Check to see if 'NAME' matches PWM
-            if(!strcmp(name_buf, "PWM")) {
+            if (!strcmp(name_buf, "PWM")) {
                 printf("[------------------------%s--------------------\n", info->d_name);
                 *uioNum = info->d_name[3] - '0';
                 num_pwm_devices++;
 
                 char uio_maps[100];
                 sprintf(uio_maps, "/sys/class/uio/uio%d/maps", info->d_name[3] - '0');
-                DIR * map_base = opendir(uio_maps);
-                
-                struct dirent * map_info;
+                DIR* map_base = opendir(uio_maps);
+
+                struct dirent* map_info;
                 short numMaps = 0;
-                while(1) {
+                while (1) {
                     map_info = readdir(map_base);
 
-                    if(NULL == map_info) {
+                    if (NULL == map_info) {
                         break;
                     }
 
-                    if((strcmp("..", map_info->d_name) != 0) && (strcmp(".", map_info->d_name) != 0)) {
+                    if ((strcmp("..", map_info->d_name) != 0) && (strcmp(".", map_info->d_name) != 0)) {
                         numMaps++;
                         printf("[\t-------------------%s-----------------\n", map_info->d_name);
                         char part_info[100];
@@ -153,16 +153,16 @@ void getDeviceInfo(uint8_t * uioNum, uint8_t * mapNum) {
                         char address_path[100], name_path[100], map_adx[50], map_name[50];
                         sprintf(address_path, "%s/addr", part_info);
                         sprintf(name_path, "%s/name", part_info);
-                        FILE * adx = fopen(address_path, "r");
-                        FILE * name = fopen(name_path, "r");
-                        if(NULL == adx || NULL == name) {
+                        FILE* adx = fopen(address_path, "r");
+                        FILE* name = fopen(name_path, "r");
+                        if (NULL == adx || NULL == name) {
                             perror("Error opening the name or address file for UIO");
                         }
                         fgets(map_adx, 50, adx);
                         fgets(map_name, 50, name);
                         printf("[\t\tAddress: %s", map_adx);
                         printf("[\t\tName: %s", map_name);
-                        fclose(adx);                        
+                        fclose(adx);
                         fclose(name);
                         *mapNum = map_info->d_name[3] - '0';
                         printf("[\t\tMap Number: %d\n", map_info->d_name[3] - '0');
@@ -171,17 +171,15 @@ void getDeviceInfo(uint8_t * uioNum, uint8_t * mapNum) {
                 printf("[\tNumber of Maps: %d\n", numMaps);
                 printf("[UIO Device Number: %d\n\n", info->d_name[3] - '0');
                 closedir(map_base);
-                
             }
-
         }
-
     }
     printf("Number of PWM devices: %d\n", num_pwm_devices);
     closedir(uio_base);
 }
 
-void exitHandler() {
+void exitHandler()
+{
     PWM_Disable(pwm);
     PWM_Close(pwm);
     printf("\nExiting PWM demo\n");

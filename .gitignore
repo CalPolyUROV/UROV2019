@@ -111,3 +111,4 @@ venv.bak/
 raspi/todo.txt
 .vscode/*
 raspi/.vscode/*
+*.o

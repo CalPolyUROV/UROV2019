@@ -13,7 +13,7 @@
 *	The locations of these registers in memory are offsets of the GPIO base
 *	address.
 *	
-************************************************************************/ 
+************************************************************************/
 
 /************************************************************************
 *	Author: Mitchell Orsucci
@@ -23,18 +23,18 @@
 *	Creation Date: August 11, 2017
 *	
 *
-************************************************************************/ 
+************************************************************************/
 #ifndef LIBPWM_H
 #define LIBPWM_H
 
 #include <stdint.h>
 typedef uint8_t byte;
-typedef void * PWM;
+typedef void* PWM;
 
 /**********************HARDWARE REGISTER OFFSETS************************/
-#define PWM_CTRL_OFFSET         0
-#define PWM_PERIOD_OFFSET       0x8
-#define PWM_DUTY_OFFSET         0x40
+#define PWM_CTRL_OFFSET 0
+#define PWM_PERIOD_OFFSET 0x8
+#define PWM_DUTY_OFFSET 0x40
 
 /**************************FUNC DEFITIONS****************************/
 PWM PWM_init(uint8_t uioNum, uint8_t mapNum);
