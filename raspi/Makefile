@@ -10,6 +10,8 @@ TEST_SRC = tests.py
 LAUNCH_CMD = $(PYTHON_CMD) $(MAIN_SRC)
 DBG_LAUNCH_CMD = $(PYTHON_CMD) $(PYTHON_DBG_FLAGS) $(MAIN_SRC)
 
+LIB_DMA_SRC= snr/zynq/c_src/libdma.c
+
 ROBOT_IP = 10.0.10.11
 USERNAME = ubuntu
 
@@ -20,25 +22,28 @@ robot:
 topside:
 	$(LAUNCH_CMD) topside
 
-zybo: 
+zybo: build_zybo
 	$(LAUNCH_CMD) zybo
 
 # Debug launchers
+dt: debug_topside
 debug_topside:
 	$(DBG_LAUNCH_CMD) topside -d
 
+dr: debug_robot
 debug_robot:
 	$(DBG_LAUNCH_CMD) robot -d
 
-debug_zybo:
+dz: debug_zybo
+debug_zybo: build_zybo
 	$(DBG_LAUNCH_CMD) zybo -d
 
-# Debug shortcuts
-dt: debug_topside
+# Build targets
+build_zybo: libdma.so
 
-dr: debug_robot
-
-dz: debug_zybo
+libdma.so:  $(LIB_DMA_SRC)
+	cd snr/zynq/c_src && make
+	cp snr/zynq/c_src/libdma.so ./libdma.so
 
 ssh:
 	ssh $(USERNAME)@$(ROBOT_IP)
@@ -110,10 +115,11 @@ todo:
 	grep --line-number --initial-tab "# TODO:" *.py | tr -s [:space:]  > todo.txt
 	cat todo.txt
 
+c: clean
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
-	# rm -rf trash
+	rm -rf libdma.so
 
 gource:
 	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm
