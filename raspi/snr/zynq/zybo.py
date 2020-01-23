@@ -16,6 +16,8 @@ class Zybo(Endpoint):
         cdll.LoadLibrary(lib_name)
         self.pwm_lib = CDLL(lib_name)
 
+        self.pwm_lib.initDemo()
+
         self.input = input
         self.output = output
 
@@ -54,10 +56,10 @@ class Zybo(Endpoint):
         debug("dma_verbose", "Writing DMA: cmd: {}, reg: {}, val: {}",
               [cmd, reg, val])
 
-        self.pwm_lib.run_demo()
+        self.pwm_lib.runDemo()
 
        # debug("dma_verbose", "cmd returned: {}", [status])
 
     def terminate(self):
         # No need to deconstruct/close in any weird way (yet)
-        pass
+        self.pwm_lib.exitHandler()
