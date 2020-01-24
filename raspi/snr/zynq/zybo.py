@@ -14,7 +14,7 @@ class Zybo(Endpoint):
 
         if not settings.SIMULATE_DMA:
             # https://docs.python.org/3/library/ctypes.html
-            lib_name = "/home/ubuntu/urov2019/raspi/snr/zynq/pwm/so/libpwmuio.so"
+            lib_name = "/home/ubuntu/urov/raspi/snr/zynq/pwm/so/libpwmuio.so"
             cdll.LoadLibrary(lib_name)
             self.pwm_lib = CDLL(lib_name)
 

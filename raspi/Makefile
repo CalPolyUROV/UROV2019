@@ -38,8 +38,8 @@ debug_zybo: build_zybo
 
 # Build targets
  build_zybo:
-	cd snr/zynq/pwm && make clean so
-
+	cd snr/zynq/pwm && make clean && make so
+	
 ssh:
 	ssh $(USERNAME)@$(ROBOT_IP)
 
