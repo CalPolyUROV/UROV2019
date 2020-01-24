@@ -12,7 +12,7 @@ class Zybo(Endpoint):
         super().__init__(parent, name)
 
         # https://docs.python.org/3/library/ctypes.html
-        lib_name = "/home/ubuntu/urov2019/raspi/snr/zynq/pwm/so/libpwmuio.so"
+        lib_name = "/home/ubuntu/urov/raspi/snr/zynq/pwm/so/libpwmuio.so"
         cdll.LoadLibrary(lib_name)
         self.pwm_lib = CDLL(lib_name)
 
@@ -61,5 +61,8 @@ class Zybo(Endpoint):
        # debug("dma_verbose", "cmd returned: {}", [status])
 
     def terminate(self):
-        # No need to deconstruct/close in any weird way (yet)
+        # Deallocate C objects
+        debug("dma_verbose", "Freeing C objects...")
         self.pwm_lib.exitHandler()
+        debug("dma_verbose", "Freed C objects") 
+
