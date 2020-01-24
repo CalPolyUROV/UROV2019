@@ -73,8 +73,9 @@ UIO* UIO_MAP(uint8_t uioNum, uint8_t mapNum)
     }
 
     //fprintf(stderr, "OFFSET = PAGE_SIZE * mapNum: 0x%x\n", PAGE_SIZE * mapNum);
-    uio->mapPtr = mmap(0, uio->map_size, PROT_READ | PROT_WRITE, MAP_SHARED, uio->uio_fd, PAGE_SIZE * mapNum);
-    if (uio->mapPtr == -1) {
+    uio->mapPtr = mmap(0, uio->map_size, PROT_READ | PROT_WRITE, MAP_SHARED,
+        uio->uio_fd, PAGE_SIZE * mapNum);
+    if (uio->mapPtr == (UIO*)-1) {
         fprintf(stderr, "MMAP FAILED\n");
         fprintf(stderr, "ERROR CODE: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
@@ -92,6 +93,7 @@ UIO* UIO_MAP(uint8_t uioNum, uint8_t mapNum)
             exit(EXIT_FAILURE);
         }
     }
+    return uio;
 }
 
 /*****************************************************************************/

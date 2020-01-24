@@ -14,6 +14,9 @@ class Endpoint:
         raise NotImplementedError
 
     def terminate(self):
+        debug("framework_warning",
+              "{} does not implement terminate()",
+              [self.name])
         raise NotImplementedError
 
     def __repr__(self) -> str:
