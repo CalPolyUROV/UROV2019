@@ -1,5 +1,6 @@
 from ctypes import cdll, CDLL
 
+import settings
 from snr.endpoint import Endpoint
 from snr.task import SomeTasks, Task
 from snr.node import Node
@@ -11,10 +12,11 @@ class Zybo(Endpoint):
                  input: str, output: str):
         super().__init__(parent, name)
 
-        # https://docs.python.org/3/library/ctypes.html
-        lib_name = "/home/ubuntu/urov2019/raspi/snr/zynq/pwm/so/libpwmuio.so"
-        cdll.LoadLibrary(lib_name)
-        self.pwm_lib = CDLL(lib_name)
+        if not settings.SIMULATE_DMA:
+            # https://docs.python.org/3/library/ctypes.html
+            lib_name = "/home/ubuntu/urov2019/raspi/snr/zynq/pwm/so/libpwmuio.so"
+            cdll.LoadLibrary(lib_name)
+            self.pwm_lib = CDLL(lib_name)
 
         self.input = input
         self.output = output
@@ -54,10 +56,11 @@ class Zybo(Endpoint):
         debug("dma_verbose", "Writing DMA: cmd: {}, reg: {}, val: {}",
               [cmd, reg, val])
 
-        self.pwm_lib.run_demo()
+        if not settings.SIMULATE_DMA:
+            self.pwm_lib.run_demo()
 
        # debug("dma_verbose", "cmd returned: {}", [status])
 
     def terminate(self):
-        # No need to deconstruct/close in any weird way (yet)
-        pass
+        if not settings.SIMULATE_DMA:
+            pass
