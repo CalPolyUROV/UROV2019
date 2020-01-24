@@ -18,6 +18,8 @@ class Zybo(Endpoint):
             cdll.LoadLibrary(lib_name)
             self.pwm_lib = CDLL(lib_name)
 
+        self.pwm_lib.initDemo()
+
         self.input = input
         self.output = output
 
@@ -63,4 +65,11 @@ class Zybo(Endpoint):
 
     def terminate(self):
         if not settings.SIMULATE_DMA:
-            pass
+            # Deallocate C objects
+            debug("dma_verbose", "Freeing C objects...")
+            self.pwm_lib.exitHandler()
+            debug("dma_verbose", "Freed C objects")
+        else:
+            debug("dma_verbose", "Simulated c objects freed")
+         
+
