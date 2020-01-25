@@ -61,16 +61,15 @@ class SimpleGUI(AsyncEndpoint):
         if event is None or event == 'Quit':
             self.terminate()
         if telem is not None and telem.get("stick_left_x") is not None:
-            self.window.Element('_0-2_').Update(
-                '{}            {}            {}'.format(
-                    (telem.get("stick_left_x") // 1),
+            self.window.Element('left').Update(
+                'Stick Left X: \n{}\nStick Left Y: \n{}\nLeft Trigger: \n{}\n'.format((telem.get("stick_left_x") // 1),
+                                                                                      (telem.get("stick_left_y") // 1),
+                                                                                      (telem.get("trigger_left") // 1)))
+            self.window.Element('right').Update(
+                'Stick Right X: \n{}\nStick Right Y: \n{}\nRight Trigger: \n{}\n'.format(
                     (telem.get("stick_right_x") // 1),
-                    (telem.get("trigger_left") // 1)))
-            self.window.Element('_3-5_').Update(
-                '{}            {}            {}'.format(
-                    (telem["stick_left_y"] // 1),
-                    (telem["stick_right_y"] // 1),
-                    (telem["trigger_right"] // 1)))
+                    (telem.get("stick_right_y") // 1),
+                    (telem.get("trigger_right") // 1)))
         # Update refresh rate from GUI
         debug("gui_verbose", "UI tick_rate value: {}", [values[0]])
         self.set_refresh_rate(values[0])
@@ -82,26 +81,12 @@ class SimpleGUI(AsyncEndpoint):
         super().set_delay(rate)
 
     def get_layout(self, sg) -> List:
-        layout = [[sg.Text('Telemetry Data',
-                           size=(40, 2), justification='center')],
-                  [sg.Text('Stick Left X    Stick Right X    Left Trigger',
-                           size=(40, 2),
-                           justification='center')],
-                  [sg.Text('',
-                           size=(40, 2), font=('Helvetica', 10),
-                           justification='center', key='_0-2_')],
-                  [sg.Text('Stick Left Y    Stick Right Y    Right Trigger',
-                           size=(40, 2), justification='center')],
-                  [sg.Text('',
-                           size=(40, 2), font=('Helvetica', 10),
-                           justification='center', key='_3-5_')],
-                  [sg.Text("_" * 45)],
-                  [sg.Text('Refresh Rate',
-                           size=(40, 2), justification='center')],
-                  [sg.Text(' ' * 8),
-                   sg.Slider(range=(0, 50), default_value=47,
-                             size=(20, 20), orientation='horizontal',
-                             font=("Helvetica", 15)),
-                   sg.Text(' ' * 2)],
-                  [sg.T(' ' * 32), sg.Quit()]]
+        layout = [[sg.Frame(layout=[[sg.Text('Stick Left X: \n0\nStick Left Y: \n0\nLeft Trigger: \n0\n', size=(20, 6),
+                           justification='center', key='left'),
+                   sg.Text('Stick Right X: \n0\nStick Right Y: \n0\nRight Trigger: \n0\n', size=(20, 6),
+                           justification='center', key='right')]], title='Telem Data', title_color='Black', relief=sg.RELIEF_SUNKEN)],
+                  [sg.Text('Refresh Rate', size=(45, 2), justification='center')],
+                  [sg.Text(' ' * 13), sg.Slider(range=(0, 50), default_value=47, size=(20, 20), orientation='horizontal',
+                                               font=("Helvetica", 15)), sg.Text(' ' * 2)],
+                  [sg.T(' ' * 38), sg.Quit()]]
         return layout
