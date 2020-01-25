@@ -5,7 +5,6 @@ determines axis of thrust and stores state information
 from typing import List
 
 import settings
-from robot_cameras import RobotCameras
 from robot_motors import RobotMotors
 from snr.endpoint import Endpoint
 from snr.factory import Factory
@@ -50,7 +49,6 @@ class ControlsProcessor(Endpoint):
         super().__init__(parent, name)
         self.datastore = parent.datastore
 
-        self.cameras = RobotCameras(settings.NUM_ANALOG_CAMERAS)
         self.motor_control = RobotMotors(parent, "Robot Motor Controller",
                                          input_name, output_name)
 
@@ -132,14 +130,11 @@ class ControlsProcessor(Endpoint):
 
         # Batch thrust controls into a tasks afterwards
         throttle_tasks = self.get_throttle_tasks()
-        camera_tasks = self.cameras.get_task()
         # debug("thrust_vec", "Got {} throttle tasks", [len(throttle_tasks)])
         debug("thrust_vec_verbose", "Throttle tasks: {}",
-              [throttle_tasks, camera_tasks])
+              [throttle_tasks])
         if throttle_tasks is not None:
             task_list.append(throttle_tasks)
-        if camera_tasks is not None:
-            task_list.append(camera_tasks)
         debug("robot_control_event", "Created {} tasks from controls",
               [len(task_list)])
         return task_list
@@ -231,7 +226,7 @@ class ControlsProcessor(Endpoint):
             if self.button_pressed('a'):
                 pass
             elif self.button_released('a'):
-                self.cameras.next_state()
+                pass
 
         elif "button_b" in key:
             self.store_button('b', val)
