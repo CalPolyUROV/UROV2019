@@ -39,7 +39,7 @@ class VideoReceiver(ProcEndpoint):
                          TICK_RATE_HZ)
 
         self.receiver_port = receiver_port
-        super().start_threaded_loop()
+        self.start_proc_loop()
 
     def init_receiver(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -62,37 +62,43 @@ class VideoReceiver(ProcEndpoint):
         self.rect_list = []
 
     def monitor_stream(self):
-        # Retrieve message size
-        while len(self.data) < self.payload_size:
-            self.data += self.conn.recv(4096)
+        try:
+            # Retrieve message size
+            while len(self.data) < self.payload_size:
+                self.data += self.conn.recv(4096)
 
-        packed_msg_size = self.data[:self.payload_size]
-        self.data = self.data[self.payload_size:]
-        msg_size = struct.unpack("=L", packed_msg_size)[0]  # CHANGED
+            packed_msg_size = self.data[:self.payload_size]
+            self.data = self.data[self.payload_size:]
+            msg_size = struct.unpack("=L", packed_msg_size)[0]  # CHANGED
 
-        # Retrieve all data based on message size
-        while len(self.data) < msg_size:
-            self.data += self.conn.recv(4096)
+            # Retrieve all data based on message size
+            while len(self.data) < msg_size:
+                self.data += self.conn.recv(4096)
 
-        frame_data = self.data[:msg_size]
-        self.data = self.data[msg_size:]
+            frame_data = self.data[:msg_size]
+            self.data = self.data[msg_size:]
 
-        # Extract frame
-        frame = pickle.loads(frame_data)
+            # Extract frame
+            frame = pickle.loads(frame_data)
 
-        self.count += 1
+            self.count += 1
 
-        if ((self.count % FRAME_SKIP_COUNT) == 0):
-            self.rect_list = self.box_image(frame)
+            if ((self.count % FRAME_SKIP_COUNT) == 0):
+                self.rect_list = self.box_image(frame)
 
-        for rects in self.rect_list:
-            x, y, w, h = rects
-            cv2.rectangle(frame, (x, y), (x+w, y+h),
-                          (0, 255, 0), LINE_THICKNESS)
+            for rects in self.rect_list:
+                x, y, w, h = rects
+                cv2.rectangle(frame, (x, y), (x+w, y+h),
+                              (0, 255, 0), LINE_THICKNESS)
 
-        # Display
-        cv2.imshow('Raspberry Pi Stream', frame)
-        cv2.waitKey(15)
+            # Display
+            cv2.imshow('Raspberry Pi Stream', frame)
+            cv2.waitKey(15)
+        except KeyboardInterrupt:
+            self.set_terminate_flag()
+
+    def terminate(self):
+        cv2.destroyAllWindows()
 
     # Function that takes in a image and draws boxes around suspected plants
     def box_image(self, img: np.array):

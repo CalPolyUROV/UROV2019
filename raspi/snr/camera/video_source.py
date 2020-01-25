@@ -36,7 +36,7 @@ class VideoSource(ProcEndpoint):
 
         self.task_handlers = {}
 
-        super().start_threaded_loop()
+        self.start_proc_loop()
 
     def init_camera(self):
         # Connect a client socket to my_server:8000 (change my_server to the
@@ -68,9 +68,11 @@ class VideoSource(ProcEndpoint):
                 self.client_socket.sendall(message_size + data)
 
         except KeyboardInterrupt:
-            self.camera.release()
-            cv2.destroyAllWindows()
-            debug("camera_event",
-                  "Exiting video source (camera {})",
-                  [self.camera_num])
-            super().set_terminate_flag()
+            self.set_terminate_flag()
+
+    def terminate(self):
+        self.camera.release()
+        cv2.destroyAllWindows()
+        debug("camera_event",
+              "Closed video source (camera {})",
+              [self.camera_num])

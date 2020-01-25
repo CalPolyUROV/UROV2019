@@ -43,10 +43,12 @@ DEBUG_CHANNELS = {
     "decode_verbose": False,
 
     "framework": True,
+    "framework_warning": False,
+    "framework_verbose": True,
 
     "int_temp_mon": True,
 
-    "motor_control": True,
+    "motor_control": False,
     "motor_control_verbose": False,
 
     "profiling_avg": False,
@@ -91,10 +93,10 @@ DEBUG_CHANNELS = {
     "sockets_status": False,
     "sockets_verbose": False,
 
-    "sockets_send": True,
+    "sockets_send": False,
     "sockets_send_verbose": False,
 
-    "sockets_receive": True,
+    "sockets_receive": False,
     "sockets_receive_verbose": False,
 
     "telemetry_verbose": False,

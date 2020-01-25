@@ -44,9 +44,10 @@ class ProcEndpoint(Endpoint):
         else:
             self.delay = 1.0 / tick_rate_hz
 
-    def start_threaded_loop(self):
+    def start_proc_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
         self.proc = Process(target=self.threaded_method(), daemon=True)
+        self.proc.start()
         # thread.start_new_thread(self.threaded_method, ())
 
     def threaded_method(self):
@@ -65,30 +66,27 @@ class ProcEndpoint(Endpoint):
 
                 self.tick()
         except Exception as e:
-            if e is KeyboardInterrupt:
-                return
-            else:
-                pass
+            debug("proc_endpoint_error", "{}, e: {}", [self.name, e])
+            self.set_terminate_flag()
 
         debug("framework", "Async endpoint {} exited loop", [self.name])
-        # print_exit("Endpoint thread exited by termination")
+        self.terminate()
         return
 
     def get_name(self):
         return self.name
 
     def tick(self):
-        # TODO: Ensure that this does not block other threads: thread.sleep()?
         if (self.delay == 0.0):
-            debug("framework_verbose",
-                  "asyncendpoint {} does not sleep (max tick rate)",
+            debug("framework_warning",
+                  "proc_endpoint {} does not sleep (max tick rate)",
                   [self.name])
         else:
             sleep(self.delay)
 
     def set_terminate_flag(self):
         self.terminate_flag = True
-        debug("framework", "Terminating endpoint {}", [self.name])
+        debug("framework", "Terminating proc_endpoint {}", [self.name])
 
     def terminate(self):
         raise NotImplementedError

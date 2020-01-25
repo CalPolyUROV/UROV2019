@@ -45,9 +45,9 @@ def debug(channel: str, *args: Union[list,  str]):
     debug("channel", "message: {}, {}", ["list", thing_to_format])
 
     respective outputs:
-    channel: message
-    channel: object.__repr__()
-    channel: message with brackets: list, thing_to_format.__repr__()
+    [channel] message
+    [channel] object.__repr__()
+    [channel] message with brackets: list, thing_to_format.__repr__()
 
     By formatting once inside debug(), format() is only called if printing is
     turned on. Remember to include [ ] around the items to be formatted.
