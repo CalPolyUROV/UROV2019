@@ -27,6 +27,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c $(INCLUDES)
 
 so: $(DYNOBJ)
 $(DYNOBJ): $(OBJECTS)
+	@mkdir -p $(SODIR)
 	@$(LINKER) $(SODIR)/$(@) $(LFLAGS) $(OBJECTS)
 
 all:
