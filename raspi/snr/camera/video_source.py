@@ -36,7 +36,7 @@ class VideoSource(ProcEndpoint):
 
         self.task_handlers = {}
 
-        self.start_proc_loop()
+        self.start_loop()
 
     def init_camera(self):
         # Connect a client socket to my_server:8000 (change my_server to the

@@ -35,7 +35,7 @@ class Controller(AsyncEndpoint):
 
         self.datastore = self.parent.datastore
 
-        self.start_threaded_loop()
+        self.start_loop()
 
     def get_new_tasks(self) -> SomeTasks:
         pass

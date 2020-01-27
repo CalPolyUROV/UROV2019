@@ -25,7 +25,7 @@ class SocketsServer(AsyncEndpoint):
 
         self.data_name = data_name
 
-        self.start_threaded_loop()
+        self.start_loop()
 
     def serve_data(self):
         # Create connection to a specific client

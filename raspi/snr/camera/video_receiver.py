@@ -39,7 +39,7 @@ class VideoReceiver(ProcEndpoint):
                          TICK_RATE_HZ)
 
         self.receiver_port = receiver_port
-        self.start_proc_loop()
+        self.start_loop()
 
     def init_receiver(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

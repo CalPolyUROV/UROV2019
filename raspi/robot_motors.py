@@ -65,7 +65,7 @@ class RobotMotors(AsyncEndpoint):
                          self.update_motor_values,
                          settings.MOTOR_CONTROL_TICK_RATE)
 
-        self.start_threaded_loop()
+        self.start_loop()
 
     def init_endpoint(self):
         self.motor_previous = generate_motor_array()

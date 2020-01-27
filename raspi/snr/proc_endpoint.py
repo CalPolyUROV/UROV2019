@@ -44,7 +44,7 @@ class ProcEndpoint(Endpoint):
         else:
             self.delay = 1.0 / tick_rate_hz
 
-    def start_proc_loop(self):
+    def start_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
         self.proc = Process(target=self.threaded_method(), daemon=True)
         self.proc.start()
@@ -63,7 +63,6 @@ class ProcEndpoint(Endpoint):
                     # debug("profiling_endpoint",
                     #       "Ran {} task in {:6.3f} us",
                     #       [self.name, runtime * 1000000])
-
                 self.tick()
         except Exception as e:
             debug("proc_endpoint_error", "{}, e: {}", [self.name, e])
@@ -82,7 +81,7 @@ class ProcEndpoint(Endpoint):
                   "proc_endpoint {} does not sleep (max tick rate)",
                   [self.name])
         else:
-            sleep(self.delay)
+            Process.sleep(self.delay)
 
     def set_terminate_flag(self):
         self.terminate_flag = True

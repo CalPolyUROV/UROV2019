@@ -44,7 +44,7 @@ class AsyncEndpoint(Endpoint):
         else:
             self.delay = 1.0 / tick_rate_hz
 
-    def start_threaded_loop(self):
+    def start_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
         thread.start_new_thread(self.threaded_method, ())
 
