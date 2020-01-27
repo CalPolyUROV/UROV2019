@@ -258,10 +258,13 @@ class Controller(AsyncEndpoint):
         # Close the window and quit.
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
-        debug("controls_reader_verbose", "exiting pygame")
-        settings.USE_CONTROLLER = False
-        pygame.quit()
-        debug("controls_reader", "Exited pygame")
+        if(not settings.SIMULATE_INPUT):
+            debug("controls_reader_verbose", "exiting pygame")
+            settings.USE_CONTROLLER = False
+            pygame.quit()
+            debug("controls_reader", "Exited pygame")
+        else:
+            debug("controls_reader_verbose", "Closing simulated controller")
         self.set_terminate_flag()
 
 
