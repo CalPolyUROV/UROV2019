@@ -84,4 +84,4 @@ class AsyncEndpoint(Endpoint):
         debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
-        raise NotImplementedError
+        self.set_terminate_flag()

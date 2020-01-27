@@ -15,6 +15,7 @@ from snr.camera.factory import CameraManager
 from snr.comms.serial.factory import SerialFactory
 from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
+from snr.zynq.factory import ZyboFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
 from ui.gui.factory import GUIFactory
@@ -46,6 +47,8 @@ def main():
     # GUI
     GUI = GUIFactory(settings.CONTROLS_DATA_NAME)
     # XBox Controller
+    # Zynq Zybo Z7-20: replaces serial link
+    zynq_link = ZyboFactory("motor_data", "sensor_data")
     controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
     # UART/USB link to Arduino for motor control and sensor reading
     serial_link = SerialFactory("motor_data", "sensor_data",
@@ -66,6 +69,11 @@ def main():
                       robot_controls,
                       serial_link,
                       cameras[0].source]
+    elif role.__eq__("zybo"):
+        components = [controls_link.client,
+                      #   telemetry_link.server,
+                      robot_controls,
+                      zynq_link]
 
     node = Node(role, mode, components)
     # Run the node's loop

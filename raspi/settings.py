@@ -230,6 +230,9 @@ SERIAL_TIMEOUT = 4
 SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
 
+# Zynq Zybo FPGA DMA
+SIMULATE_DMA = False
+
 # Temperature Monitor
 USE_ROBOT_PI_TEMP_MON = False
 SIMULATE_ROBOT_INT_TEMP = True  # TODO: Implement temperature simulation

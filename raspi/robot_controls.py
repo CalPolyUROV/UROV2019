@@ -267,3 +267,7 @@ class ControlsProcessor(Endpoint):
         debug("axis_update_verbose", "{} axis updated from {} to {}",
               [axis, self.previous_throttle[axis], self.throttle[axis]])
         return True
+
+    def terminate(self):
+        # TODO: turn all all motors
+        pass
