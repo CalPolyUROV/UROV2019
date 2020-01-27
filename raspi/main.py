@@ -17,6 +17,7 @@ from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
+from ui.gui.factory import GUIFactory
 
 
 def main():
@@ -42,6 +43,8 @@ def main():
     # Controls and motor processing
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
                                           "thruster_data")
+    # GUI
+    GUI = GUIFactory(settings.CONTROLS_DATA_NAME)
     # XBox Controller
     controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
     # UART/USB link to Arduino for motor control and sensor reading
@@ -55,6 +58,7 @@ def main():
         components = [controls_link.server,
                       #   telemetry_link.client,
                       controller,
+                      GUI,
                       cameras[0].receiver]
     elif role.__eq__("robot"):
         components = [controls_link.client,

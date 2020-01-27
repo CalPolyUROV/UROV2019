@@ -44,12 +44,13 @@ class Controller(AsyncEndpoint):
         pass
 
     def store_data(self, data):
+        debug("controller", "taking in data")
         self.datastore.store(self.name, data)
 
     def init_controller(self):
         if settings.SIMULATE_INPUT:
             s = "Simulating input without pygame and XBox controller"
-            debug("controller", s)
+            debug("controller_event", s)
             self.triggers_zeroed = True
             return
 
