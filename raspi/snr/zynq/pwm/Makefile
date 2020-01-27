@@ -29,6 +29,7 @@ so: $(DYNOBJ)
 $(DYNOBJ): $(OBJECTS)
 	@mkdir -p $(SODIR)
 	@$(LINKER) $(SODIR)/$(@) $(LFLAGS) $(OBJECTS)
+	@echo Sucessfully linked $(@) using $(OBJECTS)
 
 all:
 	$(TARGET)
