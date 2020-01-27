@@ -44,6 +44,8 @@ DEBUG_CHANNELS = {
 
     "framework": True,
 
+    "gui_verbose": False,
+
     "int_temp_mon": True,
 
     "motor_control": False,

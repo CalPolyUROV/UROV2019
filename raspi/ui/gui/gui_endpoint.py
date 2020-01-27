@@ -53,7 +53,7 @@ class SimpleGUI(AsyncEndpoint):
         # Get updated telemetry data
         # TODO: Use page freshness abstraction to check if data is unchanged
         telem = self.get_data()
-        debug("gui_verbose", "Got telemetry info: {}", [telem])
+        debug("gui_telem", "Got telemetry info: {}", [telem])
 
         # Please try and use as high of a timeout value as you can
         event, values = self.window.Read(timeout=self.refresh_rate)

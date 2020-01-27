@@ -37,7 +37,7 @@ class AsyncEndpoint(Endpoint):
 
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
-            self.delay = 0.0
+            self.delay = 20
         else:
             self.delay = 1.0 / tick_rate_hz
 

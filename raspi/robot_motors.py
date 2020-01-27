@@ -57,16 +57,17 @@ from snr.utils import debug
 class RobotMotors(AsyncEndpoint):
     def __init__(self, parent: Node, name: str,
                  input_name: str, output_name: str):
-        super().__init__(parent, name,
+        super().__init__(parent, name, self.init_endpoint,
                          self.update_motor_values,
                          settings.MOTOR_CONTROL_TICK_RATE)
         self.input_data_name = input_name
+        self.start_threaded_loop()
 
+    def init_endpoint(self):
         self.motor_previous = generate_motor_array()
         self.motor_values = generate_motor_array()
         self.motor_targets = generate_motor_array()
 
-        self.loop()
 
     def get_throttle_data(self):
         return self.datastore.use(self.input_data_name)
