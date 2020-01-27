@@ -62,7 +62,7 @@ class Zybo(Endpoint):
               [cmd, reg, val])
 
         if not settings.SIMULATE_DMA:
-            self.pwm_lib.run_demo()
+            self.pwm_lib.runDemo()
 
         # debug("dma_verbose", "cmd returned: {}", [status])
 
