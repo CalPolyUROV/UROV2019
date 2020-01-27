@@ -18,12 +18,12 @@
 
 PWM PWM_init(uint8_t uioNum, uint8_t mapNum)
 {
-    if (uioNum < 0 || mapNum < 0) {
-        fprintf(stderr, "That is not a valid UIO device or map number\n");
-        fprintf(stderr, "Check /sys/class/uio for more information about");
-        fprintf(stderr, " the available UIO devices\n");
-        exit(EXIT_FAILURE);
-    }
+    // if (uioNum < 0 || mapNum < 0) {
+    //     fprintf(stderr, "That is not a valid UIO device or map number\n");
+    //     fprintf(stderr, "Check /sys/class/uio for more information about");
+    //     fprintf(stderr, " the available UIO devices\n");
+    //     exit(EXIT_FAILURE);
+    // }
 
     void* pwm;
     UIO* uio = UIO_MAP(uioNum, mapNum);

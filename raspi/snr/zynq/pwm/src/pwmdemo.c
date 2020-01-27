@@ -43,9 +43,7 @@ void initDemo()
     //sigIntHandler.sa_flags = 0;
 
     //sigaction(SIGINT, &sigIntHandler, NULL);
-
 }
-
 
 void runDemo(void)
 {
@@ -54,7 +52,6 @@ void runDemo(void)
              g1 = 0, g2 = 0;
 
     // uint8_t b1flag = 0, b2flag = 0;
-
 
     // PL Clock is 100 MHz, each successive value in the frequency register is 10ns
     // Set PWM frequency to 10 * 100000 ==  1000000 ns     ==     1 KHz
@@ -101,7 +98,6 @@ void runDemo(void)
         usleep(150);
         j++;
     }
-
 }
 
 void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
@@ -124,7 +120,7 @@ void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
         }
 
         if ((strcmp("..", info->d_name) != 0) && (strcmp(".", info->d_name) != 0)) {
-            char stub[100];
+            char stub[106];
             sprintf(stub, "/sys/class/uio/%s/name", info->d_name);
 
             FILE* name = fopen(stub, "r");
@@ -134,7 +130,11 @@ void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
             }
 
             char name_buf[4];
-            fgets(name_buf, 4, name);
+            char* r;
+            if ((r = fgets(name_buf, 4, name)) != NULL) {
+                perror("fgets failed");
+            }
+
             fclose(name);
 
             // Check to see if 'NAME' matches PWM
@@ -143,7 +143,7 @@ void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
                 *uioNum = info->d_name[3] - '0';
                 num_pwm_devices++;
 
-                char uio_maps[100];
+                char uio_maps[106];
                 sprintf(uio_maps, "/sys/class/uio/uio%d/maps", info->d_name[3] - '0');
                 DIR* map_base = opendir(uio_maps);
 
@@ -159,10 +159,10 @@ void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
                     if ((strcmp("..", map_info->d_name) != 0) && (strcmp(".", map_info->d_name) != 0)) {
                         numMaps++;
                         printf("[\t-------------------%s-----------------\n", map_info->d_name);
-                        char part_info[100];
+                        char part_info[106];
                         sprintf(part_info, "/sys/class/uio/uio%d/maps/map%d", info->d_name[3] - '0', map_info->d_name[3] - '0');
                         // Print name and address information about the map
-                        char address_path[100], name_path[100], map_adx[50], map_name[50];
+                        char address_path[106], name_path[106], map_adx[50], map_name[50];
                         sprintf(address_path, "%s/addr", part_info);
                         sprintf(name_path, "%s/name", part_info);
                         FILE* adx = fopen(address_path, "r");
@@ -170,8 +170,13 @@ void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
                         if (NULL == adx || NULL == name) {
                             perror("Error opening the name or address file for UIO");
                         }
-                        fgets(map_adx, 50, adx);
-                        fgets(map_name, 50, name);
+                        char* r;
+                        if ((r = fgets(map_adx, 50, adx)) != NULL) {
+                            perror("fgets failed");
+                        }
+                        if ((r = fgets(map_name, 50, name)) != NULL) {
+                            perror("fgets failed");
+                        }
                         printf("[\t\tAddress: %s", map_adx);
                         printf("[\t\tName: %s", map_name);
                         fclose(adx);

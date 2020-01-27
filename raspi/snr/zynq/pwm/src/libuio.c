@@ -55,7 +55,10 @@ UIO* UIO_MAP(uint8_t uioNum, uint8_t mapNum)
     //fprintf(stderr, "UIO INFO: %s\n", UIO_INFO);
     FILE* size = fopen(UIO_INFO, "r");
     rewind(size);
-    fscanf(size, "%x", &(uio->map_size));
+    int r;
+    if ((r = fscanf(size, "%x", &(uio->map_size))) != 0) {
+        perror("fscanf failed");
+    }
     fclose(size);
     //fprintf(stderr, "mapSize: 0x%x\n", uio->map_size);
     if (size == NULL) {
