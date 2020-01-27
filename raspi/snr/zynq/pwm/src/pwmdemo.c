@@ -11,9 +11,9 @@
 #define TWENTYFIVE 0x0800
 #define FIFTY 0x8000
 
-void run_demo();
+void run_demo(void);
 void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum);
-void exitHandler();
+void exitHandler(void);
 
 static PWM* pwm = NULL;
 static uint8_t uioNum, mapNum;
@@ -47,7 +47,7 @@ void initDemo()
 }
 
 
-void runDemo()
+void runDemo(void)
 {
     uint16_t r1 = 0, r2 = 0,
              b1 = 0, b2 = 0,
@@ -190,7 +190,7 @@ void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum)
     closedir(uio_base);
 }
 
-void exitHandler()
+void exitHandler(void)
 {
     setPwmDuty(pwm, 1, 0);
     setPwmDuty(pwm, 2, 0);
