@@ -206,6 +206,5 @@ void exitHandler(void)
     PWM_Disable(pwm);
     PWM_Close(pwm);
     printf("\nExiting PWM demo\n");
-    printf("\nYa done now\n");
     //exit(EXIT_SUCCESS);
 }
