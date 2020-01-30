@@ -46,9 +46,12 @@ class ProcEndpoint(Endpoint):
 
     def start_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
-        self.proc = Process(target=self.threaded_method(), daemon=True)
         self.proc.start()
+        self.proc = self.get_proc()
         # thread.start_new_thread(self.threaded_method, ())
+
+    def get_proc(self):
+        return Process(target=self.threaded_method())  # , daemon=True)
 
     def threaded_method(self):
         # signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -81,7 +84,7 @@ class ProcEndpoint(Endpoint):
                   "proc_endpoint {} does not sleep (max tick rate)",
                   [self.name])
         else:
-            Process.sleep(self.delay)
+            sleep(self.delay)
 
     def set_terminate_flag(self):
         self.terminate_flag = True

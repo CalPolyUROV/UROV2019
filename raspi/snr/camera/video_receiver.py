@@ -6,10 +6,11 @@ import pickle
 import socket
 import struct
 import numpy as np
-import cv2
+import cv2 as cv
 
 from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
+from snr.utils import debug
 
 HOST = "localhost"
 
@@ -24,7 +25,7 @@ FRAME_SKIP_COUNT = 4
 # Title of the window
 WINDOW_TITLE = 'Video'
 
-TICK_RATE_HZ = 0.0  # never sleep the server
+TICK_RATE_HZ = 120.0  # never sleep the server
 
 
 class VideoReceiver(ProcEndpoint):
@@ -42,15 +43,28 @@ class VideoReceiver(ProcEndpoint):
         self.start_loop()
 
     def init_receiver(self):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print('Socket created')
+        debug("camera_event",
+              "Initializing video recvr for {} on port {}",
+              [self.name, self.receiver_port])
+        try:
+            # cv.namedWindow(f'Raspberry Pi Stream: {self.name}')
+            # cv.imShow(f'Raspberry Pi Stream: {self.name}',
+            #           np.zeros((480, 720, 3), np.uint8))
 
-        self.s.bind((HOST, self.receiver_port))
-        print('Socket bind complete')
-        self.s.listen(10)
-        print('Socket now listening')
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print('Socket created')
 
-        self.conn, self.addr = self.s.accept()
+            self.s.bind((HOST, self.receiver_port))
+            print('Socket bind complete')
+            self.s.listen(10)
+            print('Socket now listening')
+
+            self.conn, self.addr = self.s.accept()
+        except Exception as e:
+            debug("camera_error",
+                  "Initizing {} failed: {}",
+                  self.name, e)
+            self.set_terminate_flag()
 
         self.data = b''  # CHANGED
         self.payload_size = struct.calcsize("=L")  # CHANGED
@@ -88,52 +102,52 @@ class VideoReceiver(ProcEndpoint):
 
             for rects in self.rect_list:
                 x, y, w, h = rects
-                cv2.rectangle(frame, (x, y), (x+w, y+h),
-                              (0, 255, 0), LINE_THICKNESS)
+                cv.rectangle(frame, (x, y), (x+w, y+h),
+                             (0, 255, 0), LINE_THICKNESS)
 
             # Display
-            cv2.imshow('Raspberry Pi Stream', frame)
-            cv2.waitKey(15)
+            cv.imshow(f'Raspberry Pi Stream: {self.name}', frame)
+            cv.waitKey(15)
         except KeyboardInterrupt:
             self.set_terminate_flag()
 
     def terminate(self):
-        cv2.destroyAllWindows()
+        cv.destroyAllWindows()
 
     # Function that takes in a image and draws boxes around suspected plants
     def box_image(self, img: np.array):
         """Sample CV method courtesy of the big J
         """
         # Converting image from BGR to HSV color space
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
         # Generating the mask that outlines the plants
         # Method 1: Look for the color green
-        mask1 = cv2.inRange(hsv, (30, 30, 30), (70, 255, 255))
+        mask1 = cv.inRange(hsv, (30, 30, 30), (70, 255, 255))
         # Method 2
 
         # Take the mask and clean up the holes in the mask
         # Open removes area of the holes in the mask (removes noise) and
         # then adds area to the holes
-        mask1 = cv2.morphologyEx(
-            mask1, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        mask1 = cv.morphologyEx(
+            mask1, cv.MORPH_OPEN, np.ones((3, 3), np.uint8))
         # Dilate areas in the mask (Add area to the holes in the mask)
-        mask1 = cv2.morphologyEx(
-            mask1, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8))
+        mask1 = cv.morphologyEx(
+            mask1, cv.MORPH_DILATE, np.ones((3, 3), np.uint8))
 
-        ret, thresh = cv2.threshold(mask1, 127, 255, 0)
-        contours, hierarchy = cv2.findContours(
-            thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        ret, thresh = cv.threshold(mask1, 127, 255, 0)
+        contours, hierarchy = cv.findContours(
+            thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
         # List of Rectangle objects
         rect_list = []
         # Loop through each of the "Plant" areas
         for c in contours:
             # if the "Plant" is large enough draw a rectangle around it
-            if cv2.contourArea(c) > AREA_THRESHHOLD:
+            if cv.contourArea(c) > AREA_THRESHHOLD:
                 # get the bounding rect
-                x, y, w, h = cv2.boundingRect(c)
+                x, y, w, h = cv.boundingRect(c)
                 rect_list.append((x, y, w, h))
                 # draw a green rectangle to visualize the bounding rect
-                # cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 15)
+                # cv.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 15)
         return rect_list

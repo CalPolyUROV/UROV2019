@@ -5,8 +5,8 @@ https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html
 import socket
 import pickle
 import struct
-import cv2
-from cv2 import VideoCapture, destroyAllWindows
+# import cv2 as cv
+from cv2 import VideoCapture  # , destroyAllWindows
 
 from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
@@ -18,7 +18,7 @@ from snr.utils import debug
 
 FRAME_WIDTH = 1280
 FRAME_HEIGHT = 720
-TICK_RATE_HZ = 0.0
+TICK_RATE_HZ = 120.0
 
 
 class VideoSource(ProcEndpoint):
@@ -41,14 +41,26 @@ class VideoSource(ProcEndpoint):
     def init_camera(self):
         # Connect a client socket to my_server:8000 (change my_server to the
         # hostname of your server)
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.connect((self.receiver_ip, self.receiver_port))
+        debug("camera_event",
+              "Initializing camera {} as {} for recvr {}:{}",
+              [self.camera_num, self.name,
+               self.receiver_ip, self.receiver_port])
+        self.camera = None
+        try:
+            self.client_socket = socket.socket(
+                socket.AF_INET, socket.SOCK_STREAM)
+            self.client_socket.connect((self.receiver_ip, self.receiver_port))
 
-        # Create a VideoCapture object and read from input file
-        self.camera = VideoCapture(self.camera_num)
+            # Create a VideoCapture object and read from input file
+            self.camera = VideoCapture(self.camera_num)
+        except Exception as e:
+            debug("camera_error",
+                  "Initizing {} failed: {}",
+                  self.name, e)
+            self.set_terminate_flag()
 
         # Check if camera opened successfully
-        if (not self.camera.isOpened()):
+        if (not self.camera or not self.camera.isOpened()):
             debug("camera_error",
                   "Error opening camera #{}",
                   [self.camera_num])
@@ -57,7 +69,7 @@ class VideoSource(ProcEndpoint):
         try:
             grabbed, frame = self.camera.read()  # grab the current frame
             # resize the frame
-            # frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
+            # frame = cv.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
             if grabbed:
                 data = pickle.dumps(frame)
                 size = len(data)
@@ -71,8 +83,10 @@ class VideoSource(ProcEndpoint):
             self.set_terminate_flag()
 
     def terminate(self):
-        self.camera.release()
-        cv2.destroyAllWindows()
+        if self.camera:
+            self.camera.release()
+        # No windows here?
+        # cv.destroyAllWindows()
         debug("camera_event",
               "Closed video source (camera {})",
               [self.camera_num])
