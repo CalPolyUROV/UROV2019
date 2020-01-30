@@ -46,9 +46,11 @@ class ProcEndpoint(Endpoint):
 
     def start_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
-        self.proc = Process(target=self.threaded_method(), daemon=True)
+        self.proc = self.get_proc()
         self.proc.start()
-        # thread.start_new_thread(self.threaded_method, ())
+
+    def get_proc(self):
+        return Process(target=self.threaded_method(), daemon=True)
 
     def threaded_method(self):
         # signal.signal(signal.SIGINT, signal.SIG_IGN)
