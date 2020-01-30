@@ -62,13 +62,15 @@ def main():
                       #   telemetry_link.client,
                       controller,
                       GUI,
-                      cameras[0].receiver]
+                      #   cameras[0].receiver
+                      ]
     elif role.__eq__("robot"):
         components = [controls_link.client,
                       #   telemetry_link.server,
                       robot_controls,
                       serial_link,
-                      cameras[0].source]
+                      #   cameras[0].source
+                      ]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
                       #   telemetry_link.server,
