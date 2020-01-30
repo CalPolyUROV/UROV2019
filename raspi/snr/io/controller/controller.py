@@ -44,7 +44,7 @@ class Controller(AsyncEndpoint):
         pass
 
     def store_data(self, data):
-        debug("controller", "taking in data")
+        debug("controller_verbose", "Storing data in datastore...")
         self.datastore.store(self.name, data)
 
     def init_controller(self):
