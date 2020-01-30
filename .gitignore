@@ -3,9 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
 # Distribution / packaging
 .Python
 build/
@@ -106,8 +103,20 @@ venv.bak/
 
 .directory
 .DS_Store
+
+# IntelliJ config files
 .idea
 
+# Generated TODO file
 raspi/todo.txt
+
+# VSCode configs
 .vscode/*
 raspi/.vscode/*
+
+# C obj files
+*.o
+*.so
+
+# C tags
+tags

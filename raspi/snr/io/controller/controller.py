@@ -6,7 +6,7 @@ https://www.pygame.org/docs/ref/joystick.html
 import random
 from typing import Tuple, Union
 
-import pygame
+# import pygame
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
@@ -21,7 +21,7 @@ class Controller(AsyncEndpoint):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")
             return
-
+        
         # Require triggers to be set to zero before operation
         # Initial value is inverse of setting
         # Triggers zerod indicated whether the triggers no longer need to be
@@ -44,15 +44,16 @@ class Controller(AsyncEndpoint):
         pass
 
     def store_data(self, data):
+        debug("controller", "taking in data")
         self.datastore.store(self.name, data)
 
     def init_controller(self):
         if settings.SIMULATE_INPUT:
             s = "Simulating input without pygame and XBox controller"
-            debug("controller", s)
+            debug("controller_event", s)
             self.triggers_zeroed = True
             return
-
+        import pygame
         pygame.init()  # Initialize pygame
         pygame.joystick.init()  # Initialize the joysticks
         pygame.event.get()
@@ -259,10 +260,13 @@ class Controller(AsyncEndpoint):
         # Close the window and quit.
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
-        debug("controls_reader_verbose", "exiting pygame")
-        settings.USE_CONTROLLER = False
-        pygame.quit()
-        debug("controls_reader", "Exited pygame")
+        if(not settings.SIMULATE_INPUT):
+            debug("controls_reader_verbose", "exiting pygame")
+            settings.USE_CONTROLLER = False
+            pygame.quit()
+            debug("controls_reader", "Exited pygame")
+        else:
+            debug("controls_reader_verbose", "Closing simulated controller")
         self.set_terminate_flag()
 
 

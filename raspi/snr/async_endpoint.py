@@ -33,17 +33,18 @@ class AsyncEndpoint(Endpoint):
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate_hz)
+        
         if parent:
             self.profiler = parent.profiler
         else:
             self.profiler = None
-
+    
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
             self.delay = 0.0
         else:
             self.delay = 1.0 / tick_rate_hz
-
+       
     def start_loop(self):
         debug("framework", "Starting async endpoint {} thread", [self.name])
         thread.start_new_thread(self.threaded_method, ())
@@ -83,4 +84,4 @@ class AsyncEndpoint(Endpoint):
         debug("framework", "Terminating endpoint {}", [self.name])
 
     def terminate(self):
-        raise NotImplementedError
+        self.set_terminate_flag()

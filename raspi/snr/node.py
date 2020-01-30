@@ -120,6 +120,10 @@ class Node:
     def set_terminate_flag(self):
         self.terminate_flag = True
 
+        for e in self.endpoints:
+            # e.set_terminate_flag()???
+            e.terminate()
+
         self.datastore.terminate()
 
         if self.profiler is not None:

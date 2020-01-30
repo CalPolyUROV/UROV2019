@@ -46,6 +46,8 @@ DEBUG_CHANNELS = {
     "framework_warning": False,
     "framework_verbose": True,
 
+    "gui_verbose": False,
+
     "int_temp_mon": True,
 
     "motor_control": False,
@@ -123,6 +125,7 @@ USE_TOPSIDE_CLUI = False
 TOPSIDE_CLUI_NAME = "topside_clui"
 UI_DATA_KEY = "UI_data"
 TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
+USE_GUI = True
 
 # XBox Controller
 USE_CONTROLLER = True
@@ -226,6 +229,9 @@ SERIAL_RETRY_WAIT = 0.5  # Time to wait before retrying serial connection
 SERIAL_TIMEOUT = 4
 SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
+
+# Zynq Zybo FPGA DMA
+SIMULATE_DMA = False
 
 # Temperature Monitor
 USE_ROBOT_PI_TEMP_MON = False

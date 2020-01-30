@@ -20,19 +20,26 @@ robot:
 topside:
 	$(LAUNCH_CMD) topside
 
+zybo: build_zybo
+	$(LAUNCH_CMD) zybo
+
 # Debug launchers
+dt: debug_topside
 debug_topside:
 	$(DBG_LAUNCH_CMD) topside -d
 
+dr: debug_robot
 debug_robot:
 	$(DBG_LAUNCH_CMD) robot -d
 
-# Debug shortcuts
-dt: debug_topside
+dz: debug_zybo
+debug_zybo: build_zybo
+	$(DBG_LAUNCH_CMD) zybo -d
 
-dr: debug_robot
-
-
+# Build targets
+ build_zybo:
+	cd snr/zynq/pwm && make clean && make so
+	
 ssh:
 	ssh $(USERNAME)@$(ROBOT_IP)
 
@@ -103,10 +110,11 @@ todo:
 	grep --line-number --initial-tab "# TODO:" *.py | tr -s [:space:]  > todo.txt
 	cat todo.txt
 
+c: clean
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
-	# rm -rf trash
+	rm -rf libdma.so
 
 gource:
 	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm
