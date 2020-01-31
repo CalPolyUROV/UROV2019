@@ -18,7 +18,7 @@ from snr.io.controller.factory import ControllerFactory
 from snr.zynq.factory import ZyboFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
-from snr.ui.gui.factory import GUIFactory
+from snr.io.ui.gui.factory import GUIFactory
 
 
 def main():
@@ -62,18 +62,21 @@ def main():
                       #   telemetry_link.client,
                       controller,
                       GUI,
-                      cameras.receiver]
+                      cameras.receiver
+                      ]
     elif role.__eq__("robot"):
         components = [controls_link.client,
                       #   telemetry_link.server,
                       robot_controls,
                       serial_link,
-                      cameras.source]
+                      cameras.source
+                      ]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
                       #   telemetry_link.server,
                       robot_controls,
-                      zynq_link]
+                      zynq_link
+                      ]
 
     node = Node(role, mode, components)
     # Run the node's loop
