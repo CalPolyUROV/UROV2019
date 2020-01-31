@@ -15,7 +15,9 @@ class CameraManager(AsyncEndpoint):
         self.camera_names = camera_names
         self.num_cameras = len(camera_names)
         self.port = INITIAL_PORT
-        self.pool = Pool(num_cameras)
+        self.cameras = []
+        # self.pool = Pool(num_cameras)
+
         # if role is ManagerRole.Receiver:
 
         #     return CameraManager(parent, name)
@@ -31,17 +33,17 @@ class CameraManager(AsyncEndpoint):
 
     def setup_handler(self):
         if self.role is ManagerRole.Source:
-            fac = VideoSource
+            fac = VideoSourceFactory
         elif self.role is ManagerRole.Receiver:
-            fac = VideoReceiver
+            fac = VideoReceiverFactory
 
         # Create each camera process from pool
-        for camera_name in self.camera_names:
+        for i, camera_name in enumerate(self.camera_names):
             config = CameraConfig(name,
                                   self.next_port(),
                                   self.next_cam_num())
             f = fac(config)
-            self.procs = Process()
+            self.cams[i] = f.get(self.parent)
 
     def loop_handler(self):
         pass
