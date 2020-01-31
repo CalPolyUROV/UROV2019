@@ -12,3 +12,6 @@ class GUIFactory(Factory):
     def get(self, parent: Node) -> Endpoint:
         from ui.gui.gui_endpoint import SimpleGUI
         return SimpleGUI(parent, "gui", self.input_data_name)
+
+    def __repr__(self):
+        return "Simple GUI Factory"

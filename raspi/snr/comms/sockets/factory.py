@@ -29,7 +29,7 @@ class EthServerFactory(Factory):
         return SocketsServer(parent, config, self.link.data_name)
 
     def __repr__(self):
-        return f"Sockets Server Facotory:{self.link.server_port} for {self.link.data_name}"
+        return f"Sockets Server Factory:{self.link.server_port} for {self.link.data_name}"
 
 
 class EthClientFactory(Factory):
@@ -42,3 +42,5 @@ class EthClientFactory(Factory):
                                self.link.server_port, False)
         return SocketsClient(parent, "Sockets Server",
                              config, self.link.data_name)
+    def __repr__(self):
+        return f"Sockets Client Factory:{self.link.server_port} for {self.link.data_name}"

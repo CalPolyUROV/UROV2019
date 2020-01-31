@@ -73,7 +73,7 @@ class Node:
             self.step_task()
             debug("schedule_verbose", "Task queue: \n{}",
                   [self.repr_task_queue()])
-            yield()
+            # sleep(15)
         self.terminate()
 
     def get_new_tasks(self):

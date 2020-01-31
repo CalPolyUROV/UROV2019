@@ -25,6 +25,7 @@ class SocketsClient(Endpoint):
 
         self.config = config
         self.data_name = data_name
+        self.s = None
 
         self.task_handlers = {
             f"get_{self.data_name}": self.task_handler

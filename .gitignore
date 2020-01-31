@@ -120,3 +120,7 @@ raspi/.vscode/*
 
 # C tags
 tags
+
+raspi/snr/zynq/dma-proxy/test_dma
+*.swp
+raspi/snr/zynq/dma-proxy/dma-proxy-test

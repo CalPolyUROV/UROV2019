@@ -15,9 +15,9 @@ from snr.camera.factory import CameraManager
 from snr.comms.serial.factory import SerialFactory
 from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
-from snr.zynq.factory import ZyboFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
+from snr.zynq.factory import ZyboFactory
 from ui.gui.factory import GUIFactory
 
 
@@ -69,7 +69,7 @@ def main():
                       #   telemetry_link.server,
                       robot_controls,
                       serial_link,
-                    #   cameras[0].source
+                      #   cameras[0].source
                       ]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
@@ -82,7 +82,6 @@ def main():
     try:
         node.loop()
     except KeyboardInterrupt:
-        print()
         debug("framework", "Interrupted by user, exiting")
 
     node.terminate()
