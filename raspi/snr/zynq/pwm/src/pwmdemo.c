@@ -45,6 +45,10 @@ void initDemo()
     //sigaction(SIGINT, &sigIntHandler, NULL);
 }
 
+void writePWM(uint8_t pwmNum, uint32_t duty){
+        setPwmDuty(pwm, pwmNum, duty);
+}
+
 void runDemo(void)
 {
     uint16_t r1 = 0, r2 = 0,

@@ -1,4 +1,4 @@
-from ctypes import cdll, CDLL
+from ctypes import cdll, CDLL, c_ubyte
 
 import settings
 from snr.endpoint import Endpoint
@@ -42,7 +42,7 @@ class Zybo(Endpoint):
             else:
                 val = 0
 
-            result = self.dma_write(cmd, reg, val)
+            result = self.pwm_write(cmd, reg, val)
 
             # result = self.send_receive(t.val_list[0],
             #                            t.val_list[1::])
@@ -57,12 +57,12 @@ class Zybo(Endpoint):
 
         return sched_list
 
-    def dma_write(self, cmd: str, reg: int, val: int):
-        debug("dma_verbose", "Writing DMA: cmd: {}, reg: {}, val: {}",
+    def pwm_write(self, cmd: str, reg: int, val: int):
+        debug("dma_verbose", "Writing PWM: cmd: {}, reg: {}, val: {}",
               [cmd, reg, val])
 
         if not settings.SIMULATE_DMA:
-            self.pwm_lib.runDemo()
+            self.pwm_lib.writePWM(c_ubyte(reg), val)
 
         # debug("dma_verbose", "cmd returned: {}", [status])
 

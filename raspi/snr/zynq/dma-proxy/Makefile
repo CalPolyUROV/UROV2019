@@ -1,27 +1,27 @@
 
 CC=gcc
-LINKER=$(CC)
 
 CC_FLAGS=-Wall -Wextra -g -pedantic
 OPT_FLAGS=-Og 
 
-LINKER_FLAGS=-flto
+LIBS=-lpthread
 
-CC_CMD=$(CC) $(CC_FLAGS) $(OPT_FLAGS) -c
-LINKER_CMD=$(LINKER) $(LINKER_FLAGS) -o
+CC_CMD=$(CC) $(CC_FLAGS) $(OPT_FLAGS)
 
-HEADERS=dma-proxy.h
+OUTPUTS=dma-proxy-test dma-proxy.so
+
+
 .PHONY: all
-all: dma-proxy dma-proxy-test
+all: $(OUTPUTS)
 
-dma-proxy: dma-proxy.o
-	$(LINKER_CMD) $@ $<
+dma-proxy-test: dma-proxy-test.c
+	$(CC_CMD) -o $@ $< $(LIBS)
+	@echo The blootoot dewice is ready to pair.
 
-dma-proxy-test: dma-proxy-test.o
-	$(LINKER_CMD) $@ $<
+dma-proxy.so: dma-proxy-test.c
+	$(CC_CMD) -shared -fPIC -o $@ $< $(LIBS)
+	@echo The blootoot dewice is aconnecteda successfullay!
 
-dma-proxy.o: dma-proxy.c $(HEADERS)
-	$(CC_CMD) -o $@ $<
-	
-dma-proxy-test.o: dma-proxy-test.c $(HEADERS)
-	$(CC_CMD) -o $@ $<
+.PHONY: clean
+clean:
+	rm -f $(OUTPUTS) *.o

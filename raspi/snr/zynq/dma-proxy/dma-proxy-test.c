@@ -32,8 +32,9 @@ static int test_size;
  * receive channels to be operating simultaneously. The ioctl calls are blocking
  * such that a thread is needed.
  */
-void* tx_thread(int dma_count)
+void* tx_thread(void* dma_count_input)
 {
+    int dma_count = (int) dma_count_input;
     int dummy, i, counter;
 
     /* Set up the length for the DMA transfer and initialize the transmit
