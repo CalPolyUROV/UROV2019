@@ -1,10 +1,10 @@
 from typing import List
 
-from enum import Enum
 from snr.factory import Factory
 from snr.async_endpoint import AsyncEndpoint
 from snr.node import Node
 from snr.utils import debug
+from snr.camera.manager import CameraManager, ManagerRole
 
 
 class CameraConfig:
@@ -52,21 +52,6 @@ class CameraPair:
 
         self.source = VideoSourceFactory(self.config)
         self.receiver = VideoReceiverFactory(self.config)
-
-
-INITIAL_PORT = 8000
-CAMERA_MANAGER_TICK_HZ = 1
-
-
-class ManagerRole(Enum):
-    Source = 0
-    Receiver = 1
-
-    def __repr__(self):
-        if (self is Source):
-            return "Source"
-        else:
-            return "Receiver"
 
 
 

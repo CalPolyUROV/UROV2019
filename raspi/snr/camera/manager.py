@@ -1,8 +1,25 @@
+from multiprocessing import Pool
+from enum import Enum
+from typing import List
 
 from snr.async_endpoint import AsyncEndpoint
 from snr.utils import debug
 from snr.node import Node
-from multiprocessing import Pool
+
+
+INITIAL_PORT = 8000
+CAMERA_MANAGER_TICK_HZ = 1
+
+
+class ManagerRole(Enum):
+    Source = 0
+    Receiver = 1
+
+    def __repr__(self):
+        if (self is Source):
+            return "Source"
+        else:
+            return "Receiver"
 
 
 class CameraManager(AsyncEndpoint):
