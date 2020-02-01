@@ -17,7 +17,7 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "controller": True,
+    "controller": False,
     "controller_error": True,
     "controller_event": False,
     "controller_verbose": False,
@@ -129,7 +129,7 @@ USE_GUI = True
 
 # XBox Controller
 USE_CONTROLLER = True
-REQUIRE_CONTROLLER = True
+REQUIRE_CONTROLLER = False
 SIMULATE_INPUT = True
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
