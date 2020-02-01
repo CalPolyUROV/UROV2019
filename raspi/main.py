@@ -54,7 +54,7 @@ def main():
     serial_link = SerialFactory("motor_data", "sensor_data",
                                 "path_to_arduino_program(unimplemented)")
     # Cameras
-    cameras = CameraManager(["main_camera"]).get()
+    # cameras = CameraManager(["main_camera"]).get()
 
     components = []
     if role.__eq__("topside"):
