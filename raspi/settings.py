@@ -47,6 +47,7 @@ DEBUG_CHANNELS = {
     "framework_verbose": True,
 
     "gui_verbose": False,
+    "gui_control": False,
 
     "int_temp_mon": True,
 
@@ -91,17 +92,17 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": False,
-    "sockets_status": False,
+    "sockets_event": True,
+    "sockets_status": True,
     "sockets_verbose": False,
 
     "sockets_send": False,
     "sockets_send_verbose": False,
 
-    "sockets_receive": False,
+    "sockets_receive": True,
     "sockets_receive_verbose": False,
 
-    "telemetry_verbose": False,
+    "telemetry_verbose": True,
 
     "test": True,
 
