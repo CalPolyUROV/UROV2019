@@ -5,7 +5,7 @@ from snr.node import Node
 
 
 class GUIFactory(Factory):
-    def __init__(self, input_data_name: str):
+    def __init__(self, input_data_name: list):
         super().__init__()
         self.input_data_name = input_data_name
 

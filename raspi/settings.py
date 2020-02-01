@@ -126,6 +126,10 @@ TOPSIDE_CLUI_NAME = "topside_clui"
 UI_DATA_KEY = "UI_data"
 TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 USE_GUI = True
+GUI_channels = {
+    "controller": True,
+    "telem": True
+}
 
 # XBox Controller
 USE_CONTROLLER = True

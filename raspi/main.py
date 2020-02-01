@@ -45,7 +45,7 @@ def main():
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
                                           "thruster_data")
     # GUI
-    GUI = GUIFactory(settings.CONTROLS_DATA_NAME)
+    GUI = GUIFactory([settings.CONTROLS_DATA_NAME, settings.TELEMETRY_DATA_NAME])
     # XBox Controller
     # Zynq Zybo Z7-20: replaces serial link
     zynq_link = ZyboFactory("motor_data", "sensor_data")
