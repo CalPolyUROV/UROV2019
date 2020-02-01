@@ -83,8 +83,9 @@ def main():
     try:
         node.loop()
     except KeyboardInterrupt:
-        print()
         debug("framework", "Interrupted by user, exiting")
+    except Exception as e:
+        debug("framework_error", "main loop caught: {}", [e])
 
     node.terminate()
     debug("framework", "Node terminated")
