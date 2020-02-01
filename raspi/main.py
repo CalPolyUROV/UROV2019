@@ -54,7 +54,7 @@ def main():
     serial_link = SerialFactory("motor_data", "sensor_data",
                                 "path_to_arduino_program(unimplemented)")
     # Cameras
-    cameras = CameraManager(["main_camera"]).get()
+    # cameras = CameraManager(["main_camera"]).get()
 
     components = []
     if role.__eq__("topside"):
@@ -62,13 +62,15 @@ def main():
                       #   telemetry_link.client,
                       controller,
                       GUI,
-                      cameras[0].receiver]
+                      #   cameras[0].receiver
+                      ]
     elif role.__eq__("robot"):
         components = [controls_link.client,
                       #   telemetry_link.server,
                       robot_controls,
                       serial_link,
-                      cameras[0].source]
+                      #   cameras[0].source
+                      ]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
                       #   telemetry_link.server,
