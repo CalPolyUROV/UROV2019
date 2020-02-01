@@ -49,6 +49,7 @@ class CameraManager(AsyncEndpoint):
         self.start_loop()
 
     def setup_handler(self):
+        from snr.camera.factory import VideoSourceFactory, VideoReceiverFactory
         if self.role is ManagerRole.Source:
             fac = VideoSourceFactory
         elif self.role is ManagerRole.Receiver:
