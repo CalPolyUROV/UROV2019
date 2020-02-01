@@ -18,7 +18,7 @@ from snr.io.controller.factory import ControllerFactory
 from snr.zynq.factory import ZyboFactory
 from snr.node import Node
 from snr.utils import debug, print_exit, print_mode, print_usage
-from snr.io.ui.gui.factory import GUIFactory
+from ui.gui.factory import GUIFactory
 
 
 def main():

@@ -10,5 +10,5 @@ class GUIFactory(Factory):
         self.input_data_name = input_data_name
 
     def get(self, parent: Node) -> Endpoint:
-        from snr.io.ui.gui.gui_endpoint import SimpleGUI
+        from ui.gui.gui_endpoint import SimpleGUI
         return SimpleGUI(parent, "gui", self.input_data_name)
