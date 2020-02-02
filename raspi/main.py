@@ -54,7 +54,10 @@ def main():
     serial_link = SerialFactory("motor_data", "sensor_data",
                                 "path_to_arduino_program(unimplemented)")
     # Cameras
-    cameras = CameraManagerPair(["main_camera", "ir_camera", "usb_camera"])
+    cameras = CameraManagerPair(["main_camera",
+                                 "ir_camera",
+                                 #  "usb_camera"
+                                 ])
 
     components = []
     if role.__eq__("topside"):
@@ -84,8 +87,8 @@ def main():
         node.loop()
     except KeyboardInterrupt:
         debug("framework", "Interrupted by user, exiting")
-    except Exception as e:
-        debug("framework_error", "main loop caught: {}", [e])
+    # except Exception:
+    #     debug("framework_error", "main loop caught: {}", ["death"])
 
     node.terminate()
     debug("framework", "Node terminated")

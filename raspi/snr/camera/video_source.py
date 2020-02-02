@@ -27,14 +27,14 @@ class VideoSource(ProcEndpoint):
 
     def __init__(self, parent: Node, name: str,
                  receiver_ip: str, receiver_port: int, camera_num: int):
+        self.task_producers = []
+        self.task_handlers = {}
         super().__init__(parent, name,
                          self.init_camera, self.send_frame, TICK_RATE_HZ)
 
         self.receiver_ip = receiver_ip
         self.receiver_port = receiver_port
         self.camera_num = camera_num
-
-        self.task_handlers = {}
 
         self.start_loop()
 

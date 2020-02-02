@@ -46,6 +46,10 @@ class ControlsProcessor(Endpoint):
 
     def __init__(self, parent: Node, name: str,
                  input_name: str, output_name: str):
+        self.task_producers = [self.get_new_tasks]
+        self.task_handlers = {
+            f"process_{settings.CONTROLS_DATA_NAME}": self.task_handler
+            }
         super().__init__(parent, name)
         self.datastore = parent.datastore
 
@@ -66,15 +70,9 @@ class ControlsProcessor(Endpoint):
         self.previous_buttons = init_dict(self.buttons_list, False)
         # Pitch cannot be acheived with current motor configuration
 
-        self.task_handlers = {
-            f"process_{settings.CONTROLS_DATA_NAME}": self.task_handler
-        }
-
-    # SNR endpoint function
     def get_new_tasks(self) -> SomeTasks:
         return Task("get_controls_data", TaskPriority.high, [])
 
-    # SNR endpoint function
     def task_handler(self, t: Task) -> SomeTasks:
         # # Get controls input
         # if t.task_type == "TaskType.get_controls":

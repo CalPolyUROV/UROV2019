@@ -17,3 +17,6 @@ class SerialFactory(Factory):
         return SerialConnection(parent, "Serial Connection",
                                 self.transmit_data_name,
                                 self.query_data_name)
+
+    def __repr__(self):
+        return "Serial Connection Factory"

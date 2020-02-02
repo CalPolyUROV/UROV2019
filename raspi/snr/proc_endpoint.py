@@ -45,7 +45,7 @@ class ProcEndpoint(Endpoint):
             self.delay = 1.0 / tick_rate_hz
 
     def start_loop(self):
-        debug("framework", "Starting async endpoint {} thread", [self.name])
+        debug("framework", "Starting proc endpoint {} process", [self.name])
         self.proc = self.get_proc()
         self.proc.start()
 

@@ -16,6 +16,7 @@ class Node:
         self.datastore = Datastore()
 
         self.endpoints = []
+        self.task_producers = []
 
         self.profiler = None
         if settings.ENABLE_PROFILING:
@@ -36,6 +37,9 @@ class Node:
             endpoint = f.get(self)
             if endpoint is not None:
                 self.endpoints.append(endpoint)
+                if endpoint.task_producers:
+                    for fn in endpoint.task_producers:
+                        self.task_producers.append(fn)
 
             debug("framework_verbose", "{} added {}", [f, endpoint])
 
@@ -73,17 +77,18 @@ class Node:
             self.step_task()
             debug("schedule_verbose", "Task queue: \n{}",
                   [self.repr_task_queue()])
-            # yield()
         self.terminate()
 
     def get_new_tasks(self):
         """Retrieve tasks from endpoints and queue them.
         """
         # new_tasks = [e.get_new_tasks() for e in self.endpoints]
-        for e in self.endpoints:
-            t = e.get_new_tasks()
-            if (t is not None) and isinstance(t, (Task, list)) and t:
-                debug("schedule_new_tasks", "Endpoint {} provided: {}", [e, t])
+        for task_producer in self.task_producers:
+            t = task_producer()
+            if t and isinstance(t, (Task, list)):
+                debug("schedule_new_tasks",
+                      "Produced task: {} from {}",
+                      [t, task_producer.__module__])
                 self.schedule_task(t)
 
     def execute_task(self, t: Task):
@@ -92,7 +97,7 @@ class Node:
         Note that the task is pass in and can be provided on the fly rather
         than needing to be in the queue.
         """
-        if t is None:
+        if not t:
             debug("execute_task", "Tried to execute None")
             return
 
@@ -107,7 +112,7 @@ class Node:
                 else:
                     result = self.profiler.time(f"{t.task_type}:{e.name}",
                                                 lambda: handler(t))
-            if result is not None:
+            if result:
                 task_result.append(result)
 
         debug("schedule_verbose",
@@ -120,20 +125,18 @@ class Node:
     def set_terminate_flag(self):
         self.terminate_flag = True
 
+    def terminate(self):
+        """Execute actions needed to deconstruct a Node
+        """
         for e in self.endpoints:
             # e.set_terminate_flag()???
-            e.terminate()
+            e.set_terminate_flag()
 
         self.datastore.terminate()
 
         if self.profiler is not None:
             self.profiler.terminate()
-
-    def terminate(self):
-        """Execute actions needed to deconstruct a Node
-        """
-        debug("framework", "Node termianted")
-        self.set_terminate_flag()
+        debug("framework", "Node terminated")
 
     def step_task(self):
         # Get the next task to execute

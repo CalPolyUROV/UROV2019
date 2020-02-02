@@ -11,7 +11,7 @@ from typing import Callable
 import _thread as thread
 from snr.endpoint import Endpoint
 from snr.node import Node
-from snr.utils import debug, print_exit, sleep
+from snr.utils import debug, sleep
 from snr.profiler import Timer
 
 
@@ -65,7 +65,8 @@ class AsyncEndpoint(Endpoint):
             self.tick()
 
         debug("framework", "Async endpoint {} exited loop", [self.name])
-        print_exit("Endpoint thread exited by termination")
+        self.terminate()
+        # print_exit("Endpoint thread exited by termination")
 
     def get_name(self):
         return self.name
@@ -82,6 +83,3 @@ class AsyncEndpoint(Endpoint):
     def set_terminate_flag(self):
         self.terminate_flag = True
         debug("framework", "Terminating endpoint {}", [self.name])
-
-    def terminate(self):
-        self.set_terminate_flag()

@@ -14,6 +14,10 @@ class SimpleGUI(AsyncEndpoint):
     def __init__(self, parent: Node, name: str,
                  input_name: str):
         self.refresh_rate = 10
+        
+        self.task_producers = []
+        self.task_handlers = {}
+
         super().__init__(parent, name,
                          self.init_gui, self.update_gui,
                          self.refresh_rate)
@@ -21,12 +25,6 @@ class SimpleGUI(AsyncEndpoint):
         self.datastore = self.parent.datastore
 
         self.start_loop()
-
-    def get_new_tasks(self) -> SomeTasks:
-        pass
-
-    def task_handler(self, t: Task) -> SomeTasks:
-        pass
 
     def terminate(self):
         debug("gui_event", "GUI endpoint terminating")

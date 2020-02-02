@@ -1,5 +1,6 @@
 from snr.task import SomeTasks, Task
 from snr.node import Node
+from snr.utils import debug
 
 
 class Endpoint:
@@ -12,6 +13,9 @@ class Endpoint:
 
     def task_handler(self, t: Task) -> SomeTasks:
         return None
+
+    def set_terminate_flag(self):
+        self.terminate()
 
     def terminate(self):
         debug("framework_warning",

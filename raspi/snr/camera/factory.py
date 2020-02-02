@@ -5,13 +5,7 @@ from snr.async_endpoint import AsyncEndpoint
 from snr.node import Node
 from snr.utils import debug
 from snr.camera.manager import CameraManager, ManagerRole
-
-
-class CameraConfig:
-    def __init__(self, name, server_port, camera_num):
-        self.name = name
-        self.server_port = server_port
-        self.camera_num = camera_num
+from snr.camera.config import CameraConfig
 
 
 class VideoSourceFactory(Factory):
@@ -52,7 +46,6 @@ class CameraPair:
 
         self.source = VideoSourceFactory(self.config)
         self.receiver = VideoReceiverFactory(self.config)
-
 
 
 class CameraManagerFactory(Factory):

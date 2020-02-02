@@ -21,18 +21,17 @@ class SocketsClient(Endpoint):
 
     def __init__(self, parent: Node, name: str,
                  config: SocketsConfig, data_name: str):
+
+        self.task_producers = []
+        self.task_handlers = {
+            f"get_{data_name}": self.task_handler
+            }           
         super().__init__(parent, name)
 
         self.config = config
         self.data_name = data_name
 
-        self.task_handlers = {
-            f"get_{self.data_name}": self.task_handler
-        }
         debug("sockets_status", "Sockets client created")
-
-    def get_new_tasks(self) -> SomeTasks:
-        return
 
     # Why a duplicate? is it an older version?
     # def task_handler(self, t: Task) -> SomeTasks:
@@ -47,7 +46,7 @@ class SocketsClient(Endpoint):
 
     def task_handler(self, t: Task) -> SomeTasks:
         self.request_data()
-        return Task("process_" + self.data_name, TaskPriority.high, [])
+        return Task(f"process_{self.data_name}", TaskPriority.high, [])
 
     def request_data(self):
         """Main continual entry point for sending data over sockets

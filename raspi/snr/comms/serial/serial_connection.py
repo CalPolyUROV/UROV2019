@@ -21,11 +21,12 @@ class SerialConnection(Endpoint):
     # Default port arg finds a serial port for the arduino/Teensy
     def __init__(self, parent: Node, name: str,
                  input: str, output: str):
-        super().__init__(parent, name)
+        self.task_producers = []
         self.task_handlers = {
             "serial_com": self.handle_serial_com,
             "blink_test": self.handle_blink_test
         }
+        super().__init__(parent, name)
 
         if settings.SIMULATE_SERIAL:
             self.serial_connection = None
@@ -52,9 +53,6 @@ class SerialConnection(Endpoint):
         attempt(self.try_open_serial,
                 settings.SERIAL_MAX_ATTEMPTS,
                 fail_once, failure)
-
-    def get_new_tasks(self):
-        pass
 
     def handle_serial_com(self, t: Task):
         debug("serial_verbose",

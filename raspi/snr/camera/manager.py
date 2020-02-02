@@ -5,6 +5,7 @@ from typing import List
 from snr.async_endpoint import AsyncEndpoint
 from snr.utils import debug
 from snr.node import Node
+from snr.camera.config import CameraConfig
 
 
 INITIAL_PORT = 8000

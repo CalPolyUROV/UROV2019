@@ -20,14 +20,11 @@ class Controller(AsyncEndpoint):
                  name: str):
         if not settings.USE_CONTROLLER:
             debug("controller", "Controller disabled by settings")
+            # This early return might break things
             return
-        
-        # Require triggers to be set to zero before operation
-        # Initial value is inverse of setting
-        # Triggers zerod indicated whether the triggers no longer need to be
-        # zeroed
-        self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
-        self.joystick_data = {}
+        self.task_producers = []
+        self.task_handlers = {}
+
         super().__init__(parent, name,
                          self.init_controller,
                          self.monitor_controller,
@@ -35,16 +32,17 @@ class Controller(AsyncEndpoint):
 
         self.datastore = self.parent.datastore
 
+        # Require triggers to be set to zero before operation
+        # Initial value is inverse of setting
+        # Triggers zerod indicated whether the triggers no longer need to be
+        # zeroed
+        self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
+        self.joystick_data = {}
+
         self.start_loop()
 
-    def get_new_tasks(self) -> SomeTasks:
-        pass
-
-    def task_handler(self, task):
-        pass
-
     def store_data(self, data):
-        debug("controller", "taking in data")
+        # debug("controller", "taking in data")
         self.datastore.store(self.name, data)
 
     def init_controller(self):
