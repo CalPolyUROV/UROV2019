@@ -31,6 +31,7 @@ class SimpleGUI(AsyncEndpoint):
     def terminate(self):
         debug("gui_event", "GUI endpoint terminating")
         self.set_terminate_flag()
+        self.window.close()
 
     def __repr__(self) -> str:
         return self.name
@@ -59,7 +60,7 @@ class SimpleGUI(AsyncEndpoint):
         event, values = self.window.Read(timeout=self.refresh_rate)
         # if user closed the window using X or clicked Quit button
         if event is None or event == 'Quit':
-            self.terminate()
+            self.set_terminate_flag()
         if telem is not None and telem.get("stick_left_x") is not None:
             self.window.Element('left').Update(
                 'Stick Left X: \n{}\nStick Left Y: \n{}\nLeft Trigger: \n{}\n'.format((telem.get("stick_left_x") // 1),
