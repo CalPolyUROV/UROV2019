@@ -45,7 +45,7 @@ def main():
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
                                           "thruster_data")
     # GUI
-    GUI = GUIFactory(settings.CONTROLS_DATA_NAME)
+    GUI = GUIFactory([settings.CONTROLS_DATA_NAME, settings.TELEMETRY_DATA_NAME])
     # XBox Controller
     # Zynq Zybo Z7-20: replaces serial link
     zynq_link = ZyboFactory("motor_data", "sensor_data")
@@ -62,21 +62,21 @@ def main():
     components = []
     if role.__eq__("topside"):
         components = [controls_link.server,
-                      #   telemetry_link.client,
+                      telemetry_link.client,
                       controller,
                       GUI,
                       cameras.receiver
                       ]
     elif role.__eq__("robot"):
         components = [controls_link.client,
-                      #   telemetry_link.server,
+                      telemetry_link.server,
                       robot_controls,
                       serial_link,
                       cameras.source
                       ]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
-                      #   telemetry_link.server,
+                      telemetry_link.server,
                       robot_controls,
                       zynq_link
                       ]

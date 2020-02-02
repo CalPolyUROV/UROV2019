@@ -25,13 +25,13 @@ class SocketsClient(Endpoint):
         self.task_producers = []
         self.task_handlers = {
             f"get_{data_name}": self.task_handler
-            }           
+        }
         super().__init__(parent, name)
 
         self.config = config
         self.data_name = data_name
 
-        debug("sockets_status", "Sockets client created")
+        debug("sockets_status", "Sockets {} client created", [self.data_name])
 
     # Why a duplicate? is it an older version?
     # def task_handler(self, t: Task) -> SomeTasks:
@@ -78,13 +78,13 @@ class SocketsClient(Endpoint):
               "Waiting to receive data immediately upon connection")
         try:
             data = self.s.recv(settings.MAX_SOCKET_SIZE)
-            debug("sockets_receive", "Received data")
+            debug("sockets_receive", "{} received data", [self.data_name])
             debug("sockets_receive_verbose", "Received data: {}", [data])
             return data
         except (ConnectionResetError, Exception) as error:
             self.socket_connected = False
-            debug("sockets_error", "Lost sockets connection: {}",
-                  error.__repr__())
+            debug("sockets_error", "Lost {} sockets connection: {}",
+                  [self.data_name, error.__repr__()])
             # TODO: Correctly terminate this function here
             return None
 
@@ -104,8 +104,9 @@ class SocketsClient(Endpoint):
                 self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 return True
             except (ConnectionRefusedError, Exception) as error:
-                s = "Failed to connect to server: {}"
-                debug("sockets_client", s, [error.__repr__()])
+                debug("sockets_client",
+                      "Failed to connect to server: {}",
+                      [error.__repr__()])
                 return False
 
         def fail_once() -> None:
@@ -123,7 +124,7 @@ class SocketsClient(Endpoint):
                       [self.config.ip, str(self.config.port), tries])
                 print_exit("Start required sockets connection")
             else:
-                debug("ssockets_error",
+                debug("sockets_error",
                       "Abort sockets connection after {} tries. Not required.",
                       [tries])
                 # settings.USE_SOCKETS = False
@@ -143,10 +144,10 @@ class SocketsClient(Endpoint):
             # Close both (RD, WR) ends of the pipe, then close the socket
             self.s.shutdown(socket.SHUT_RDWR)
             self.s.close()
-            debug("sockets_status", 'Socket closed')
+            debug("sockets_status", 'Socket {} closed', [self.name])
         except (Exception) as error:
-            debug("sockets_error", "Error closing socket: {}",
-                  [error.__repr__()])
+            debug("sockets_error", "Error closing socket {}: {}",
+                  [self.name, error.__repr__()])
         self.s = None
 
     def terminate(self):

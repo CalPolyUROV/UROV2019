@@ -20,13 +20,13 @@ class SocketsServer(AsyncEndpoint):
         self.task_producers = []
         self.task_handlers = {}
 
-        super().__init__(parent, "sockets_server",
+        super().__init__(parent, f"sockets_server_{data_name}",
                          self.initialize_server, self.serve_data,
                          0)
         self.config = config
         self.datastore = self.parent.datastore
         self.data_name = data_name
-
+        self.task_handlers = {}
         self.start_loop()
 
     def serve_data(self):
@@ -58,7 +58,7 @@ class SocketsServer(AsyncEndpoint):
         self.s.settimeout(settings.SOCKETS_SERVER_TIMEOUT)
         # Use ethernet port
         # s.setsockopt(socket.SOL_SOCKET, 25, 'eth0')
-        debug("sockets_status", "Socket created")
+        debug("sockets_status", "Socket created for {}", [self.name])
         try:
             host_tuple = self.config.tuple()
             debug("sockets_verbose", "Configuring with tuple: {}",
@@ -88,7 +88,7 @@ class SocketsServer(AsyncEndpoint):
         """
         # if not settings.USE_SOCKETS:
         #     return
-        debug("sockets_event", "Blocking on accept_connection")
+        debug("sockets_event", "Blocking on accept_connection for {}", [self.data_name])
         # now keep talking with the client
         self.conn, self.addr = self.s.accept()
 

@@ -17,7 +17,7 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "controller": True,
+    "controller": False,
     "controller_error": True,
     "controller_event": False,
     "controller_verbose": False,
@@ -48,6 +48,7 @@ DEBUG_CHANNELS = {
 
     "gui_verbose": False,
     "gui_telem": False,
+    "gui_control": False,
 
     "int_temp_mon": True,
 
@@ -92,17 +93,17 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": False,
-    "sockets_status": False,
+    "sockets_event": True,
+    "sockets_status": True,
     "sockets_verbose": False,
 
     "sockets_send": False,
     "sockets_send_verbose": False,
 
-    "sockets_receive": False,
+    "sockets_receive": True,
     "sockets_receive_verbose": False,
 
-    "telemetry_verbose": False,
+    "telemetry_verbose": True,
 
     "test": True,
 
@@ -127,10 +128,14 @@ TOPSIDE_CLUI_NAME = "topside_clui"
 UI_DATA_KEY = "UI_data"
 TOPSIDE_UI_TICK_RATE = 24  # Hz (Times per second)
 USE_GUI = True
+GUI_channels = {
+    "controller": True,
+    "telem": True
+}
 
 # XBox Controller
 USE_CONTROLLER = True
-REQUIRE_CONTROLLER = True
+REQUIRE_CONTROLLER = False
 SIMULATE_INPUT = True
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
