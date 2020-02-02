@@ -105,8 +105,8 @@ class SocketsClient(Endpoint):
                 return True
             except (ConnectionRefusedError, Exception) as error:
                 debug("sockets_client",
-                      "Failed to connect to server: {}",
-                      [error.__repr__()])
+                      "{} failed to connect to server: {}",
+                      [self.name, error.__repr__()])
                 return False
 
         def fail_once() -> None:
