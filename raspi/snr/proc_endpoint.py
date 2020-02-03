@@ -11,7 +11,7 @@ from multiprocessing import Process
 
 from snr.endpoint import Endpoint
 from snr.node import Node
-from snr.utils import debug, print_exit, sleep
+from snr.utils import debug, sleep
 from snr.profiler import Timer
 
 
@@ -55,8 +55,8 @@ class ProcEndpoint(Endpoint):
     def threaded_method(self):
         # signal.signal(signal.SIGINT, signal.SIG_IGN)
         self.setup()
-        try:
-            while not self.terminate_flag:
+        while not self.terminate_flag:
+            try:
                 if self.profiler is None:
                     self.loop_handler()
                 else:
@@ -66,11 +66,11 @@ class ProcEndpoint(Endpoint):
                     #       "Ran {} task in {:6.3f} us",
                     #       [self.name, runtime * 1000000])
                 self.tick()
-        except Exception as e:
-            debug("proc_endpoint_error", "{}, e: {}", [self.name, e])
-            self.set_terminate_flag()
+            except Exception as e:
+                debug("proc_endpoint_error", "{}, e: {}", [self.name, e])
+                self.set_terminate_flag()
 
-        debug("framework", "Async endpoint {} exited loop", [self.name])
+        debug("framework", "Proc endpoint {} exited loop", [self.name])
         self.terminate()
         return
 
@@ -83,7 +83,7 @@ class ProcEndpoint(Endpoint):
                   "proc_endpoint {} does not sleep (max tick rate)",
                   [self.name])
         else:
-            Process.sleep(self.delay)
+            sleep(self.delay)
 
     def set_terminate_flag(self):
         self.terminate_flag = True

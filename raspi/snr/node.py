@@ -4,7 +4,7 @@ from typing import List, Union
 import settings
 from snr.datastore import Datastore
 from snr.task import SomeTasks, Task, TaskPriority
-from snr.utils import debug
+from snr.utils import debug, sleep
 from snr.profiler import Profiler, Timer
 
 
@@ -77,6 +77,7 @@ class Node:
             self.step_task()
             debug("schedule_verbose", "Task queue: \n{}",
                   [self.repr_task_queue()])
+            sleep(0.030)
         self.terminate()
 
     def get_new_tasks(self):
@@ -123,6 +124,7 @@ class Node:
             self.schedule_task(task_result)
 
     def set_terminate_flag(self):
+        # self.datastore.store("node_exit_reason", reason)
         self.terminate_flag = True
 
     def terminate(self):

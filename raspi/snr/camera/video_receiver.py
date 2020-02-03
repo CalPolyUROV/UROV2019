@@ -10,6 +10,7 @@ import cv2
 
 from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
+from snr.utils import debug
 
 HOST = "localhost"
 
@@ -39,16 +40,21 @@ class VideoReceiver(ProcEndpoint):
                          TICK_RATE_HZ)
 
         self.receiver_port = receiver_port
+        self.window_name = f"Raspberry Pi Stream: {self.name}"
+
         self.start_loop()
 
     def init_receiver(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print('Socket created')
+        debug("camera_event",
+              "{}: Socket created on {}",
+              [self.name, self.receiver_port])
 
         self.s.bind((HOST, self.receiver_port))
-        print('Socket bind complete')
         self.s.listen(10)
-        print('Socket now listening')
+        debug("camera_event",
+              "{}: Socket now listening on {}",
+              [self.name, self.receiver_port])
 
         self.conn, self.addr = self.s.accept()
 
@@ -92,7 +98,7 @@ class VideoReceiver(ProcEndpoint):
                               (0, 255, 0), LINE_THICKNESS)
 
             # Display
-            cv2.imshow('Raspberry Pi Stream', frame)
+            cv2.imshow(self.window_name, frame)
             cv2.waitKey(15)
         except KeyboardInterrupt:
             self.set_terminate_flag()

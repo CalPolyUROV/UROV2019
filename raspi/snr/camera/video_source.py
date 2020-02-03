@@ -18,7 +18,7 @@ from snr.utils import debug
 
 FRAME_WIDTH = 1280
 FRAME_HEIGHT = 720
-TICK_RATE_HZ = 0.0
+TICK_RATE_HZ = 120
 
 
 class VideoSource(ProcEndpoint):
@@ -39,13 +39,20 @@ class VideoSource(ProcEndpoint):
         self.start_loop()
 
     def init_camera(self):
-        # Connect a client socket to my_server:8000 (change my_server to the
-        # hostname of your server)
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.connect((self.receiver_ip, self.receiver_port))
+        try:
+            # Connect a client socket to my_server:8000 (change my_server to
+            #  the hostname of your server)
+            self.client_socket = socket.socket(
+                socket.AF_INET, socket.SOCK_STREAM)
+            self.client_socket.connect((self.receiver_ip, self.receiver_port))
+        except Exception as e:
+            debug("camera_error", "Failed to connect to receiver: {}", [e])
 
-        # Create a VideoCapture object and read from input file
-        self.camera = VideoCapture(self.camera_num)
+        try:
+            # Create a VideoCapture object and read from input file
+            self.camera = VideoCapture(self.camera_num)
+        except Exception as e:
+            debug("camera_error", "Failed to open camera: {}", [e])
 
         # Check if camera opened successfully
         if (not self.camera.isOpened()):
@@ -63,8 +70,8 @@ class VideoSource(ProcEndpoint):
                 size = len(data)
                 message_size = struct.pack("=L", size)
                 debug("camera_verbose",
-                      "Sending frame data of size: {}",
-                      [size])
+                      "{}: Sending frame data of size: {}",
+                      [self.name, size])
                 self.client_socket.sendall(message_size + data)
 
         except KeyboardInterrupt:

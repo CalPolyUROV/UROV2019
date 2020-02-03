@@ -2,6 +2,7 @@ from multiprocessing import Pool
 from enum import Enum
 from typing import List
 
+from snr.endpoint import Endpoint
 from snr.async_endpoint import AsyncEndpoint
 from snr.utils import debug
 from snr.node import Node
@@ -16,24 +17,29 @@ class ManagerRole(Enum):
     Source = 0
     Receiver = 1
 
-    def __repr__(self):
-        if (self is Source):
-            return "Source"
+    def as_str(self):
+        if (self is ManagerRole.Source):
+            return "source"
         else:
-            return "Receiver"
+            return "receiver"
 
 
-class CameraManager(AsyncEndpoint):
+class CameraManager(Endpoint):
     def __init__(self, parent: Node, name: str,
                  role: ManagerRole, camera_names: List[str]):
-        super().__init__(parent, name,
-                         self.setup_handler, self.loop_handler,
-                         CAMERA_MANAGER_TICK_HZ)
+
+        self.task_producers = []
+        self.task_handlers = {}
+        super().__init__(parent, name)  # ,
+        #  self.setup_handler, self.loop_handler,
+        #  CAMERA_MANAGER_TICK_HZ)
         self.role = role
         self.camera_names = camera_names
         self.num_cameras = len(camera_names)
+        self.cam_num = 0  # Cameras which have been allocated
         self.port = INITIAL_PORT
         self.cameras = []
+
         # self.pool = Pool(num_cameras)
 
         # if role is ManagerRole.Receiver:
@@ -47,7 +53,8 @@ class CameraManager(AsyncEndpoint):
         #         "Unknown camera manager role {}",
         #         [role])
 
-        self.start_loop()
+        # self.start_loop()
+        self.setup_handler()
 
     def setup_handler(self):
         from snr.camera.factory import VideoSourceFactory, VideoReceiverFactory
@@ -57,21 +64,28 @@ class CameraManager(AsyncEndpoint):
             fac = VideoReceiverFactory
 
         # Create each camera process from pool
-        for i, camera_name in enumerate(self.camera_names):
-            config = CameraConfig(name,
+        for camera_name in self.camera_names:
+            config = CameraConfig(camera_name,
                                   self.next_port(),
                                   self.next_cam_num())
             f = fac(config)
-            self.cams[i] = f.get(self.parent)
+            cam = f.get(self.parent)
+            self.cameras.append(cam)
+            debug("camera_manager", "Created camera {}", [cam])
 
     def loop_handler(self):
         pass
 
-    def get(self) -> List:
-        return [CameraPair(CameraConfig(name,
-                                        self.next_port(),
-                                        self.next_cam_num()))
-                for name in self.camera_names]
+    def terminate(self):
+        debug("camera_manager", "Joining managed camera processes")
+        for proc_endpoint in self.cams:
+            join(proc_endpoint.proc)
+
+    # def get(self) -> List:
+    #     return [CameraPair(CameraConfig(name,
+    #                                     self.next_port(),
+    #                                     self.next_cam_num()))
+    #             for name in self.camera_names]
 
     def next_port(self):
         val = self.port
@@ -85,3 +99,6 @@ class CameraManager(AsyncEndpoint):
         val = self.cam_num
         self.cam_num += 1
         return val
+
+    def __repr__(self):
+        return f"Camera {str(self.role)} Manager"

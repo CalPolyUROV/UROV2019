@@ -17,6 +17,8 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
+    "camera_verbose": False,
+
     "controller": False,
     "controller_error": True,
     "controller_event": False,
@@ -93,14 +95,14 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": True,
-    "sockets_status": True,
+    "sockets_event": False,
+    "sockets_status": False,
     "sockets_verbose": False,
 
     "sockets_send": False,
     "sockets_send_verbose": False,
 
-    "sockets_receive": True,
+    "sockets_receive": False,
     "sockets_receive_verbose": False,
 
     "telemetry_verbose": True,
@@ -111,7 +113,7 @@ DEBUG_CHANNELS = {
     "thrust_vec_verbose": False,
 
     "throttle": True,
-    "throttle_values": True,
+    "throttle_values": False,
     "throttle_verbose": False,
     "axis_update_verbose": False,
 }

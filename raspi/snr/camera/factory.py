@@ -55,11 +55,11 @@ class CameraManagerFactory(Factory):
         self.camera_names = camera_names
 
     def get(self, parent: Node):
-        return CameraManager(parent, f"{self.role}",
+        return CameraManager(parent, f"video_{self.role.as_str()}_manager",
                              self.role, self.camera_names)
 
     def __repr__(self):
-        return f"Camera Manager factory for {self.role}"
+        return f"Camera Manager({self.role}) Factory"
 
 
 class CameraManagerPair():
