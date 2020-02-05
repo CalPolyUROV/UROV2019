@@ -1,4 +1,3 @@
-from multiprocessing import Pool
 from enum import Enum
 from typing import List
 
@@ -78,8 +77,10 @@ class CameraManager(Endpoint):
 
     def terminate(self):
         debug("camera_manager", "Joining managed camera processes")
-        for proc_endpoint in self.cams:
-            join(proc_endpoint.proc)
+        for proc_endpoint in self.cameras:
+            proc_endpoint.set_terminate_flag()
+        for proc_endpoint in self.cameras:
+            proc_endpoint.proc.join()
 
     # def get(self) -> List:
     #     return [CameraPair(CameraConfig(name,

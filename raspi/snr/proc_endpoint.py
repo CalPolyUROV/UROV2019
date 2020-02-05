@@ -66,7 +66,7 @@ class ProcEndpoint(Endpoint):
                     #       "Ran {} task in {:6.3f} us",
                     #       [self.name, runtime * 1000000])
                 self.tick()
-            except Exception as e:
+            except (Exception, KeyboardInterrupt) as e:
                 debug("proc_endpoint_error", "{}, e: {}", [self.name, e])
                 self.set_terminate_flag()
 
