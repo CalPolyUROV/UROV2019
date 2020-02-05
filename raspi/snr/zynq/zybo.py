@@ -16,11 +16,15 @@ class Zybo(Endpoint):
         }
         if not settings.SIMULATE_DMA:
             # https://docs.python.org/3/library/ctypes.html
-            lib_name = "/home/ubuntu/urov/raspi/snr/zynq/pwm/so/libpwmuio.so"
-            cdll.LoadLibrary(lib_name)
-            self.pwm_lib = CDLL(lib_name)
-
+            pwm_lib_name = "/home/ubuntu/urov/raspi/snr/zynq/pwm/so/libpwmuio.so"
+            # cdll.LoadLibrary(pwm_lib_name)
+            self.pwm_lib = CDLL(pwm_lib_name)
             self.pwm_lib.initDemo()
+
+            dma_lib_name = "/home/ubuntu/urov/raspi/snr/zynq/dma-proxy/dma-proxy-test.so"
+            # cdll.LoadLibrary(dma_lib_name)
+            self.dma_lib = CDLL(dma_lib_name)
+            # self.dma_lib.initDemo()
         else:
             debug("dma_verbose",
                   "Simulating DMA only. C library not loaded.")
@@ -43,6 +47,7 @@ class Zybo(Endpoint):
         else:
             val = 0
 
+        self.dma_transact()
         result = self.pwm_write(cmd, reg, val)
 
         # result = self.send_receive(t.val_list[0],
@@ -59,15 +64,18 @@ class Zybo(Endpoint):
 
         return sched_list
 
+    def dma_transact(self):
+        self.dma_lib.wrapTest()
+
     def pwm_write(self, cmd: str, reg: int, val: int):
         speed = self.map_thrust_value(val)
 
         if not settings.SIMULATE_DMA:
             self.pwm_lib.writePWM(c_ubyte(reg), speed)
-            debug("dma_verbose", "Writing PWM: cmd: {}, reg: {}, val: {}->{}",
+            debug("pwm_verbose", "Writing PWM: cmd: {}, reg: {}, val: {}->{}",
                   [cmd, reg, val, speed])
         else:
-            debug("dma_sim", "Writing simualted PWM: cmd: {}, reg: {}, val: {}->{}",
+            debug("pwm_sim", "Writing simualted PWM: cmd: {}, reg: {}, val: {}->{}",
                   [cmd, reg, val, speed])
 
     def map_thrust_value(self, val: int) -> int:

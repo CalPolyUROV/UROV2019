@@ -8,7 +8,7 @@ LIBS=-lpthread
 
 CC_CMD=$(CC) $(CC_FLAGS) $(OPT_FLAGS)
 
-OUTPUTS=dma-proxy-test dma-proxy.so
+OUTPUTS=dma-proxy-test dma-proxy-test.so
 
 
 .PHONY: all
@@ -18,7 +18,9 @@ dma-proxy-test: dma-proxy-test.c
 	$(CC_CMD) -o $@ $< $(LIBS)
 	@echo The blootoot dewice is ready to pair.
 
-dma-proxy.so: dma-proxy-test.c
+.PHONY: so
+so: dma-proxy-test.so
+dma-proxy-test.so: dma-proxy-test.c
 	$(CC_CMD) -shared -fPIC -o $@ $< $(LIBS)
 	@echo The blootoot dewice is aconnecteda successfullay!
 

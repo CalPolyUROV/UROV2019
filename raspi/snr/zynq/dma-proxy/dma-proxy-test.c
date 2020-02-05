@@ -26,12 +26,16 @@
 
 static struct dma_proxy_channel_interface* tx_proxy_interface_p;
 static int tx_proxy_fd;
-static int test_size;
+static int test_size, test_count;
 
 /* The following function is the transmit thread to allow the transmit and the
  * receive channels to be operating simultaneously. The ioctl calls are blocking
  * such that a thread is needed.
  */
+
+
+int test(void);
+
 void* tx_thread(void* dma_count_input)
 {
     int dma_count = (int) dma_count_input;
@@ -59,13 +63,6 @@ void* tx_thread(void* dma_count_input)
 
 int main(int argc, char* argv[])
 {
-    struct dma_proxy_channel_interface* rx_proxy_interface_p;
-    int rx_proxy_fd, i;
-    int dummy;
-    int counter;
-    pthread_t tid;
-
-    printf("DMA proxy test\n");
 
     if (argc != 3) {
         printf("Usage: dma-proxy-test <# of DMA transfers to perform> <# of bytes in each transfer (< 3MB)>\n");
@@ -74,9 +71,23 @@ int main(int argc, char* argv[])
 
     /* Get the size of the test to run, making sure it's not bigger than the statically configured memory size)
 	 */
+    test_count = atoi(argv[1]);
+
     test_size = atoi(argv[2]);
     if (test_size > TEST_SIZE)
         test_size = TEST_SIZE;
+
+    return test();
+}
+
+int test(void){
+    struct dma_proxy_channel_interface* rx_proxy_interface_p;
+    int rx_proxy_fd, i;
+    int dummy;
+    int counter;
+    pthread_t tid;
+
+    printf("DMA proxy test\n");
 
     /* Open the DMA proxy device for the transmit and receive channels
  	 */
@@ -115,9 +126,9 @@ int main(int argc, char* argv[])
 
     /* Create the thread for the transmit processing passing the number of transactions to it
 	 */
-    pthread_create(&tid, NULL, tx_thread, (void*)atoi(argv[1]));
+    pthread_create(&tid, NULL, tx_thread, (void*)test_count);
 
-    for (counter = 0; counter < atoi(argv[1]); counter++) {
+    for (counter = 0; counter < test_count; counter++) {
 
         /* Initialize the receive buffer so that it can be verified after the transfer is done
 		 * and setup the size of the transfer for the receive channel
@@ -153,4 +164,10 @@ int main(int argc, char* argv[])
     printf("DMA proxy test complete\n");
 
     return 0;
+}
+
+void wrapTest(void){
+    test_size = 16;
+    test_count = 2;
+    test();
 }

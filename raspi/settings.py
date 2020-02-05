@@ -63,6 +63,8 @@ DEBUG_CHANNELS = {
     "profiling_endpoint": False,
     "profiling_dump": True,
 
+    "pwm_verbose": False,
+
     "robot": True,
     "robot_verbose": False,
 
