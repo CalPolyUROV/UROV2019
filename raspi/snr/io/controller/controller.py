@@ -286,7 +286,7 @@ def simulate_input() -> dict:
     sim_data = {}
     for key in settings.control_mappings:
         debug("simulation_verbose", "Simulating key: {}", [key])
-        sim_data[key] = random_val()
+        sim_data[key] = (2* random_val()) - 1
     debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
     return sim_data
 

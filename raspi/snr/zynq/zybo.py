@@ -48,8 +48,9 @@ class Zybo(Endpoint):
         # result = self.send_receive(t.val_list[0],
         #                            t.val_list[1::])
         if result is None:
-            debug("robot",
-                  "Received no data in response from serial message")
+            # debug("zybo_verbose",
+            #       "Received no data in response from serial message")
+            pass
         elif isinstance(result, Task):
             sched_list.append(result)
         elif isinstance(result, list):
@@ -59,13 +60,29 @@ class Zybo(Endpoint):
         return sched_list
 
     def pwm_write(self, cmd: str, reg: int, val: int):
-        debug("dma_verbose", "Writing PWM: cmd: {}, reg: {}, val: {}",
-              [cmd, reg, val])
+        speed = self.map_thrust_value(val)
 
         if not settings.SIMULATE_DMA:
-            self.pwm_lib.writePWM(c_ubyte(reg), val)
+            self.pwm_lib.writePWM(c_ubyte(reg), speed)
+            debug("dma_verbose", "Writing PWM: cmd: {}, reg: {}, val: {}->{}",
+                  [cmd, reg, val, speed])
+        else:
+            debug("dma_sim", "Writing simualted PWM: cmd: {}, reg: {}, val: {}->{}",
+                  [cmd, reg, val, speed])
 
-        # debug("dma_verbose", "cmd returned: {}", [status])
+    def map_thrust_value(self, val: int) -> int:
+        # -100 to 0 to 100
+        # add 1500
+        # 1390us to 1500us to 1610us
+        # 1us = 100 ticks
+        if val > 100:
+            return 255
+        if val < -100:
+            return 0
+        speed = int(((val * 100) + 1500) * 10)
+        debug("serial_packet",
+              "Converted motor speed from {} to {}", [val, speed])
+        return speed
 
     def terminate(self):
         if not settings.SIMULATE_DMA:

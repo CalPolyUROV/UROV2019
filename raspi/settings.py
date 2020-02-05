@@ -72,7 +72,7 @@ DEBUG_CHANNELS = {
     "robot_control_verbose": False,
 
     "schedule": True,
-    "schedule_warn": True,
+    "schedule_warning": False,
     "schedule_event": False,
     "schedule_verbose": False,
     "schedule_new_tasks": False,
