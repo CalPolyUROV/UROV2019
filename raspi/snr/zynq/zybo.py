@@ -79,7 +79,7 @@ class Zybo(Endpoint):
             return 255
         if val < -100:
             return 0
-        speed = int(((val * 100) + 1500) * 10)
+        speed = int(((val * 30) + 1500) * 10)
         debug("serial_packet",
               "Converted motor speed from {} to {}", [val, speed])
         return speed
