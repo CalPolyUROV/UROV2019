@@ -11,6 +11,8 @@
 #define TWENTYFIVE 0x0800
 #define FIFTY 0x8000
 
+#define DEFAULT_PWM_PERIOD (59999)
+
 void run_demo(void);
 void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum);
 void exitHandler(void);
@@ -27,7 +29,7 @@ void initDemo()
         PWM_Enable(pwm);
     }
 
-    setPwmPeriod(pwm, 59999);
+    setPwmPeriod(pwm, DEFAULT_PWM_PERIOD);
 
     printf("Using PWM device at UIO:%d, MAP:%d\n", uioNum, mapNum);
     printf("PWM demo initialized....\n");
