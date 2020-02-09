@@ -17,7 +17,8 @@ from snr.comms.sockets.factory import EthernetLink
 from snr.io.controller.factory import ControllerFactory
 from snr.zynq.factory import ZyboFactory
 from snr.node import Node
-from snr.utils import debug, print_exit, print_mode, print_usage
+from snr.utils.utils import print_exit, print_mode, print_usage
+from snr.utils.debug import Debugger
 from ui.gui.factory import GUIFactory
 
 
@@ -33,6 +34,9 @@ def main():
     mode = "deployed"
     if "-d" in argv:
         mode = "debug"
+
+    debugger = Debugger()
+    dbg = debugger.debug
 
     # Connections between devices
     # Ethernet tether link for control data
@@ -55,10 +59,21 @@ def main():
     serial_link = SerialFactory("motor_data", "sensor_data",
                                 "path_to_arduino_program(unimplemented)")
     # Cameras
-    cameras = CameraManagerPair(["main_camera",
-                                 "ir_camera",
-                                 "usb_camera"
-                                 ])
+    cameras = CameraManagerPair({
+        "main_camera0": 0,
+        "ir_camera1": 1,
+        "ir_camera2": 2,
+        "ir_camera3": 3,
+        "usb_camera4": 4,
+        "ir_camera5": 5,
+        "usb_camera6": 6,
+        "ir_camera7": 7,
+        "usb_camera8": 8,
+        "usb_camera9": 9,
+        "usb_camera10": 10,
+        "usb_camera10": 11,
+        "usb_camera10": 12,
+    })
 
     components = []
     if role.__eq__("topside"):
@@ -82,17 +97,16 @@ def main():
                       zynq_link
                       ]
 
-    node = Node(role, mode, components)
+    node = Node(debugger, role, mode, components)
     # Run the node's loop
     try:
         node.loop()
     except KeyboardInterrupt:
-        debug("framework", "Interrupted by user, exiting")
+        dbg("framework", "Interrupted by user, exiting")
     # except Exception:
-    #     debug("framework_error", "main loop caught: {}", ["death"])
+    #     dbg("framework_error", "main loop caught: {}", ["death"])
 
     node.terminate()
-    debug("framework", "Node terminated")
     print_exit("Ya done now")
 
 

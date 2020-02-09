@@ -82,7 +82,7 @@ class RobotMotors(AsyncEndpoint):
     #     # TODO: Send serial tasks to
 
     def update_motor_targets(self, axis):
-        debug("motor_control_verbose", "Updating motor targets")
+        self.dbg("motor_control_verbose", "Updating motor targets")
         # Motor 1: Forward, right
         self.motor_targets[0] = axis["x"] + axis["y"] - axis["yaw"]
         # Motor 2: Forward, left
@@ -120,8 +120,8 @@ class RobotMotors(AsyncEndpoint):
                          ["set_motor", index, self.motor_values[index]])
                 task_list.append(t)
 
-        debug("motor_control", "Generated {} serial task(s)", [len(task_list)])
-        debug("motor_control_verbose", "{}", [task_list])
+        self.dbg("motor_control", "Generated {} serial task(s)", [len(task_list)])
+        self.dbg("motor_control_verbose", "{}", [task_list])
         return task_list
 
     def terminate(self):

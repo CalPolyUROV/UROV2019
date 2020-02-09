@@ -20,6 +20,9 @@ FRAME_WIDTH = 1280
 FRAME_HEIGHT = 720
 TICK_RATE_HZ = 120
 
+DISPLAY_LOCALLY = True
+USE_SOCKETS = False
+
 
 class VideoSource(ProcEndpoint):
     """USB camera video source for robot. Serves video over IP.
@@ -36,42 +39,54 @@ class VideoSource(ProcEndpoint):
         self.receiver_port = receiver_port
         self.camera_num = camera_num
 
+        self.window_name = f"Video Source: {name}"
+
         self.start_loop()
 
     def init_camera(self):
-        try:
-            # Connect a client socket to my_server:8000 (change my_server to
-            #  the hostname of your server)
-            self.client_socket = socket.socket(
-                socket.AF_INET, socket.SOCK_STREAM)
-            self.client_socket.connect((self.receiver_ip, self.receiver_port))
-        except Exception as e:
-            debug("camera_error", "Failed to connect to receiver: {}", [e])
-
+        if USE_SOCKETS:
+            try:
+                # Connect a client socket to my_server:8000
+                # (change my_server to the hostname of your server)
+                self.client_socket = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+                self.client_socket.connect(
+                    (self.receiver_ip, self.receiver_port))
+            except Exception as e:
+                self.dbg("camera_error",
+                         "Failed to connect to receiver: {}", [e])
+        else:
+            self.dbg("camera", "Not setting up sockets")
         try:
             # Create a VideoCapture object and read from input file
             self.camera = VideoCapture(self.camera_num)
         except Exception as e:
-            debug("camera_error", "Failed to open camera: {}", [e])
+            self.dbg("camera_error", "Failed to open camera: {}", [e])
 
         # Check if camera opened successfully
         if (not self.camera.isOpened()):
-            debug("camera_error",
-                  "Error opening camera #{}",
-                  [self.camera_num])
+            self.dbg("camera_error",
+                     "Error opening camera #{}",
+                     [self.camera_num])
 
     def send_frame(self):
         try:
             grabbed, frame = self.camera.read()  # grab the current frame
+
+            if DISPLAY_LOCALLY:
+                # Display
+                cv2.imshow(self.window_name, frame)
+                cv2.waitKey(15)
+
             # resize the frame
             # frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
-            if grabbed:
+            if grabbed and USE_SOCKETS:
                 data = pickle.dumps(frame)
                 size = len(data)
                 message_size = struct.pack("=L", size)
-                debug("camera_verbose",
-                      "{}: Sending frame data of size: {}",
-                      [self.name, size])
+                self.dbg("camera_verbose",
+                         "{}: Sending frame data of size: {}",
+                         [self.name, size])
                 self.client_socket.sendall(message_size + data)
 
         except KeyboardInterrupt:
@@ -79,7 +94,10 @@ class VideoSource(ProcEndpoint):
 
     def terminate(self):
         self.camera.release()
-        cv2.destroyAllWindows()
-        debug("camera_event",
-              "Closed video source (camera {})",
-              [self.camera_num])
+
+        if DISPLAY_LOCALLY:
+            cv2.destroyAllWindows()
+
+        self.dbg("camera_event",
+                 "Closed video source (camera {})",
+                 [self.camera_num])

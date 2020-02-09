@@ -3,7 +3,6 @@ from typing import Callable
 from time import time
 
 import settings
-from snr.utils import debug
 
 
 class Timer:
@@ -15,7 +14,8 @@ class Timer:
 
 
 class Profiler:
-    def __init__(self):
+    def __init__(self, dbg: Callable):
+        self.dbg = dbg
         self.time_dict = {}
         self.moving_avg_len = settings.PROFILING_AVG_WINDOW_LEN
 
@@ -26,16 +26,16 @@ class Profiler:
         return result
 
     def log_task(self, task_type: str, runtime: float):
-        debug("profiling_task",
-              "Ran {} task in {:6.3f} us",
-              [task_type, runtime * 1000000])
+        self.dbg("profiling_task",
+                 "Ran {} task in {:6.3f} us",
+                 [task_type, runtime * 1000000])
         # Make sure queue exists
         if self.time_dict.get(task_type) is None:
             self.init_task_type(task_type)
         # Shift elements
         self.time_dict[task_type].append(runtime)
-        debug("profiling_avg", "Task {} has average runtime {}",
-              [task_type, self.avg_time(task_type)])
+        self.dbg("profiling_avg", "Task {} has average runtime {}",
+                 [task_type, self.avg_time(task_type)])
 
     def init_task_type(self, task_type: str):
         self.time_dict[task_type] = deque(maxlen=self.moving_avg_len)
@@ -45,9 +45,9 @@ class Profiler:
                                 len(self.time_dict[task_type]))
 
     def dump(self):
-        debug("profiling_dump", "Task/Loop type:\t\tAvg runtime: ")
+        self.dbg("profiling_dump", "Task/Loop type:\t\tAvg runtime: ")
         for k in self.time_dict:
-            debug("profiling_dump", "{}:\t\t{}", [k, self.avg_time(k)])
+            self.dbg("profiling_dump", "{}:\t\t{}", [k, self.avg_time(k)])
 
     def format_time(self, time_s: float) -> str:
         if time_s > 1:

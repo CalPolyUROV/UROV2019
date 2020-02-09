@@ -15,7 +15,7 @@
 # from snr.comms.sockets.server import SocketsServer
 # from snr.node import Node
 # from snr.task import SomeTasks, Task, TaskPriority, TaskType
-# from snr.utils import debug, debug_delay
+# from snr.utils.utils import debug_delay
 
 
 # class Robot(Node):

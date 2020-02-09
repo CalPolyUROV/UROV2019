@@ -4,35 +4,39 @@ from typing import List, Union
 import settings
 from snr.datastore import Datastore
 from snr.task import SomeTasks, Task, TaskPriority
-from snr.utils import debug, sleep
+from snr.utils.utils import sleep
 from snr.profiler import Profiler, Timer
+from snr.utils.debug import Debugger
 
 
 class Node:
-    def __init__(self, role: str, mode: str, factories: list):
+    def __init__(self, debugger: Debugger,
+                 role: str, mode: str,
+                 factories: list):
+        self.dbg = debugger.debug
         self.role = role
         self.mode = mode
         self.task_queue = deque()
-        self.datastore = Datastore()
+        self.datastore = Datastore(self.dbg)
 
         self.endpoints = []
         self.task_producers = []
 
         self.profiler = None
         if settings.ENABLE_PROFILING:
-            self.profiler = Profiler()
+            self.profiler = Profiler(self.dbg)
 
         self.terminate_flag = False  # Whether to exit main loop
 
         self.assign_node_ip()
 
         self.add_endpoints(factories)
-        debug("framework",
-              "Initialized with  {} endpoints",
-              [len(self.endpoints)])
+        self.dbg("framework",
+                 "Initialized with  {} endpoints",
+                 [len(self.endpoints)])
 
     def add_endpoints(self, factories: List):
-        debug("framework_verbose", "Adding {} components", [len(factories)])
+        self.dbg("framework_verbose", "Adding {} components", [len(factories)])
         for f in factories:
             endpoint = f.get(self)
             if endpoint is not None:
@@ -41,7 +45,7 @@ class Node:
                     for fn in endpoint.task_producers:
                         self.task_producers.append(fn)
 
-            debug("framework_verbose", "{} added {}", [f, endpoint])
+            self.dbg("framework_verbose", "{} added {}", [f, endpoint])
 
     def assign_node_ip(self):
         ip = "localhost"
@@ -52,12 +56,11 @@ class Node:
                 ip = settings.TOPSIDE_IP
             else:
                 # Panic
-                debug(
-                    "node",
-                    "Node role {} not recognized. Counld not select IP",
-                    [self.role],
-                )
-        debug("node", "Assigned {} node ip: {}", [self.role, ip])
+                self.dbg("node",
+                         "Node role {} not recognized. Counld not select IP",
+                         [self.role],
+                         )
+        self.dbg("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
 
     def get_remote_ip(self):
@@ -67,16 +70,16 @@ class Node:
             if self.role == "topside":
                 return settings.ROBOT_IP
             # Panic
-            debug("node",
-                  "Node role {} not recognized. Counld not get remote IP",
-                  [self.role])
+            self.dbg("node",
+                     "Node role {} not recognized. Counld not get remote IP",
+                     [self.role])
         return "localhost"
 
     def loop(self):
         while not self.terminate_flag:
             self.step_task()
-            debug("schedule_verbose", "Task queue: \n{}",
-                  [self.repr_task_queue()])
+            self.dbg("schedule_verbose", "Task queue: \n{}",
+                     [self.repr_task_queue()])
             sleep(0.030)
         self.terminate()
 
@@ -87,9 +90,9 @@ class Node:
         for task_producer in self.task_producers:
             t = task_producer()
             if t and isinstance(t, (Task, list)):
-                debug("schedule_new_tasks",
-                      "Produced task: {} from {}",
-                      [t, task_producer.__module__])
+                self.dbg("schedule_new_tasks",
+                         "Produced task: {} from {}",
+                         [t, task_producer.__module__])
                 self.schedule_task(t)
 
     def execute_task(self, t: Task):
@@ -99,7 +102,7 @@ class Node:
         than needing to be in the queue.
         """
         if not t:
-            debug("execute_task", "Tried to execute None")
+            self.dbg("execute_task", "Tried to execute None")
             return
 
         task_result = []
@@ -116,9 +119,9 @@ class Node:
             if result:
                 task_result.append(result)
 
-        debug("schedule_verbose",
-              "Task execution resulted in {} new tasks",
-              [len(list(task_result))])
+        self.dbg("schedule_verbose",
+                 "Task execution resulted in {} new tasks",
+                 [len(list(task_result))])
         if task_result:
             # Only procede if not empty
             self.schedule_task(task_result)
@@ -138,7 +141,7 @@ class Node:
 
         if self.profiler is not None:
             self.profiler.terminate()
-        debug("framework", "Node terminated")
+        self.dbg("framework", "Node terminated")
 
     def step_task(self):
         # Get the next task to execute
@@ -155,31 +158,31 @@ class Node:
         """
         if not t:  # t is False if None or empty
             if t is None:
-                debug("schedule_warning", "Cannot schedule None")
+                self.dbg("schedule_warning", "Cannot schedule None")
             elif isinstance(t, list):
-                debug("schedule_warning", "Cannot schedule empty list")
+                self.dbg("schedule_warning", "Cannot schedule empty list")
             return
 
         if isinstance(t, list):
             # Recursively handle lists
-            debug("schedule_verbose",
-                  "Recursively scheduling list of {} tasks",
-                  [len(t)])
+            self.dbg("schedule_verbose",
+                     "Recursively scheduling list of {} tasks",
+                     [len(t)])
             for item in t:
-                debug("schedule_verbose",
-                      "Recursively scheduling item {}",
-                      [item])
+                self.dbg("schedule_verbose",
+                         "Recursively scheduling item {}",
+                         [item])
                 self.schedule_task(item)
             return
 
         if not isinstance(t, Task):
             # Handle non task objects
-            debug("schedule_warning",
-                  "Cannot schedule {} object {}", [type(t), t])
+            self.dbg("schedule_warning",
+                     "Cannot schedule {} object {}", [type(t), t])
             return
 
         # Handle normal tasks
-        debug("schedule_verbose", "Scheduling task {}", [t])
+        self.dbg("schedule_verbose", "Scheduling task {}", [t])
         if t.priority == TaskPriority.high:
             self.task_queue.append(t)  # High priotity at front (right)
         elif t.priority == TaskPriority.normal:
@@ -188,16 +191,16 @@ class Node:
         elif t.priority == TaskPriority.low:
             self.task_queue.appendleft(t)  # Normal priotity at end (left)
         else:
-            debug("schedule", "Cannot schedule task with priority: {}",
-                  [t.priority])
+            self.dbg("schedule", "Cannot schedule task with priority: {}",
+                     [t.priority])
 
     def get_next_task(self) -> Union[Task, None]:
         """Take the next task off the queue
         """
         while not self.has_tasks():
-            debug("schedule_event", "Ran out of tasks, getting more")
+            self.dbg("schedule_event", "Ran out of tasks, getting more")
             self.get_new_tasks()
-        debug(
+        self.dbg(
             "schedule_verbose", "Popping task, {} remaining", [
                 len(self.task_queue) - 1]
         )

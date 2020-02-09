@@ -6,8 +6,6 @@ and previous value
 
 from typing import Callable, Any
 
-from snr.utils import debug
-
 
 class Page:
     def __init__(self, data):
@@ -16,7 +14,8 @@ class Page:
 
 
 class Datastore:
-    def __init__(self):
+    def __init__(self, dbg: Callable):
+        self.dbg = dbg
         self.database = {}
 
     def store(self, key: str, data):
@@ -24,7 +23,7 @@ class Datastore:
             old_page = self.database[key]
             self.database[key + "_previous"] = old_page
         except KeyError:
-            debug("datastore_event", "Adding new key: {}", [key])
+            self.dbg("datastore_event", "Adding new key: {}", [key])
 
         self.database[key] = Page(data)
 
@@ -40,7 +39,7 @@ class Datastore:
         page = self.database.get(key)
 
         if page is None:
-            debug("datastore_event", "Page for {} was empty", [key])
+            self.dbg("datastore_event", "Page for {} was empty", [key])
             return None
         return page.data
 
@@ -50,9 +49,9 @@ class Datastore:
         try:
             self.database[key].fresh = False
         except KeyError:
-            debug("datastore_error",
-                  "Cannot mark unfresh, key {} not found",
-                  [key])
+            self.dbg("datastore_error",
+                     "Cannot mark unfresh, key {} not found",
+                     [key])
         return self.get(key)
 
     def terminate(self):
@@ -60,8 +59,8 @@ class Datastore:
 
     def dump(self):
         for k in self.database.keys():
-            debug("datastore_dump", "k: {} v: {}",
-                  [k, self.get(k)])
+            self.dbg("datastore_dump", "k: {} v: {}",
+                     [k, self.get(k)])
 
 # # Sets data with a given key
 # DatastoreSetter = Callable[[str, Any], None]

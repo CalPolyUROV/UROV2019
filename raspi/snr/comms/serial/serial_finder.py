@@ -5,15 +5,15 @@
 import glob
 import sys
 from sys import platform
-from typing import Callable
+from typing import Callable, List
 
 import serial
 
 import settings
-from snr.utils import attempt, debug, sleep
+from snr.utils.utils import attempt, sleep
 
 
-def get_port_to_use(set_port: Callable) -> str:
+def get_port_to_use(dbg: Callable, set_port: Callable) -> str:
     """ Finds a serial port for the serial connection
 
     Calls the serial_finder library to search the operating system
@@ -24,31 +24,31 @@ def get_port_to_use(set_port: Callable) -> str:
     def try_find_port() -> bool:
         try:
             # Get a list of all serial ports
-            debug('serial_finder', "Searching for serial ports")
+            dbg('serial_finder', "Searching for serial ports")
             ports = list_ports()
-            debug('serial_finder', "Found ports:")
+            dbg('serial_finder', "Found ports:")
             for p in ports:
-                debug('serial_finder', p)
+                dbg('serial_finder', p)
             # Select the port
             port = select_port(ports)
             set_port(port)
             if(port is None):
                 raise Exception("Serial Exception")
-            debug("serial_finder", "Using port: {}", [port])
+            dbg("serial_finder", "Using port: {}", [port])
             return True
 
         except Exception as error:
-            debug("serial_finder", "Error finding port: {}", [str(error)])
+            dbg("serial_finder", "Error finding port: {}", [str(error)])
             return False
 
     def failure(tries: int):
-        debug('serial_finder',
-              "Could not find serial port after {} attempts. Crashing now.",
-              [tries])
+        dbg('serial_finder',
+                 "Could not find serial port after {} attempts. Crashing now.",
+                 [tries])
         exit("Could not find port")
 
     def fail_once():
-        debug('serial_finder', "Failed to find serial port, trying again.")
+        dbg('serial_finder', "Failed to find serial port, trying again.")
         sleep(settings.SERIAL_RETRY_WAIT)  # Wait a second before retrying
 
     attempt(try_find_port,
@@ -88,11 +88,11 @@ def list_ports() -> list:
     return result
 
 
-def select_port(ports) -> str or None:
+def select_port(dbg: Callable, ports: List[str]) -> str or None:
     """ Selects the apprpriate port from the given list
     """
     if platform == "linux" or platform == "linux2":
-        debug("serial_finder", "Linux detected")
+        dbg("serial_finder", "Linux detected")
         for p in ports:
             # return '/dev/ttyS0'
             # # If using raspi GPIO for serial, just pick this port
@@ -100,14 +100,14 @@ def select_port(ports) -> str or None:
                 return p
 
     elif platform == "darwin":
-        debug("serial_finder", "Darwin detected")
+        dbg("serial_finder", "Darwin detected")
         return ports[0]
 
     elif platform == "win32":
-        debug("serial_finder", "Windows detected")
+        dbg("serial_finder", "Windows detected")
         p = ""
         for p in ports:
-            debug("serial_finder", p)
+            dbg("serial_finder", p)
         return p
 
     else:

@@ -11,7 +11,7 @@ from multiprocessing import Process
 
 from snr.endpoint import Endpoint
 from snr.node import Node
-from snr.utils import debug, sleep
+from snr.utils.utils import sleep
 from snr.profiler import Timer
 
 
@@ -27,8 +27,7 @@ class ProcEndpoint(Endpoint):
     def __init__(self, parent: Node, name: str,
                  setup_handler: Callable, loop_handler: Callable,
                  tick_rate_hz: float):
-        self.parent = parent
-        self.name = name
+        super().__init__(parent, name)
         self.setup = setup_handler
         self.loop_handler = loop_handler
         self.terminate_flag = False
@@ -45,32 +44,33 @@ class ProcEndpoint(Endpoint):
             self.delay = 1.0 / tick_rate_hz
 
     def start_loop(self):
-        debug("framework", "Starting proc endpoint {} process", [self.name])
+        self.dbg("framework", "Starting proc endpoint {} process", [self.name])
         self.proc = self.get_proc()
         self.proc.start()
 
     def get_proc(self):
-        return Process(target=self.threaded_method(), daemon=True)
+        return Process(target=self.threaded_method, daemon=True)
 
     def threaded_method(self):
         # signal.signal(signal.SIGINT, signal.SIG_IGN)
-        self.setup()
-        while not self.terminate_flag:
-            try:
+        try:
+            self.setup()
+            while not self.terminate_flag:
+
                 if self.profiler is None:
                     self.loop_handler()
                 else:
                     self.profiler.time(self.name, self.loop_handler)
 
-                    # debug("profiling_endpoint",
+                    # self.dbg("profiling_endpoint",
                     #       "Ran {} task in {:6.3f} us",
                     #       [self.name, runtime * 1000000])
                 self.tick()
-            except (Exception, KeyboardInterrupt) as e:
-                debug("proc_endpoint_error", "{}, e: {}", [self.name, e])
-                self.set_terminate_flag()
+        except (Exception, KeyboardInterrupt) as e:
+            self.dbg("proc_endpoint_error", "{}, e: {}", [self.name, e])
+            self.set_terminate_flag()
 
-        debug("framework", "Proc endpoint {} exited loop", [self.name])
+        self.dbg("framework", "Proc endpoint {} exited loop", [self.name])
         self.terminate()
         return
 
@@ -79,7 +79,7 @@ class ProcEndpoint(Endpoint):
 
     def tick(self):
         if (self.delay == 0.0):
-            debug("framework_warning",
+            self.dbg("framework_warning",
                   "proc_endpoint {} does not sleep (max tick rate)",
                   [self.name])
         else:
@@ -87,7 +87,7 @@ class ProcEndpoint(Endpoint):
 
     def set_terminate_flag(self):
         self.terminate_flag = True
-        debug("framework", "Terminating proc_endpoint {}", [self.name])
+        self.dbg("framework", "Terminating proc_endpoint {}", [self.name])
 
     def terminate(self):
         raise NotImplementedError

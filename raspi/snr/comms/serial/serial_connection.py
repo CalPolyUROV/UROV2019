@@ -14,7 +14,7 @@ from snr.comms.serial.packet import (BLINK_CMD, PACKET_SIZE, SET_CAM_CMD,
 from snr.endpoint import Endpoint
 from snr.node import Node
 from snr.task import SomeTasks, Task
-from snr.utils import attempt, debug, print_exit, sleep
+from snr.utils.utils import attempt, print_exit, sleep
 
 
 class SerialConnection(Endpoint):
@@ -33,21 +33,21 @@ class SerialConnection(Endpoint):
             self.simulated_bytes = None
             return
 
-        debug("serial_verbose", "Finding serial port")
+        self.dbg("serial_verbose", "Finding serial port")
         get_port_to_use(self.set_port)
-        debug("serial", "Selected port {}", [self.serial_port])
+        self.dbg("serial", "Selected port {}", [self.serial_port])
 
         self.attempt_connect()
 
     def attempt_connect(self):
         def fail_once():
-            debug("serial_warning",
-                  "Failed to open serial port, trying again.")
+            self.dbg("serial_warning",
+                     "Failed to open serial port, trying again.")
 
         def failure(tries: int):
-            debug("serial_error",
-                  "Could not open serial port after {} tries.",
-                  [tries])
+            self.dbg("serial_error",
+                     "Could not open serial port after {} tries.",
+                     [tries])
             print_exit("Could not open serial port")
 
         attempt(self.try_open_serial,
@@ -55,13 +55,13 @@ class SerialConnection(Endpoint):
                 fail_once, failure)
 
     def handle_serial_com(self, t: Task):
-        debug("serial_verbose",
-              "Executing serial com task: {}", [t.val_list])
+        self.dbg("serial_verbose",
+                 "Executing serial com task: {}", [t.val_list])
         result = self.send_receive(t.val_list[0],
                                    t.val_list[1::])
         if result is None:
-            debug("robot",
-                  "Received no data in response from serial message")
+            self.dbg("robot",
+                     "Received no data in response from serial message")
         elif isinstance(result, Task):
             sched_list.append(result)
         elif isinstance(result, list):
@@ -73,13 +73,13 @@ class SerialConnection(Endpoint):
                                             t.val_list)
 
     def set_port(self, port: str):
-        debug("serial", "Setting port to {}", [port])
+        self.dbg("serial", "Setting port to {}", [port])
         self.serial_port = port
 
     def try_open_serial(self):
         if settings.SIMULATE_SERIAL:
-            debug("serial_sim",
-                  "Not opening port", [])
+            self.dbg("serial_sim",
+                     "Not opening port", [])
             return None
         sleep(settings.SERIAL_SETUP_WAIT_PRE)
         try:
@@ -91,20 +91,21 @@ class SerialConnection(Endpoint):
                 bytesize=serial.EIGHTBITS,
                 timeout=settings.SERIAL_TIMEOUT)
             if self.serial_connection.is_open:
-                debug('serial',
-                      "Opened serial connection on {} at baud {}",
-                      [self.serial_port, settings.SERIAL_BAUD])
+                self.dbg('serial',
+                         "Opened serial connection on {} at baud {}",
+                         [self.serial_port, settings.SERIAL_BAUD])
                 sleep(settings.SERIAL_SETUP_WAIT_POST)
                 while self.serial_connection.in_waiting > 0:
                     if self.serial_connection.in_waiting > PACKET_SIZE:
-                        debug("serial_warning",
-                              "Extra inbound bytes on serial: {}",
-                              [self.serial_connection.in_waiting])
+                        self.dbg("serial_warning",
+                                 "Extra inbound bytes on serial: {}",
+                                 [self.serial_connection.in_waiting])
                     self.serial_connection.read()
                 return True
             return False
         except Exception as error:
-            debug("serial_con", "Error opening port: {}", [error.__repr__()])
+            self.dbg("serial_con", "Error opening port: {}",
+                     [error.__repr__()])
             return False
 
     # Send and receive data over serial
@@ -125,8 +126,8 @@ class SerialConnection(Endpoint):
         elif cmd_type.__eq__("read_sensor"):
             pass
         else:
-            debug("serial_error", "Type of serial command {} not recognized",
-                  [cmd_type])
+            self.dbg("serial_error", "Type of serial command {} not recognized",
+                     [cmd_type])
             return None
         return t
 
@@ -137,78 +138,78 @@ class SerialConnection(Endpoint):
         # Recieve a packet from the Arduino/Teensy
         p_recv = self.read_packet()
         if p_recv is None:
-            debug("serial_verbose", "Received an empty packet")
+            self.dbg("serial_verbose", "Received an empty packet")
         elif p.weak_eq(p_recv):
-            debug("serial_verbose", "Received echo packet")
+            self.dbg("serial_verbose", "Received echo packet")
         else:
-            debug("serial_verbose", "Received {}", [p_recv])  # Debugging
+            self.dbg("serial_verbose", "Received {}", [p_recv])  # Debugging
         return p
 
     # Send a Packet over serial
 
     def write_packet(self, p):
         data_bytes, expected_size = p.pack()
-        debug("serial_verbose", "Trying to send packet of expected size {}",
-              [expected_size])
+        self.dbg("serial_verbose", "Trying to send packet of expected size {}",
+                 [expected_size])
         sent_bytes = 0
 
         if settings.SIMULATE_SERIAL:
-            debug("serial_sim", "Sending bytes {}", [
-                  data_bytes])
+            self.dbg("serial_sim", "Sending bytes {}", [
+                data_bytes])
             self.simulated_bytes = data_bytes
             return
 
         try:
             if not self.serial_connection.is_open:
-                debug("serial_error", "Aborting send, Serial is not open: {}",
-                      [self.serial_connection])
+                self.dbg("serial_error", "Aborting send, Serial is not open: {}",
+                         [self.serial_connection])
                 return
             sent_bytes += self.serial_connection.write(data_bytes)
-            debug("serial_verbose", "Sent {} bytes: {}",
-                  [sent_bytes, data_bytes])
-            debug("serial_verbose", "Out-waiting: {}",
-                  [self.serial_connection.out_waiting])
+            self.dbg("serial_verbose", "Sent {} bytes: {}",
+                     [sent_bytes, data_bytes])
+            self.dbg("serial_verbose", "Out-waiting: {}",
+                     [self.serial_connection.out_waiting])
         except serial.serialutil.SerialException as error:
-            debug("serial_error", "Error sending packet: {}",
-                  [error.__repr__()])
+            self.dbg("serial_error", "Error sending packet: {}",
+                     [error.__repr__()])
             return
-        debug("serial_verbose", "Sent {}", [p])
+        self.dbg("serial_verbose", "Sent {}", [p])
         return
 
     # Read in a packet from serial
     # TODO: ensure that this effectively recieves data over serial
     def read_packet(self) -> Union[Packet, None]:
         if settings.SIMULATE_SERIAL:
-            debug("serial_sim", "Receiving packet of simulated bytes")
+            self.dbg("serial_sim", "Receiving packet of simulated bytes")
             recv_bytes = self.simulated_bytes
         else:
             if not self.serial_connection.is_open:
-                debug("serial_error", "Aborting read, Serial is not open: {}",
-                      [self.serial_connection])
+                self.dbg("serial_error", "Aborting read, Serial is not open: {}",
+                         [self.serial_connection])
                 return None
 
-            debug("serial_verbose", "Waiting for bytes, {} ready", [
+            self.dbg("serial_verbose", "Waiting for bytes, {} ready", [
                 self.serial_connection.in_waiting])
             tries = 0
             while self.serial_connection.in_waiting < PACKET_SIZE:
                 tries = tries + 1
-            debug("serial_verbose",
-                  "Received enough bytes after {} tries", [tries])
-            debug("serial_verbose", "Reading, {} bytes ready",
-                  [self.serial_connection.in_waiting])
+            self.dbg("serial_verbose",
+                     "Received enough bytes after {} tries", [tries])
+            self.dbg("serial_verbose", "Reading, {} bytes ready",
+                     [self.serial_connection.in_waiting])
             try:
                 recv_bytes = self.serial_connection.read(size=PACKET_SIZE)
             except Exception as error:
-                debug("serial_receive", "Error reading serial: {}",
-                      [error.__repr__()])
-        debug("serial_verbose", "Read bytes from serial")
-        debug("serial_verbose", "type(recv_bytes) = {}", [type(recv_bytes)])
+                self.dbg("serial_receive", "Error reading serial: {}",
+                         [error.__repr__()])
+        self.dbg("serial_verbose", "Read bytes from serial")
+        self.dbg("serial_verbose", "type(recv_bytes) = {}", [type(recv_bytes)])
         cmd = recv_bytes[0]
         val1 = recv_bytes[1]
         val2 = recv_bytes[2]
         s = "Unpacked: cmd: {}.{}, val1: {}.{}, val2: {}.{}"
-        debug('serial_verbose', s,
-              [cmd, cmd.__class__, val1, val1.__class__, val2, val2.__class__])
+        self.dbg('serial_verbose', s,
+                 [cmd, cmd.__class__, val1, val1.__class__, val2, val2.__class__])
         p = Packet(cmd, val1, val2)
         return p
 
@@ -218,8 +219,8 @@ class SerialConnection(Endpoint):
         if speed < -100:
             return 0
         val = int((speed * 1.275) + 127)
-        debug("serial_packet",
-              "Converted motor speed from {} to {}", [speed, val])
+        self.dbg("serial_packet",
+                 "Converted motor speed from {} to {}", [speed, val])
         return val
 
     def generate_motor_packet(self, motor: int, speed: int) -> Packet:
@@ -229,9 +230,9 @@ class SerialConnection(Endpoint):
     def new_packet(self, cmd: int, val1: int, val2: int):
         """ Constructor for building packets to send (chksum is created)
         """
-        debug("serial_verbose",
-              "Preparing packet: cmd: {}, val1: {}, val2: {}",
-              [cmd, val1, val2])
+        self.dbg("serial_verbose",
+                 "Preparing packet: cmd: {}, val1: {}, val2: {}",
+                 [cmd, val1, val2])
 
         return Packet(cmd, val1, val2)
 
@@ -242,7 +243,7 @@ class SerialConnection(Endpoint):
 
     def terminate(self):
         if self.serial_connection is not None:
-            debug("serial", "Closing serial connection")
+            self.dbg("serial", "Closing serial connection")
             self.serial_connection.close()
             self.serial_connection = None
-        debug("serial", "Closed serial connection")
+        self.dbg("serial", "Closed serial connection")

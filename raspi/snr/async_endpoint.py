@@ -11,7 +11,7 @@ from typing import Callable
 import _thread as thread
 from snr.endpoint import Endpoint
 from snr.node import Node
-from snr.utils import debug, sleep
+from snr.utils.utils import sleep
 from snr.profiler import Timer
 
 
@@ -27,26 +27,25 @@ class AsyncEndpoint(Endpoint):
     def __init__(self, parent: Node, name: str,
                  setup_handler: Callable, loop_handler: Callable,
                  tick_rate_hz: float):
-        self.parent = parent
-        self.name = name
+        super().__init__(parent, name)
         self.setup = setup_handler
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate_hz)
-        
+
         if parent:
             self.profiler = parent.profiler
         else:
             self.profiler = None
-    
+
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
             self.delay = 0.0
         else:
             self.delay = 1.0 / tick_rate_hz
-       
+
     def start_loop(self):
-        debug("framework", "Starting async endpoint {} thread", [self.name])
+        self.dbg("framework", "Starting async endpoint {} thread", [self.name])
         thread.start_new_thread(self.threaded_method, ())
 
     def threaded_method(self):
@@ -58,13 +57,13 @@ class AsyncEndpoint(Endpoint):
             else:
                 self.profiler.time(self.name, self.loop_handler)
 
-                # debug("profiling_endpoint",
+                # self.dbg("profiling_endpoint",
                 #       "Ran {} task in {:6.3f} us",
                 #       [self.name, runtime * 1000000])
 
             self.tick()
 
-        debug("framework", "Async endpoint {} exited loop", [self.name])
+        self.dbg("framework", "Async endpoint {} exited loop", [self.name])
         self.terminate()
         # print_exit("Endpoint thread exited by termination")
 
@@ -74,7 +73,7 @@ class AsyncEndpoint(Endpoint):
     def tick(self):
         # TODO: Ensure that this does not block other threads: thread.sleep()?
         if (self.delay == 0.0):
-            debug("framework_warning",
+            self.dbg("framework_warning",
                   "async_endpoint {} does not sleep (max tick rate)",
                   [self.name])
         else:
@@ -82,4 +81,4 @@ class AsyncEndpoint(Endpoint):
 
     def set_terminate_flag(self):
         self.terminate_flag = True
-        debug("framework", "Terminating endpoint {}", [self.name])
+        self.dbg("framework", "Terminating endpoint {}", [self.name])

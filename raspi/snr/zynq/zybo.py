@@ -20,7 +20,7 @@ class Zybo(Endpoint):
 
             self.pwm_lib.initDemo()
         else:
-            debug("dma_verbose",
+            self.dbg("dma_verbose",
                   "Simulating DMA only. C library not loaded.")
 
         self.input = input
@@ -33,7 +33,7 @@ class Zybo(Endpoint):
     def task_handler(self, t: Task) -> SomeTasks:
         sched_list = []
         if t.task_type == "serial_com":
-            debug("serial_verbose",
+            self.dbg("serial_verbose",
                   "Executing serial com task: {}", [t.val_list])
             cmd = t.val_list[0]
             reg = t.val_list[1]
@@ -47,7 +47,7 @@ class Zybo(Endpoint):
             # result = self.send_receive(t.val_list[0],
             #                            t.val_list[1::])
             if result is None:
-                debug("robot",
+                self.dbg("robot",
                       "Received no data in response from serial message")
             elif isinstance(result, Task):
                 sched_list.append(result)
@@ -58,19 +58,19 @@ class Zybo(Endpoint):
         return sched_list
 
     def dma_write(self, cmd: str, reg: int, val: int):
-        debug("dma_verbose", "Writing DMA: cmd: {}, reg: {}, val: {}",
+        self.dbg("dma_verbose", "Writing DMA: cmd: {}, reg: {}, val: {}",
               [cmd, reg, val])
 
         if not settings.SIMULATE_DMA:
             self.pwm_lib.runDemo()
 
-        # debug("dma_verbose", "cmd returned: {}", [status])
+        # self.dbg("dma_verbose", "cmd returned: {}", [status])
 
     def terminate(self):
         if not settings.SIMULATE_DMA:
             # Deallocate C objects
-            debug("dma_verbose", "Freeing C objects...")
+            self.dbg("dma_verbose", "Freeing C objects...")
             self.pwm_lib.exitHandler()
-            debug("dma_verbose", "Freed C objects")
+            self.dbg("dma_verbose", "Freed C objects")
         else:
-            debug("dma_verbose", "Simulated c objects freed")
+            self.dbg("dma_verbose", "Simulated c objects freed")

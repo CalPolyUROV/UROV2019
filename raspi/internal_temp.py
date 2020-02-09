@@ -17,7 +17,7 @@ def measure_temp() -> int:
         temp = os.popen(CMD).readline()[5: 8]
         return int(temp)
     except Exception as error:
-        debug("int_temp_mon", "Error reading temperature: {}",
+        self.dbg("int_temp_mon", "Error reading temperature: {}",
               [error.__repr__()])
         return INVALID_VALUE
 
@@ -52,7 +52,7 @@ class IntTempMon(AsyncEndpoint):
         self.queue_reading(measure_temp())
         avg = self.compute_avg()
         self.store_data(avg)  # Send data to Node's datastore
-        debug("int_temp_mon", "Temperature: {}'C", [avg])
+        self.dbg("int_temp_mon", "Temperature: {}'C", [avg])
 
     def queue_reading(self, new_val: int):
         """Place the temperature value in the queue and maintain the sum"""

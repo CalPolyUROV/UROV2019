@@ -9,7 +9,7 @@
 # from snr.controller import Controller
 # from snr.node import Node
 # from snr.task import SomeTasks, Task, TaskPriority, TaskType
-# from snr.utils import debug, sleep
+# from snr.utils.utils import sleep
 # from topside_clui import TopsideClui
 
 

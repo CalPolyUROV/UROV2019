@@ -95,8 +95,8 @@ DEBUG_CHANNELS = {
     "sockets_server": True,
     "sockets_error": True,
     "sockets_warning": True,
-    "sockets_event": False,
-    "sockets_status": False,
+    "sockets_event": True,
+    "sockets_status": True,
     "sockets_verbose": False,
 
     "sockets_send": False,

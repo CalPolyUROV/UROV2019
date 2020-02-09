@@ -19,7 +19,7 @@ class Controller(AsyncEndpoint):
     def __init__(self, parent: Node,
                  name: str):
         if not settings.USE_CONTROLLER:
-            debug("controller", "Controller disabled by settings")
+            self.dbg("controller", "Controller disabled by settings")
             # This early return might break things
             return
         self.task_producers = []
@@ -42,13 +42,13 @@ class Controller(AsyncEndpoint):
         self.start_loop()
 
     def store_data(self, data):
-        # debug("controller", "taking in data")
+        # self.dbg("controller", "taking in data")
         self.datastore.store(self.name, data)
 
     def init_controller(self):
         if settings.SIMULATE_INPUT:
             s = "Simulating input without pygame and XBox controller"
-            debug("controller_event", s)
+            self.dbg("controller_event", s)
             self.triggers_zeroed = True
             return
         import pygame
@@ -58,51 +58,52 @@ class Controller(AsyncEndpoint):
         num_controllers = pygame.joystick.get_count()
 
         if num_controllers > 0:
-            debug("controller", "Controllers found: {}", [num_controllers])
+            self.dbg("controller", "Controllers found: {}", [num_controllers])
             print_controller_warning()
             # TODO: Handle pygame's segfault when the controller disconnects
         elif settings.REQUIRE_CONTROLLER:
             s = "Controller required by settings, {} found"
-            debug("controller_error", s, [num_controllers])
+            self.dbg("controller_error", s, [num_controllers])
             exit("Required XBox controller absent")
         else:
             s = "Controller not found but not required, simulating input"
-            debug("controller", s)
+            self.dbg("controller", s)
             settings.SIMULATE_INPUT = True
             return
 
     def monitor_controller(self):
         if settings.SIMULATE_INPUT:
-            debug("controller_event", "Simulating input")
-            joystick_data = simulate_input()
+            self.dbg("controller_event", "Simulating input")
+            joystick_data = self.simulate_input()
         else:
             # if not pygame.joystick.get_init():
 
-            debug("controller_verbose", "Reading input")
+            self.dbg("controller_verbose", "Reading input")
             try:
                 num_controllers = pygame.joystick.get_count()
                 if num_controllers < 1:
                     raise pygame.error
                 joystick_data = self.read_joystick()
             except pygame.error as error:
-                debug("controller_error", "Controller error: {}",
-                      [error.__repr__()])
+                self.dbg("controller_error", "Controller error: {}",
+                         [error.__repr__()])
                 if not settings.REQUIRE_CONTROLLER:
-                    debug("controller_error",
-                          "Missing controller not required, simulating input")
+                    self.dbg(
+                        "controller_error",
+                        "Missing controller not required, simulating input")
                     joystick_data = simulate_input()
                 else:
-                    debug("controller_error",
-                          "Lost connection to controller, {} found",
-                          [num_controllers])
+                    self.dbg("controller_error",
+                             "Lost connection to controller, {} found",
+                             [num_controllers])
                     raise Exception("Lost connection to controller")
         new_data = self.map_input_dict(joystick_data)
         controls_dict = self.check_trigger_zeroed(new_data)
 
-        debug("controller_event",
-              "Storing data with key: {}", [self.get_name()])
-        debug("controller_verbose",
-              "\n\tController data:\n\t {}", [controls_dict])
+        self.dbg("controller_event",
+                 "Storing data with key: {}", [self.get_name()])
+        self.dbg("controller_verbose",
+                 "\n\tController data:\n\t {}", [controls_dict])
         self.store_data(controls_dict)
 
     def print_data(self, d: dict):
@@ -118,13 +119,13 @@ class Controller(AsyncEndpoint):
         if ((left == 0) and (right == 0)) or settings.SIMULATE_INPUT:
             self.triggers_zeroed = True
             self.set_delay(settings.CONTROLLER_TICK_RATE)
-            debug("controller",
-                  "Triggers successfully zeroed. Controller ready.")
+            self.dbg("controller",
+                     "Triggers successfully zeroed. Controller ready.")
             return data
 
-        debug("controller_error",
-              "Please zero triggers: left: {}, right: {}",
-              [left, right])
+        self.dbg("controller_error",
+                 "Please zero triggers: left: {}, right: {}",
+                 [left, right])
         return {}
 
     def map_input_dict(self, joystick_data: dict) -> dict:
@@ -148,11 +149,11 @@ class Controller(AsyncEndpoint):
         new_key = map_list[0]
 
         if value is tuple:
-            debug("control_mappings", "Unwrapping tuple {}", [value])
+            self.dbg("control_mappings", "Unwrapping tuple {}", [value])
             value = value[0]
 
         if value is str:
-            debug("control_mappings", "Control value is str {}", [value])
+            self.dbg("control_mappings", "Control value is str {}", [value])
             exit("Stringtalityyy")
 
         t = None
@@ -171,11 +172,11 @@ class Controller(AsyncEndpoint):
                 value = 0
         value = self.cast(value, t)
 
-        debug("control_mappings_verbose", "Mapped value {}", [value])
+        self.dbg("control_mappings_verbose", "Mapped value {}", [value])
         try:
             key_val_tuple = (new_key, value)
         except Exception as error:
-            debug("control_mappings", "Error: {}", [error.__repr__()])
+            self.dbg("control_mappings", "Error: {}", [error.__repr__()])
             exit("Fatalityyyy")
 
         return key_val_tuple
@@ -193,9 +194,9 @@ class Controller(AsyncEndpoint):
             if isinstance(value, float):
                 return (int((float(value) * 4) - 2),
                         int((float(value) * -4) + 2))
-            debug("control_mappings_verbose",
-                  "Trying to cast {}: {} as tuple", [
-                      type(value), value])
+            self.dbg("control_mappings_verbose",
+                     "Trying to cast {}: {} as tuple", [
+                         type(value), value])
         return value
 
     def read_joystick(self) -> dict:
@@ -251,7 +252,9 @@ class Controller(AsyncEndpoint):
         for j in range(joystick_data["num_dpad"]):
             joystick_data["dpad"] = joystick.get_hat(j)
 
-        debug("controls_reader_verbose", "{}", [joystick_data])
+        self.dbg("controls_reader_verbose",
+                 "{}",
+                 [joystick_data])
         return joystick_data
 
     def terminate(self):
@@ -259,13 +262,33 @@ class Controller(AsyncEndpoint):
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
         if(not settings.SIMULATE_INPUT):
-            debug("controls_reader_verbose", "exiting pygame")
+            self.dbg("controls_reader_verbose",
+                     "exiting pygame")
             settings.USE_CONTROLLER = False
             pygame.quit()
-            debug("controls_reader", "Exited pygame")
+            self.dbg("controls_reader",
+                     "Exited pygame")
         else:
-            debug("controls_reader_verbose", "Closing simulated controller")
+            self.dbg("controls_reader_verbose",
+                     "Closing simulated controller")
         self.set_terminate_flag()
+
+    def simulate_input(self) -> dict:
+        """Provide fake input values for testing purposes
+        Correct data types for key values are transformed to in map_input
+        """
+        self.dbg("simulation",
+                 "Simulating control input")
+        sim_data = {}
+        for key in settings.control_mappings:
+            self.dbg("simulation_verbose",
+                     "Simulating key: {}",
+                     [key])
+            sim_data[key] = random_val()
+        self.dbg("simulation_verbose",
+                 "Simulated control input:\n{}",
+                 [sim_data])
+        return sim_data
 
 
 def random_val():
@@ -274,19 +297,6 @@ def random_val():
     to the correct data type in map_input
     """
     return random.random()
-
-
-def simulate_input() -> dict:
-    """Provide fake input values for testing purposes
-    Correct data types for key values are transformed to in map_input
-    """
-    debug("simulation", "Simulating control input")
-    sim_data = {}
-    for key in settings.control_mappings:
-        debug("simulation_verbose", "Simulating key: {}", [key])
-        sim_data[key] = random_val()
-    debug("simulation_verbose", "Simulated control input:\n{}", [sim_data])
-    return sim_data
 
 
 def print_controller_warning():

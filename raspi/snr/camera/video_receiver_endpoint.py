@@ -43,7 +43,7 @@ class VideoReceiver(ProcEndpoint):
         self.start_loop()
 
     def init_receiver(self):
-        debug("camera_event",
+        self.dbg("camera_event",
               "Initializing video recvr for {} on port {}",
               [self.name, self.receiver_port])
         try:
@@ -61,7 +61,7 @@ class VideoReceiver(ProcEndpoint):
 
             self.conn, self.addr = self.s.accept()
         except Exception as e:
-            debug("camera_error",
+            self.dbg("camera_error",
                   "Initizing {} failed: {}",
                   self.name, e)
             self.set_terminate_flag()

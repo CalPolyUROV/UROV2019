@@ -7,7 +7,7 @@ import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.node import Node
 from snr.utils import debug
-from snr.task import SomeTasks, Task
+from snr.task import SomeTasks, Task, TaskPriority
 
 
 class SimpleGUI(AsyncEndpoint):
@@ -15,7 +15,7 @@ class SimpleGUI(AsyncEndpoint):
                  input_name: list):
         self.refresh_rate = 10
 
-        self.task_producers = []
+        self.task_producers = [self.get_telem_data_task]
         self.task_handlers = {}
 
         super().__init__(parent, name,
@@ -27,12 +27,16 @@ class SimpleGUI(AsyncEndpoint):
         self.start_loop()
 
     def terminate(self):
-        debug("gui_event", "GUI endpoint terminating")
+        self.dbg("gui_event", "GUI endpoint terminating")
         self.set_terminate_flag()
         self.window.close()
 
     def __repr__(self) -> str:
         return self.name
+
+    def get_telem_data_task(self) -> Task:
+        self.dbg("gui_verbose", "Requesting telemetry data with new task")
+        return Task("get_telem_data", TaskPriority.high, [])
 
     def get_data(self):
         data = []
@@ -61,7 +65,7 @@ class SimpleGUI(AsyncEndpoint):
         if event is None or event == 'Quit':
             self.set_terminate_flag()
         if settings.GUI_channels["controller"]:
-            debug("gui_control", "Got controler info: {}", [data[0]])
+            self.dbg("gui_control", "Got controler info: {}", [data[0]])
             if data[0] is not None and data[0].get("stick_left_x") is not None:
                 self.window.Element('left').Update(
                     'Stick Left X: \n{}\nStick Left Y: \n{}\nLeft Trigger: \n{}\n'.format(
@@ -74,13 +78,13 @@ class SimpleGUI(AsyncEndpoint):
                         (data[0].get("stick_right_y") // 1),
                         (data[0].get("trigger_right") // 1)))
         if settings.GUI_channels["telem"]:
-            debug("gui_telem", "Got telem info: {}", [data[1]])
+            self.dbg("gui_telem", "Got telem info: {}", [data[1]])
         # Update refresh rate from GUI
-        debug("gui_verbose", "UI tick_rate value: {}", [values[0]])
+        self.dbg("gui_verbose", "UI tick_rate value: {}", [values[0]])
         self.set_refresh_rate(values[0])
 
     def set_refresh_rate(self, rate):
-        debug("gui_verbose",
+        self.dbg("gui_verbose",
               "Updating async_endpoint tick_rate_hz to {}",
               [rate])
         if rate == 0.0:

@@ -41,7 +41,7 @@ class VideoSource(ProcEndpoint):
     def init_camera(self):
         # Connect a client socket to my_server:8000 (change my_server to the
         # hostname of your server)
-        debug("camera_event",
+        self.dbg("camera_event",
               "Initializing camera {} as {} for recvr {}:{}",
               [self.camera_num, self.name,
                self.receiver_ip, self.receiver_port])
@@ -54,14 +54,14 @@ class VideoSource(ProcEndpoint):
             # Create a VideoCapture object and read from input file
             self.camera = VideoCapture(self.camera_num)
         except Exception as e:
-            debug("camera_error",
+            self.dbg("camera_error",
                   "Initizing {} failed: {}",
                   self.name, e)
             self.set_terminate_flag()
 
         # Check if camera opened successfully
         if (not self.camera or not self.camera.isOpened()):
-            debug("camera_error",
+            self.dbg("camera_error",
                   "Error opening camera #{}",
                   [self.camera_num])
 
@@ -74,7 +74,7 @@ class VideoSource(ProcEndpoint):
                 data = pickle.dumps(frame)
                 size = len(data)
                 message_size = struct.pack("=L", size)
-                debug("camera_verbose",
+                self.dbg("camera_verbose",
                       "Sending frame data of size: {}",
                       [size])
                 self.client_socket.sendall(message_size + data)
@@ -87,6 +87,6 @@ class VideoSource(ProcEndpoint):
             self.camera.release()
         # No windows here?
         # cv.destroyAllWindows()
-        debug("camera_event",
+        self.dbg("camera_event",
               "Closed video source (camera {})",
               [self.camera_num])

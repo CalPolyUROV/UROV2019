@@ -25,7 +25,7 @@ class ManagerRole(Enum):
 
 class CameraManager(Endpoint):
     def __init__(self, parent: Node, name: str,
-                 role: ManagerRole, camera_names: List[str]):
+                 role: ManagerRole, camera_map: dict):
 
         self.task_producers = []
         self.task_handlers = {}
@@ -33,8 +33,8 @@ class CameraManager(Endpoint):
         #  self.setup_handler, self.loop_handler,
         #  CAMERA_MANAGER_TICK_HZ)
         self.role = role
-        self.camera_names = camera_names
-        self.num_cameras = len(camera_names)
+        self.camera_map = camera_map
+        self.num_cameras = len(camera_map.keys())
         self.cam_num = 0  # Cameras which have been allocated
         self.port = INITIAL_PORT
         self.cameras = []
@@ -48,7 +48,7 @@ class CameraManager(Endpoint):
 
         #     return CameraManager(parent, name)
         # else:
-        #     debug("framework_error",
+        #     self.dbg("framework_error",
         #         "Unknown camera manager role {}",
         #         [role])
 
@@ -63,20 +63,20 @@ class CameraManager(Endpoint):
             fac = VideoReceiverFactory
 
         # Create each camera process from pool
-        for camera_name in self.camera_names:
+        for camera_name in self.camera_map.keys():
             config = CameraConfig(camera_name,
                                   self.next_port(),
-                                  self.next_cam_num())
+                                  self.camera_map[camera_name])
             f = fac(config)
             cam = f.get(self.parent)
             self.cameras.append(cam)
-            debug("camera_manager", "Created camera {}", [cam])
+            self.dbg("camera_manager", "Created camera {}", [cam])
 
     def loop_handler(self):
         pass
 
     def terminate(self):
-        debug("camera_manager", "Joining managed camera processes")
+        self.dbg("camera_manager", "Joining managed camera processes")
         for proc_endpoint in self.cameras:
             proc_endpoint.set_terminate_flag()
         for proc_endpoint in self.cameras:
@@ -91,15 +91,16 @@ class CameraManager(Endpoint):
     def next_port(self):
         val = self.port
         self.port += 2
-        debug("camera_event",
+        self.cam_num += 1
+        self.dbg("camera_event",
               "Allocating port {} for camera {}",
               [val, self.cam_num])
         return val
 
-    def next_cam_num(self):
-        val = self.cam_num
-        self.cam_num += 1
-        return val
+    # def next_cam_num(self):
+    #     val = self.cam_num
+    #     self.cam_num += 1
+    #     return val
 
     def __repr__(self):
         return f"Camera {str(self.role)} Manager"

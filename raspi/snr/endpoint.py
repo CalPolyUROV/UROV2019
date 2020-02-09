@@ -6,6 +6,7 @@ from snr.utils import debug
 class Endpoint:
     def __init__(self, parent: Node, name: str):
         self.parent = parent
+        self.dbg = parent.dbg
         self.name = name
 
     def get_new_tasks(self) -> SomeTasks:
@@ -18,7 +19,7 @@ class Endpoint:
         self.terminate()
 
     def terminate(self):
-        debug("framework_warning",
+        self.dbg("framework_warning",
               "{} does not implement terminate()",
               [self.name])
         raise NotImplementedError
