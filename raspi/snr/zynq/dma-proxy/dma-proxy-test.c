@@ -86,6 +86,7 @@ int test(void){
     int dummy;
     int counter;
     pthread_t tid;
+    int rc = 0;
 
     printf("DMA proxy test\n");
 
@@ -151,6 +152,10 @@ int test(void){
             if (rx_proxy_interface_p->buffer[i] != (unsigned char)(counter + i))
                 printf("buffer not equal, index = %d, data = %d expected data = %d\n", i,
                     rx_proxy_interface_p->buffer[i], (unsigned char)(counter + i));
+    }
+    pthread_join(tid, NULL);
+    if (!rc){
+        printf("Child thread result: %d", rc);
     }
 
     /* Unmap the proxy channel interface memory and close the device files before leaving
