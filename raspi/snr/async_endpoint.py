@@ -8,8 +8,9 @@ Relay: Server data to other nodes
 from time import time
 from typing import Callable
 
-# from threading import Thread
 import _thread
+# from threading import Thread
+# TODO: Move to non-deprecated threads
 from snr.endpoint import Endpoint
 from snr.node import Node
 from snr.utils.utils import sleep

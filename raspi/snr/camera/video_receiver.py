@@ -11,12 +11,13 @@ import cv2
 from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
 from snr.utils import debug
-from snr.cv.find_plants import box_image
+from snr.cv import find_plants
+from snr.cv.boxes import apply_boxes
 
 HOST = "localhost"
 
 # Number of frames to skip to calculate the box
-FRAME_SKIP_COUNT = 4
+FRAME_SKIP_COUNT = 5
 
 # Title of the window
 WINDOW_TITLE = 'Video'
@@ -37,7 +38,8 @@ class VideoReceiver(ProcEndpoint):
 
         self.receiver_port = receiver_port
         self.window_name = f"Raspberry Pi Stream: {self.name}"
-
+        self.count = 0  # Frame count
+        self.boxes = []  # Cache of cv boxes
         self.start_loop()
 
     def init_receiver(self):
@@ -63,9 +65,6 @@ class VideoReceiver(ProcEndpoint):
         self.data = b''
         self.payload_size = struct.calcsize("=L")
 
-        # current frame counter
-        self.count = 0
-
     def monitor_stream(self):
         try:
             # Retrieve message size
@@ -90,7 +89,12 @@ class VideoReceiver(ProcEndpoint):
 
             # Select frames for processing
             if ((self.count % FRAME_SKIP_COUNT) == 0):
-                frame = box_image(frame)
+                self.boxes = find_plants.box_image(frame)
+
+            frame = apply_boxes(frame,
+                                self.boxes,
+                                find_plants.color,
+                                find_plants.LINE_THICKNESS)
 
             # Display
             cv2.imshow(self.window_name, frame)
@@ -98,8 +102,11 @@ class VideoReceiver(ProcEndpoint):
         except Exception as e:
             if isinstance(e, KeyboardInterrupt):
                 raise(e)
-            self.dbg("camera_error", "receiver monitor error: {}", [e])
+            self.dbg("camera_error",
+                     "receiver monitor error: {}",
+                     [e])
             self.set_terminate_flag()
 
     def terminate(self):
         cv2.destroyAllWindows()
+        self.parent.datastore.store(f"{self.name}_recvd_frames", self.count)

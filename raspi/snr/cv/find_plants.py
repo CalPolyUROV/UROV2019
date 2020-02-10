@@ -1,14 +1,20 @@
+from typing import List
+
 import cv2
 import numpy as np
+
 
 # Minimim area threshold that is boxed
 AREA_THRESHHOLD = 1000
 
 LINE_THICKNESS = 8
 
-
+green = (0, 255, 0)
+color = green
 # Function that takes in a image and draws boxes around suspicious plants
-def box_image(img: np.array) -> np.array:
+
+
+def box_image(img: np.array) -> List:
     """Sample CV method courtesy of the BIG_J
     """
     frame = img
@@ -35,25 +41,13 @@ def box_image(img: np.array) -> np.array:
                                            cv2.RETR_TREE,
                                            cv2.CHAIN_APPROX_SIMPLE)
 
-    green = (0, 255, 0)
-    # rect_list = []  # List of Rectangle objects
+    boxes = []  # List of Rectangle objects
     # Loop through each of the "Plant" areas
     for c in contours:
-        # if the "Plant" is large enough draw a rectangle around it
+        # If the "Plant" is large enough draw a rectangle around it
         if cv2.contourArea(c) > AREA_THRESHHOLD:
-            # get the bounding rect
+            # Get the bounding rect
             x, y, w, h = cv2.boundingRect(c)
-            # rect_list.append((x, y, w, h))
+            boxes.append((x, y, w, h))
 
-            cv2.rectangle(frame,
-                          (x, y), (x+w, y+h),
-                          green,
-                          LINE_THICKNESS)
-            # draw a green rectangle to visualize the bounding rect
-            # cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 15)
-
-    # Demo rectangles
-    # for rects in self.rect_list:
-    #     x, y, w, h = rects
-
-    return frame
+    return boxes

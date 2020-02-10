@@ -61,7 +61,7 @@ def main():
     # Cameras
     cameras = CameraManagerPair({
         "main_camera0": 0,
-        "ir_camera1": 1,
+        # "ir_camera1": 1,
         "ir_camera2": 2,
         # "ir_camera3": 3,
         # "usb_camera4": 4,

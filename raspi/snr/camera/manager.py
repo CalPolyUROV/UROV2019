@@ -77,10 +77,10 @@ class CameraManager(Endpoint):
 
     def terminate(self):
         self.dbg("camera_manager", "Joining managed camera processes")
+        # for proc_endpoint in self.cameras:
+        #     proc_endpoint.set_terminate_flag()
         for proc_endpoint in self.cameras:
-            proc_endpoint.set_terminate_flag()
-        for proc_endpoint in self.cameras:
-            proc_endpoint.proc.join()
+            proc_endpoint.join()
 
     # def get(self) -> List:
     #     return [CameraPair(CameraConfig(name,
@@ -93,8 +93,8 @@ class CameraManager(Endpoint):
         self.port += 2
         self.cam_num += 1
         self.dbg("camera_event",
-              "Allocating port {} for camera {}",
-              [val, self.cam_num])
+                 "Allocating port {} for camera {}",
+                 [val, self.cam_num])
         return val
 
     # def next_cam_num(self):

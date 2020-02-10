@@ -20,8 +20,8 @@ FRAME_WIDTH = 1280
 FRAME_HEIGHT = 720
 TICK_RATE_HZ = 120
 
-DISPLAY_LOCALLY = True
-USE_SOCKETS = False
+DISPLAY_LOCALLY = False
+USE_SOCKETS = True
 
 
 class VideoSource(ProcEndpoint):
@@ -46,17 +46,17 @@ class VideoSource(ProcEndpoint):
     def init_camera(self):
         if USE_SOCKETS:
             try:
-                # Connect a client socket to my_server:8000
-                # (change my_server to the hostname of your server)
-                self.client_socket = socket.socket(
-                    socket.AF_INET, socket.SOCK_STREAM)
-                self.client_socket.connect(
-                    (self.receiver_ip, self.receiver_port))
+                self.client_socket = socket.socket(socket.AF_INET,
+                                                   socket.SOCK_STREAM)
+                self.client_socket.connect((self.receiver_ip,
+                                            self.receiver_port))
             except Exception as e:
                 self.dbg("camera_error",
-                         "Failed to connect to receiver: {}", [e])
+                         "Failed to connect to receiver: {}",
+                         [e])
         else:
-            self.dbg("camera", "Not setting up sockets")
+            self.dbg("camera",
+                     "Not setting up sockets")
         try:
             # Create a VideoCapture object and read from input file
             self.camera = VideoCapture(self.camera_num)

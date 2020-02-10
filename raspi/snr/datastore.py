@@ -5,6 +5,8 @@ and previous value
 """
 
 from typing import Callable, Any
+# from multiprocessing import Manager
+# TODO: Synchronize datastore for multiprocessing
 
 
 class Page:
@@ -16,6 +18,8 @@ class Page:
 class Datastore:
     def __init__(self, dbg: Callable):
         self.dbg = dbg
+        # self.sync_manager = Manager()
+        # self.database = self.sync_manager.dict()
         self.database = {}
 
     def store(self, key: str, data):
@@ -56,9 +60,11 @@ class Datastore:
 
     def terminate(self):
         self.dump()
+        # self.sync_manager.shutdown()
 
     def dump(self):
-        for k in self.database.keys():
+        d = self.database
+        for k in d.keys():
             self.dbg("datastore_dump", "k: {} v: {}",
                      [k, self.get(k)])
 
