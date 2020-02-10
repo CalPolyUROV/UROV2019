@@ -118,7 +118,8 @@ c: clean
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
-	rm -rf libdma.so
+	cd $(ZYBO_DMA_DRIVER_PATH) && make clean
+	cd $(ZYBO_PWM_DRIVER_PATH) && make clean
 
 gource:
 	gource -a 0.25 -s 1 --hide bloom -r 60  -1920x1080 -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libvpx -b20000K ../../../gource.webm
