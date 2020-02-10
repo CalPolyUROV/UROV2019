@@ -33,7 +33,6 @@ static int test_size, test_count;
  * such that a thread is needed.
  */
 
-
 int test(void);
 
 void* tx_thread(void* dma_count_input)
@@ -122,8 +121,14 @@ int test(void){
  	 */
     tx_proxy_interface_p->length = test_size;
 
-    for (i = 0; i < test_size; i++)
-        tx_proxy_interface_p->buffer[i] = i;
+    char input_message[] = "HELLO SUKHAMN!!!!";
+    int message_size = sizeof(input_message);
+
+    for (i = 0; i < test_size && i < message_size; i++)
+        tx_proxy_interface_p->buffer[i] = input_message[i];
+
+    // for (i = 0; i < test_size; i++)
+    //     tx_proxy_interface_p->buffer[i] = i;
 
     /* Create the thread for the transmit processing passing the number of transactions to it
 	 */
@@ -152,6 +157,7 @@ int test(void){
             if (rx_proxy_interface_p->buffer[i] != (unsigned char)(counter + i))
                 printf("buffer not equal, index = %d, data = %d expected data = %d\n", i,
                     rx_proxy_interface_p->buffer[i], (unsigned char)(counter + i));
+        printf("%s", rx_proxy_interface_p->buffer);
     }
     pthread_join(tid, NULL);
     if (!rc){
