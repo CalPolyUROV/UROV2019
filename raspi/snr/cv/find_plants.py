@@ -7,7 +7,7 @@ import numpy as np
 # Minimim area threshold that is boxed
 AREA_THRESHHOLD = 1000
 
-LINE_THICKNESS = 8
+LINE_THICKNESS = 6
 
 green = (0, 255, 0)
 color = green
