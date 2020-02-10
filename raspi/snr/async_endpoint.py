@@ -8,7 +8,8 @@ Relay: Server data to other nodes
 from time import time
 from typing import Callable
 
-import _thread as thread
+# from threading import Thread
+import _thread
 from snr.endpoint import Endpoint
 from snr.node import Node
 from snr.utils.utils import sleep
@@ -45,8 +46,17 @@ class AsyncEndpoint(Endpoint):
             self.delay = 1.0 / tick_rate_hz
 
     def start_loop(self):
-        self.dbg("framework", "Starting async endpoint {} thread", [self.name])
-        thread.start_new_thread(self.threaded_method, ())
+        self.dbg("framework",
+                 "Starting async endpoint {} thread",
+                 [self.name])
+        _thread.start_new_thread(self.threaded_method, ())
+        # self.thread = Thread(target=self.threaded_method,
+        #                      args=None)
+        # self.thread.start()
+
+    def join(self):
+        # self.thread.join()
+        return
 
     def threaded_method(self):
         self.setup()
@@ -74,8 +84,8 @@ class AsyncEndpoint(Endpoint):
         # TODO: Ensure that this does not block other threads: thread.sleep()?
         if (self.delay == 0.0):
             self.dbg("framework_warning",
-                  "async_endpoint {} does not sleep (max tick rate)",
-                  [self.name])
+                     "async_endpoint {} does not sleep (max tick rate)",
+                     [self.name])
         else:
             sleep(self.delay)
 

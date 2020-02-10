@@ -63,16 +63,16 @@ def main():
         "main_camera0": 0,
         "ir_camera1": 1,
         "ir_camera2": 2,
-        "ir_camera3": 3,
-        "usb_camera4": 4,
-        "ir_camera5": 5,
-        "usb_camera6": 6,
-        "ir_camera7": 7,
-        "usb_camera8": 8,
-        "usb_camera9": 9,
-        "usb_camera10": 10,
-        "usb_camera10": 11,
-        "usb_camera10": 12,
+        # "ir_camera3": 3,
+        # "usb_camera4": 4,
+        # "ir_camera5": 5,
+        # "usb_camera6": 6,
+        # "ir_camera7": 7,
+        # "usb_camera8": 8,
+        # "usb_camera9": 9,
+        # "usb_camera10": 10,
+        # "usb_camera10": 11,
+        # "usb_camera10": 12,
     })
 
     components = []
@@ -107,6 +107,7 @@ def main():
     #     dbg("framework_error", "main loop caught: {}", ["death"])
 
     node.terminate()
+    debugger.join()
     print_exit("Ya done now")
 
 

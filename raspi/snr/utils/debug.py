@@ -1,4 +1,5 @@
-from multiprocessing import Queue
+from multiprocessing import JoinableQueue
+import queue
 from threading import Thread
 from time import sleep
 from typing import Union
@@ -10,18 +11,40 @@ SLEEP_TIME = 0.001
 
 class Debugger:
     def __init__(self):
-        self.q = Queue()
+        self.q = JoinableQueue()
+
+        self.terminate_flag = False
         self.printing_thread = Thread(target=self.threaded_method,
-                                      #   args=self.q,
-                                      daemon=True)
+                                      #   args=self.q
+                                      )
         self.printing_thread.start()
 
     def threaded_method(self):
-        while True:
-            line = self.q.get()
-            if line is not None:
-                print(line)
+        # Loop
+        while not self.terminate_flag:
+            try:
+                line = self.q.get_nowait()
+                if line is not None:
+                    print(line)
+                    self.q.task_done()
+            except queue.Empty:
+                pass
             sleep(SLEEP_TIME)
+
+        # Remaining lines
+        try:
+            line = self.q.get_nowait()
+            while line is not None:
+                print(line)
+                line = self.q.get()
+        except Exception as e:
+            print(f"{e}")
+        return
+
+    def join(self):
+        self.q.join()
+        self.terminate_flag = True
+        self.printing_thread.join()
 
     def debug(self, channel: str, *args: Union[list,  str]):
         """Debugging print and logging functions

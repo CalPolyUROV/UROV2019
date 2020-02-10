@@ -89,7 +89,9 @@ class Node:
         # new_tasks = [e.get_new_tasks() for e in self.endpoints]
         for task_producer in self.task_producers:
             t = task_producer()
-            if t and isinstance(t, (Task, list)):
+            if t and (isinstance(t, Task) or
+                      (isinstance(t, List) and
+                       len(t) > 0)):
                 self.dbg("schedule_new_tasks",
                          "Produced task: {} from {}",
                          [t, task_producer.__module__])
@@ -134,8 +136,10 @@ class Node:
         """Execute actions needed to deconstruct a Node
         """
         for e in self.endpoints:
-            # e.set_terminate_flag()???
             e.set_terminate_flag()
+
+        for e in self.endpoints:
+            e.join()
 
         self.datastore.terminate()
 

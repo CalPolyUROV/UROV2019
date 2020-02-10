@@ -51,6 +51,10 @@ class ProcEndpoint(Endpoint):
     def get_proc(self):
         return Process(target=self.threaded_method, daemon=True)
 
+    def join(self):
+        self.set_terminate_flag()
+        self.proc.join()
+
     def threaded_method(self):
         # signal.signal(signal.SIGINT, signal.SIG_IGN)
         try:
@@ -80,8 +84,8 @@ class ProcEndpoint(Endpoint):
     def tick(self):
         if (self.delay == 0.0):
             self.dbg("framework_warning",
-                  "proc_endpoint {} does not sleep (max tick rate)",
-                  [self.name])
+                     "proc_endpoint {} does not sleep (max tick rate)",
+                     [self.name])
         else:
             sleep(self.delay)
 

@@ -20,9 +20,12 @@ class Endpoint:
 
     def terminate(self):
         self.dbg("framework_warning",
-              "{} does not implement terminate()",
-              [self.name])
+                 "{} does not implement terminate()",
+                 [self.name])
         raise NotImplementedError
+
+    def join(self):
+        return
 
     def __repr__(self) -> str:
         return self.name

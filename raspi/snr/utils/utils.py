@@ -23,6 +23,8 @@ def print_mode(mode: str):
 def print_exit(reason: str) -> None:
     """Kills the program after printing the supplied str reason
     """
+    sys.stdout.flush()
+    sys.stderr.flush()
     print("\nExiting: " + reason.__repr__())
     try:
         sys.exit(0)
