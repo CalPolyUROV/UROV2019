@@ -22,7 +22,7 @@ dma-proxy-test: dma-proxy-test.c
 so: dma-proxy-test.so
 dma-proxy-test.so: dma-proxy-test.c
 	$(CC_CMD) -shared -fPIC -o $@ $< $(LIBS)
-	@echo The blootoot dewice is aconnecteda successfullay!
+	@echo The blootoot dewice is anaconda successfullay!
 
 .PHONY: clean
 clean:
