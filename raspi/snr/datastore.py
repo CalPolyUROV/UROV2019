@@ -5,7 +5,7 @@ and previous value
 """
 
 from typing import Callable, Any
-# from multiprocessing import Manager
+from multiprocessing import Manager
 # TODO: Synchronize datastore for multiprocessing
 
 
@@ -23,13 +23,16 @@ class Datastore:
         self.database = {}
 
     def store(self, key: str, data):
+        d = self.database
         try:
-            old_page = self.database[key]
-            self.database[key + "_previous"] = old_page
+            old_page = d[key]
+            d[key + "_previous"] = old_page
+
         except KeyError:
             self.dbg("datastore_event", "Adding new key: {}", [key])
 
-        self.database[key] = Page(data)
+        d[key] = Page(data)
+        self.database = d
 
     def is_fresh(self, data_type: str) -> bool:
         page = self.database.get(data_type)
