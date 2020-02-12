@@ -65,7 +65,8 @@ class Zybo(Endpoint):
         return sched_list
 
     def dma_transact(self):
-        self.dma_lib.wrapTest()
+        s = "Hello, Sukhman!__"
+        self.dma_lib.test(bytes(s, "ASCII"), len(s))
 
     def pwm_write(self, cmd: str, reg: int, val: int):
         speed = self.map_thrust_value(val)

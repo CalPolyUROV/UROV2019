@@ -40,10 +40,13 @@ debug_zybo: build_zybo
 ZYBO_DMA_DRIVER_PATH=snr/zynq/dma-proxy
 ZYBO_PWM_DRIVER_PATH=snr/zynq/pwm
 
- build_zybo:
+build_zybo:
 	cd $(ZYBO_DMA_DRIVER_PATH) && make clean && make 
 	cd $(ZYBO_PWM_DRIVER_PATH) && make clean && make so
-	
+
+test_zybo: build_zybo
+	cd $(ZYBO_DMA_DRIVER_PATH) && make test 
+
 ssh:
 	ssh $(USERNAME)@$(ROBOT_IP)
 

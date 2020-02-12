@@ -24,6 +24,18 @@ dma-proxy-test.so: dma-proxy-test.c
 	$(CC_CMD) -shared -fPIC -o $@ $< $(LIBS)
 	@echo The blootoot dewice is anaconda successfullay!
 
+TEST_CMD=./dma-proxy-test 1 32
+
+.PHONY: test
+test: dma-proxy-test
+	$(TEST_CMD)
+
+VAL_FLAGS=--leak-check=full --track-origins=yes --show-leak-kinds=all
+
+.PHONY: val
+val: dma-proxy-test
+	valgrind $(VAL_FLAGS) $(TEST_CMD)
+
 .PHONY: clean
 clean:
 	rm -f $(OUTPUTS) *.o
