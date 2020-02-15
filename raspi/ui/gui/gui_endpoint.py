@@ -80,6 +80,14 @@ class SimpleGUI(AsyncEndpoint):
                         (data[0].get("trigger_right") // 1)))
         if settings.GUI_channels["telem"]:
             self.dbg("gui_telem", "Got telem info: {}", [data[1]])
+        # handle button
+        if not event == "__TIMEOUT__":
+            self.dbg("button_test", event)
+            s = ""
+            if event == "Test Button":
+                s = "button1_pressed"
+            t = Task(s, TaskPriority.high, [])
+            self.parent.schedule_task(t)
         # Update refresh rate from GUI
         self.dbg("gui_verbose", "UI tick_rate value: {}", [values[0]])
         self.set_refresh_rate(values[0])
@@ -128,6 +136,13 @@ class SimpleGUI(AsyncEndpoint):
                               orientation='horizontal',
                               font=("Helvetica", 15)),
                     sg.Text(' ' * 2)],
+
+                   # buttons
+
+                   [sg.Button("Test Button"), sg.Button("Test Button 2")],
+
+                   # end
+
                    [sg.T(' ' * 38),
                     sg.Quit()]]
         return layout
