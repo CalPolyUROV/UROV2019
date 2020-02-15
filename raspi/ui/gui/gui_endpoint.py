@@ -28,8 +28,9 @@ class SimpleGUI(AsyncEndpoint):
 
     def terminate(self):
         self.dbg("gui_event", "GUI endpoint terminating")
-        self.set_terminate_flag()
+        # self.set_terminate_flag()
         self.window.close()
+        self.parent.set_terminate_flag()
 
     def __repr__(self) -> str:
         return self.name
@@ -85,8 +86,8 @@ class SimpleGUI(AsyncEndpoint):
 
     def set_refresh_rate(self, rate):
         self.dbg("gui_verbose",
-              "Updating async_endpoint tick_rate_hz to {}",
-              [rate])
+                 "Updating async_endpoint tick_rate_hz to {}",
+                 [rate])
         if rate == 0.0:
             super().set_delay(1/5)
         else:
