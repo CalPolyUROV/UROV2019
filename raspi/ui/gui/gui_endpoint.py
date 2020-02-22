@@ -82,10 +82,12 @@ class SimpleGUI(AsyncEndpoint):
             self.dbg("gui_telem", "Got telem info: {}", [data[1]])
         # handle button
         if not event == "__TIMEOUT__":
-            self.dbg("button_test", event)
+            self.dbg("grabber button pressed: ", event)
             s = ""
-            if event == "Test Button":
-                s = "button1_pressed"
+            if event == "Grab":
+                s = "grabber_btn_grab"
+            elif event == "Release":
+                s = "grabber_btn_release"
             t = Task(s, TaskPriority.high, [])
             self.parent.schedule_task(t)
         # Update refresh rate from GUI
@@ -136,10 +138,12 @@ class SimpleGUI(AsyncEndpoint):
                               orientation='horizontal',
                               font=("Helvetica", 15)),
                     sg.Text(' ' * 2)],
+                   [sg.Text('Grabber Controls', size=(20, 6),
+                        justification='center')],
 
                    # buttons
 
-                   [sg.Button("Test Button"), sg.Button("Test Button 2")],
+                   [sg.Button("Grab"), sg.Button("Release")],
 
                    # end
 
