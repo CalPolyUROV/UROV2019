@@ -1,6 +1,14 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#if defined(__MK20DX256__)
+#define PROCESSOR_TEENSY_3_2
+#warning USING TEENSY
+#else 
+#define PROCESSOR_ARDUINO_MEGA
+#warning USING ARDUINO MEGA
+#endif
+
 /* The Teensy and Arduino use a different class for serial.
    If Arduino, Serial is a HardwareSerial
    If Teensy, Serial is a usb_serial_class

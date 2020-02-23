@@ -1,16 +1,13 @@
 #ifndef MOTORS_H
 #define MOTORS_H
 
-//#include <PWMServo.h>
-//#include <TeensyThreads.h>
-#include <Servo.h>
-
 #include  "settings.h"
+#include "Servo.h"
 
 //#define MOTOR_MAX_AMP   (295) // theoretically 400
 #define MOTOR_JERK_MAX  (20)
 #define MOTOR_DELTA_MS  (50)
-#define SETUP_WAIT_MS (200)
+#define MOTOR_SETUP_WAIT_MS (200)
 
 #define ESC_MIN_US      (1100)
 #define ESC_CENTER_US   (1500)
@@ -26,15 +23,46 @@
 #define GOV_MIN (-GOV_DELTA)
 
 #define MOTOR_INPUT_DELTA (2)
-//
-//struct Thruster {
-//  int current_value;
-//  volatile int target_value;
-//  int direction;
-//};
 
+//--Motor Codes:-----------------------------
+// Must be kept from 0-5 for iterative loops loops
+//#define MOTOR_1 (0)
+//#define MOTOR_2 (1)
+//#define MOTOR_3 (2)
+//#define MOTOR_4 (3)
+//#define MOTOR_5 (4)
+//#define MOTOR_6 (5)
 
-//Thruster thrusters[NUM_MOTORS];
+#define NUM_MOTORS (6)
+
+//--Pinouts:---------------------------------
+// Thrusters:
+#ifdef PROCESSOR_TEENSY_3_2
+#warning Using Teensy motor pins
+#define MOTOR_1_PIN (3)
+#define MOTOR_2_PIN (4)
+#define MOTOR_3_PIN (5)
+#define MOTOR_4_PIN (6)
+#define MOTOR_5_PIN (9)
+#define MOTOR_6_PIN (10)
+#else
+// Arduino
+#define MOTOR_1_PIN (8)
+#define MOTOR_2_PIN (9)
+#define MOTOR_3_PIN (10)
+#define MOTOR_4_PIN (11)
+#define MOTOR_5_PIN (12)
+#define MOTOR_6_PIN (13)
+
+#endif
+int motor_pins[NUM_MOTORS] = {
+  MOTOR_1_PIN, 
+  MOTOR_2_PIN,
+  MOTOR_3_PIN, 
+  MOTOR_4_PIN,
+  MOTOR_5_PIN, 
+  MOTOR_6_PIN}; 
+
 Servo motors[NUM_MOTORS];
 
 void write_thruster(int thruster_index, int esc_us) {
@@ -47,15 +75,13 @@ int translate_motor_val(int val2) {
 }
 
 void motor_setup() {
+  Serial.println("Setting up motors");
   // attach motors to pins
-  motors[0].attach(MOTOR_1_PIN);//, ESC_MIN_US, ESC_MAX_US);
-  motors[1].attach(MOTOR_2_PIN);//, ESC_MIN_US, ESC_MAX_US);
-  motors[2].attach(MOTOR_3_PIN);//, ESC_MIN_US, ESC_MAX_US);
-  motors[3].attach(MOTOR_4_PIN);//, ESC_MIN_US, ESC_MAX_US);
-  motors[4].attach(MOTOR_5_PIN);//, ESC_MIN_US, ESC_MAX_US);
-  motors[5].attach(MOTOR_6_PIN);//, ESC_MIN_US, ESC_MAX_US);
-
-  delay(SETUP_WAIT_MS);
+  for (int i = 0; i < NUM_MOTORS; i++) {
+    motors[i].attach(motor_pins[i]);
+  }
+  
+  delay(MOTOR_SETUP_WAIT_MS);
 
   // Initialize motor base values
   for (int i = 0; i < NUM_MOTORS; i++) {

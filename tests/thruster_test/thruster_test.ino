@@ -1,8 +1,7 @@
 
-#include <Servo.h>
+#include "Servo.h"
 
-
-#define MOTOR_PIN 8
+#define MOTOR_PIN 3
 
 #define ESC_CENTER_US (1500)
 #define ESC_MAX_US (1900)
@@ -17,9 +16,9 @@
 #define GOV_MAX (INPUT_CENTER + GOV_DELTA)
 #define GOV_MIN (INPUT_CENTER - GOV_DELTA)
 
-#define DELTA (1)
+#define DELTA (2)
 
-#define WAIT_MS (200)
+#define WAIT_MS (50)
 
 /* The maximum throttle value
    Originally, we would use 400 for this be it seemed to be having issues now
@@ -48,7 +47,7 @@ void setup()
   Serial.println("Attached");
   delay(WAIT_MS);
   thruster.writeMicroseconds(ESC_CENTER_US);
-  Serial.println("Wrote inital signal");
+  Serial.println("Wrote initial signal");
   delay(WAIT_MS); // ensure that the signal was recieved
 }
 
@@ -102,5 +101,6 @@ void write_servo(int input) {
   Serial.print(input);
   Serial.print(" -> ");
   Serial.println(speed);
+  Serial.flush();
   thruster.writeMicroseconds(speed);
 }
