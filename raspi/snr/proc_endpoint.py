@@ -71,10 +71,12 @@ class ProcEndpoint(Endpoint):
                     #       [self.name, runtime * 1000000])
                 self.tick()
         except (Exception, KeyboardInterrupt) as e:
-            self.dbg("proc_endpoint_error", "{}, e: {}", [self.name, e])
-            self.set_terminate_flag()
+            self.dbg("proc_endpoint_error", "{}, e: {}", [self.name, str(e)])
+            self.set_terminate_flag("KeyboardInterrupt")
 
-        self.dbg("framework", "Proc endpoint {} exited loop", [self.name])
+        self.dbg("proc_endpoint_event",
+                 "Proc endpoint {} exited loop",
+                 [self.name])
         self.terminate()
         return
 
@@ -89,9 +91,11 @@ class ProcEndpoint(Endpoint):
         else:
             sleep(self.delay)
 
-    def set_terminate_flag(self):
+    def set_terminate_flag(self, reason: str):
         self.terminate_flag = True
-        self.dbg("framework", "Terminating proc_endpoint {}", [self.name])
+        self.dbg("framework",
+                 "Preparing to terminate proc_endpoint {} for {}",
+                 [self.name, reason])
 
     def terminate(self):
         raise NotImplementedError

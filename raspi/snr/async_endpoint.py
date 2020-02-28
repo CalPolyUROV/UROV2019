@@ -56,8 +56,9 @@ class AsyncEndpoint(Endpoint):
         # self.thread.start()
 
     def join(self):
-        # self.thread.join()
-        return
+        """Externaly wait to shutdown a threaded endpoint
+        """
+        self.set_terminate_flag("join")
 
     def threaded_method(self):
         self.setup()
@@ -90,6 +91,8 @@ class AsyncEndpoint(Endpoint):
         else:
             sleep(self.delay)
 
-    def set_terminate_flag(self):
+    def set_terminate_flag(self, reason: str):
         self.terminate_flag = True
-        self.dbg("framework", "Terminating endpoint {}", [self.name])
+        self.dbg("framework",
+                 "Preparing to terminating async_endpoint {} for {}",
+                 [self.name, reason])

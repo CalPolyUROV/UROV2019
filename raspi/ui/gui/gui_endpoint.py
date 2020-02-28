@@ -25,11 +25,16 @@ class SimpleGUI(AsyncEndpoint):
 
         self.start_loop()
 
+    def close_btn_action(self):
+        self.dbg("gui_event", "GUI close button pressed")
+        # self.parent.set_terminate_flag("GUI close button")
+        self.parent.schedule_task(Task("terminate",
+                                       TaskPriority.high,
+                                       ["GUI close btn pressed"]))
+
     def terminate(self):
         self.dbg("gui_event", "GUI endpoint terminating")
-        # self.set_terminate_flag()
         self.window.close()
-        self.parent.set_terminate_flag()
 
     def __repr__(self) -> str:
         return self.name
@@ -63,7 +68,7 @@ class SimpleGUI(AsyncEndpoint):
         event, values = self.window.Read(timeout=self.refresh_rate)
         # if user closed the window using X or clicked Quit button
         if event is None or event == 'Quit':
-            self.set_terminate_flag()
+            self.close_btn_action()
         if settings.GUI_channels["controller"]:
             self.dbg("gui_control", "Got controler info: {}", [data[0]])
             if data[0] is not None and data[0].get("stick_left_x") is not None:

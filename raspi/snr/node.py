@@ -129,16 +129,24 @@ class Node:
             # Only procede if not empty
             self.schedule_task(task_result)
 
-    def set_terminate_flag(self):
-        # self.datastore.store("node_exit_reason", reason)
+    def set_terminate_flag(self, reason: str):
+        self.dbg("node_exit", "reason: {}", [reason])
+        self.datastore.store("node_exit_reason", reason)
         self.terminate_flag = True
 
     def terminate(self):
-        """Execute actions needed to deconstruct a Node
+        """Execute actions needed to deconstruct a Node.
+        Terminate is executed the main thread or process of an object.
+        Conversely, join may be called from an external context such as
+        another thread or process.
         """
-        for e in self.endpoints:
-            e.set_terminate_flag()
+        reason = self.datastore.get("node_exit_reason")
 
+        #  Prepare to shutdown endpoints
+        for e in self.endpoints:
+            e.set_terminate_flag(reason)
+
+        # Wait for endpoint
         for e in self.endpoints:
             e.join()
 

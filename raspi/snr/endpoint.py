@@ -14,8 +14,8 @@ class Endpoint:
     def task_handler(self, t: Task) -> SomeTasks:
         return None
 
-    def set_terminate_flag(self):
-        self.terminate()
+    def set_terminate_flag(self, reason: str):
+        pass
 
     def terminate(self):
         self.dbg("framework_warning",

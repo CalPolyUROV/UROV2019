@@ -103,6 +103,7 @@ def main():
         node.loop()
     except KeyboardInterrupt:
         dbg("framework", "Interrupted by user, exiting")
+        node.set_terminate_flag("Interrupted by user")
     # except Exception:
     #     dbg("framework_error", "main loop caught: {}", ["death"])
 
