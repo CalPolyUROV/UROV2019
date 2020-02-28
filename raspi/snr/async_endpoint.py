@@ -8,9 +8,7 @@ Relay: Server data to other nodes
 from time import time
 from typing import Callable
 
-import _thread
-# from threading import Thread
-# TODO: Move to non-deprecated threads
+from threading import Thread
 from snr.endpoint import Endpoint
 from snr.node import Node
 from snr.utils.utils import sleep
@@ -40,6 +38,11 @@ class AsyncEndpoint(Endpoint):
         else:
             self.profiler = None
 
+        self.thread = Thread(target=self.threaded_method,
+                             args=[],
+                             name=f"thread_{self.name}",
+                             daemon=True)
+
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
             self.delay = 0.0
@@ -50,15 +53,13 @@ class AsyncEndpoint(Endpoint):
         self.dbg("framework",
                  "Starting async endpoint {} thread",
                  [self.name])
-        _thread.start_new_thread(self.threaded_method, ())
-        # self.thread = Thread(target=self.threaded_method,
-        #                      args=None)
-        # self.thread.start()
+        self.thread.start()
 
     def join(self):
         """Externaly wait to shutdown a threaded endpoint
         """
         self.set_terminate_flag("join")
+        self.thread.join(timeout=1)
 
     def threaded_method(self):
         self.setup()
