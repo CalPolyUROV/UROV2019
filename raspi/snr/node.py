@@ -1,5 +1,7 @@
-from collections import deque
 from typing import List, Union
+
+# Injection
+from multiprocessing import Queue as Queue
 
 import settings
 from snr.dds.dds import DDS
@@ -7,6 +9,8 @@ from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import sleep
 from snr.profiler import Profiler, Timer
 from snr.debug import Debugger
+
+SLEEP_TIME = 0.015
 
 
 class Node:
@@ -16,7 +20,7 @@ class Node:
         self.dbg = debugger.debug
         self.role = role
         self.mode = mode
-        self.task_queue = deque()
+        self.task_queue = Queue()
         self.datastore = DDS(dbg=self.dbg,
                              connections=[],
                              task_scheduler=self.schedule_task)
@@ -81,7 +85,7 @@ class Node:
             self.step_task()
             self.dbg("schedule_verbose", "Task queue: \n{}",
                      [self.repr_task_queue()])
-            sleep(0.030)
+            sleep(SLEEP_TIME)
         self.terminate()
 
     def get_new_tasks(self):
@@ -166,7 +170,7 @@ class Node:
     def has_tasks(self) -> bool:
         """Report whether there are enough tasks left in the queue
         """
-        return len(self.task_queue) > 0
+        return not self.task_queue.empty()
 
     def schedule_task(self, t: SomeTasks):
         """ Adds a Task or a list of Tasks to the node's queue
@@ -215,11 +219,7 @@ class Node:
         while not self.has_tasks():
             self.dbg("schedule_event", "Ran out of tasks, getting more")
             self.get_new_tasks()
-        self.dbg(
-            "schedule_verbose", "Popping task, {} remaining", [
-                len(self.task_queue) - 1]
-        )
-        return self.task_queue.pop()
+        return self.task_queue.get()
 
     def store_data(self, key: str, data):
         self.datastore.store(key, data)
