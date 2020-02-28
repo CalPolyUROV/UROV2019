@@ -108,4 +108,13 @@ class VideoReceiver(ProcEndpoint):
 
     def terminate(self):
         cv2.destroyAllWindows()
-        self.parent.datastore.store(f"{self.name}_recvd_frames", self.count)
+
+        if self.s is not None:
+            self.s.close()
+
+        if self.count > 0:
+            self.parent.datastore.store(f"{self.name}_recvd_frames",
+                                        self.count)
+            self.dbg(self.name,
+                     "Dump recvd frames: {}",
+                     [self.count])

@@ -67,6 +67,10 @@ class VideoSource(ProcEndpoint):
             self.dbg("camera_error",
                      "Error opening camera #{}",
                      [self.camera_num])
+        else:
+            self.dbg("camera_open",
+                     "Camera {}, {}: opened successfully",
+                     [self.camera_num, self.name])
 
     def send_frame(self):
         try:
