@@ -60,10 +60,10 @@ def main():
                                 "path_to_arduino_program(unimplemented)")
     # Cameras
     cameras = CameraManagerPair({
-        # "main_camera0": 0,
-        # "ir_camera1": 1,
-        # "ir_camera2": 2,
-        # "ir_camera3": 3,
+        "main_camera0": 0,
+        "ir_camera1": 1,
+        "ir_camera2": 2,
+        "ir_camera3": 3,
         # "usb_camera4": 4,
         # "ir_camera5": 5,
         # "usb_camera6": 6,
@@ -81,14 +81,14 @@ def main():
                       telemetry_link.client,
                       controller,
                       GUI,
-                    #   cameras.receiver
+                      cameras.receiver
                       ]
     elif role.__eq__("robot"):
         components = [controls_link.client,
                       telemetry_link.server,
                       robot_controls,
                       serial_link,
-                    #   cameras.source
+                      cameras.source
                       ]
     elif role.__eq__("zybo"):
         components = [controls_link.client,
