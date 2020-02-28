@@ -5,34 +5,37 @@ and previous value
 """
 
 from typing import Callable, Any
-from multiprocessing import Manager
+from multiprocessing import Manager, JoinableQueue
 # TODO: Synchronize datastore for multiprocessing
-
-
-class Page:
-    def __init__(self, data):
-        self.fresh = True
-        self.data = data
 
 
 class Datastore:
     def __init__(self, dbg: Callable):
         self.dbg = dbg
-        # self.sync_manager = Manager()
-        # self.database = self.sync_manager.dict()
-        self.database = {}
+        self.sync_manager = Manager()
+        self.database = self.sync_manager.dict()
+        self.write_queue = JoinableQueue()
+        # self.database = {}
+
+    def send(self, key: str, data):
+        page = Page(key, data)
+        self.write_queue.put(page)
+
+    def flush(self):
+        while not self.write_queue.empty():
+            page = self.write_queue.get_nowait()
+            if page is not None:
+                self.store(page.key, page.data)
+                self.write_queue.task_done()
 
     def store(self, key: str, data):
-        d = self.database
-        try:
-            old_page = d[key]
-            d[key + "_previous"] = old_page
-
-        except KeyError:
-            self.dbg("datastore_event", "Adding new key: {}", [key])
-
-        d[key] = Page(data)
-        self.database = d
+        # d = self.database
+        page = Page(key, data)
+        old_page = self.database.get(page.key)
+        if old_page is not None:
+            self.database[page.key + "_previous"] = old_page
+        self.database[page.key] = page
+        # self.database = d
 
     def is_fresh(self, data_type: str) -> bool:
         page = self.database.get(data_type)
@@ -43,6 +46,7 @@ class Datastore:
     def get(self, key: str):
         """Get a value from the data store without marking it as unfresh
         """
+        self.flush()
         page = self.database.get(key)
 
         if page is None:
@@ -53,6 +57,7 @@ class Datastore:
     def use(self, key: str):
         """Get a value from the datastore and mark it as unfresh/used
         """
+        self.flush()
         try:
             self.database[key].fresh = False
         except KeyError:
@@ -66,10 +71,14 @@ class Datastore:
         # self.sync_manager.shutdown()
 
     def dump(self):
+        # try:
         d = self.database
         for k in d.keys():
             self.dbg("datastore_dump", "k: {} v: {}",
-                     [k, self.get(k)])
+                     [k, d.get(k).value])
+        # except Exception as e:
+        #     self.dbg("datastore_error", "{}", [e])
+
 
 # # Sets data with a given key
 # DatastoreSetter = Callable[[str, Any], None]

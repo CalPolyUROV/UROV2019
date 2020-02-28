@@ -45,6 +45,10 @@ def sleep(time_s: Union[int, float]):
     time.sleep(time_s)
 
 
+def no_op(**kwargs):
+    pass
+
+
 def debug_delay():
     sleep(settings.DEBUGGING_DELAY_S)
 

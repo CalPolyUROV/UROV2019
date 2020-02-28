@@ -2,7 +2,7 @@ from collections import deque
 from typing import List, Union
 
 import settings
-from snr.datastore import Datastore
+from snr.dds.dds import DDS
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import sleep
 from snr.profiler import Profiler, Timer
@@ -17,7 +17,9 @@ class Node:
         self.role = role
         self.mode = mode
         self.task_queue = deque()
-        self.datastore = Datastore(self.dbg)
+        self.datastore = DDS(dbg=self.dbg,
+                             connections=[],
+                             task_scheduler=self.schedule_task)
 
         self.endpoints = []
         self.task_producers = []

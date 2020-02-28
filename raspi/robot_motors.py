@@ -34,7 +34,6 @@ from typing import Callable, List
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
-from snr.datastore import Datastore
 from snr.endpoint import Endpoint
 from snr.factory import Factory
 from snr.node import Node
