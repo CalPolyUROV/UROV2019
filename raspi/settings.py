@@ -57,6 +57,9 @@ DEBUG_CHANNELS = {
     "motor_control": False,
     "motor_control_verbose": False,
 
+    "proc_endpoint_error": True,
+    "proc_endpoint_event": False,
+
     "profiling_avg": False,
     "profiling_task": False,
     "profiling_endpoint": False,
