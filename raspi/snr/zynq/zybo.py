@@ -4,7 +4,6 @@ import settings
 from snr.endpoint import Endpoint
 from snr.task import SomeTasks, Task
 from snr.node import Node
-from snr.utils import debug
 
 
 class Zybo(Endpoint):

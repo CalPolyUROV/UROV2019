@@ -1,6 +1,5 @@
 from snr.task import SomeTasks, Task
 from snr.node import Node
-from snr.utils import debug
 
 
 class Endpoint:

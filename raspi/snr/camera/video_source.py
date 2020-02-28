@@ -10,7 +10,6 @@ from cv2 import VideoCapture, destroyAllWindows
 
 from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
-from snr.utils import debug
 
 # IP Address of the computer (Find using $ifconfig)
 # IP_ADDRESS = "10.155.115.129"

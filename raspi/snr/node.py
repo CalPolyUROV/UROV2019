@@ -6,7 +6,7 @@ from snr.datastore import Datastore
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import sleep
 from snr.profiler import Profiler, Timer
-from snr.utils.debug import Debugger
+from snr.debug import Debugger
 
 
 class Node:
@@ -56,10 +56,9 @@ class Node:
                 ip = settings.TOPSIDE_IP
             else:
                 # Panic
-                self.dbg("node",
+                self.dbg("node_fatal",
                          "Node role {} not recognized. Counld not select IP",
-                         [self.role],
-                         )
+                         [self.role])
         self.dbg("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
 
@@ -140,6 +139,8 @@ class Node:
 
         for e in self.endpoints:
             e.join()
+
+        self.dbg("framework", "Terminated all endpoints")
 
         self.datastore.terminate()
 

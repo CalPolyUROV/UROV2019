@@ -1,21 +1,25 @@
-from multiprocessing import JoinableQueue
-import queue
+from queue import Empty
 from threading import Thread
 from time import sleep
 from typing import Union
 
+# Injection
+from multiprocessing import JoinableQueue as Queue
+
 import settings
 
-SLEEP_TIME = 0.001
+SLEEP_TIME = 0.005
+# ~5 ms => 90 fps cap on debug messages being printed
 
 
 class Debugger:
     def __init__(self):
-        self.q = JoinableQueue()
+        self.q = Queue()
 
         self.terminate_flag = False
         self.printing_thread = Thread(target=self.threaded_method,
                                       #   args=self.q
+                                      daemon=True,
                                       )
         self.printing_thread.start()
 
@@ -27,7 +31,7 @@ class Debugger:
                 if line is not None:
                     print(line)
                     self.q.task_done()
-            except queue.Empty:
+            except Empty:
                 pass
             sleep(SLEEP_TIME)
 
@@ -36,15 +40,16 @@ class Debugger:
             line = self.q.get_nowait()
             while line is not None:
                 print(line)
+                self.q.task_done()
                 line = self.q.get()
         except Exception as e:
             print(f"{e}")
         return
 
     def join(self):
-        self.q.join()
         self.terminate_flag = True
-        self.printing_thread.join()
+        self.q.join()
+        self.printing_thread.join(timeout=0.5)
 
     def debug(self, channel: str, *args: Union[list,  str]):
         """Debugging print and logging functions
@@ -55,9 +60,15 @@ class Debugger:
             Channels not found in the dict while be printed by default.
 
         Usage:
-        debug("channel", "message")
-        debug("channel", object)
-        debug("channel", "message: {}, {}", ["list", thing_to_format])
+        // In constructor
+        self.dbg = debug  // localize parameter for ease of use
+
+        // later
+        self.dbg("channel", "message")
+        self.dbg("channel", object)
+        self.dbg("channel",
+                 "message: {}, {}",
+                 ["list", thing_to_format]) // Respect line limit
 
         respective outputs:
         [channel] message
@@ -73,6 +84,8 @@ class Debugger:
         piled up and eventually crashed the program. Either threads must be
         managed with pools or print statements can be allowed to slow down the
         program (They can be turn off in settings)
+
+        Currently, a single thread handles all calls by consuming a Queue.
         """
 
         # TODO: Use settings.ROLE for per client and server debugging?

@@ -10,7 +10,6 @@ import cv2
 
 from snr.proc_endpoint import ProcEndpoint
 from snr.node import Node
-from snr.utils import debug
 from snr.cv import find_plants
 from snr.cv.boxes import apply_boxes
 

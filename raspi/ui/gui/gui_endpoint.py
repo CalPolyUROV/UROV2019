@@ -6,7 +6,6 @@ from typing import List
 import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.node import Node
-from snr.utils import debug
 from snr.task import SomeTasks, Task, TaskPriority
 
 

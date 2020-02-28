@@ -40,7 +40,6 @@ from snr.factory import Factory
 from snr.node import Node
 from snr.profiler import Profiler
 from snr.task import SomeTasks, Task, TaskPriority
-from snr.utils import debug
 
 # class RobotMotorsFactory(Factory):
 #     def __init__(self, input_data_name: str,
@@ -120,7 +119,9 @@ class RobotMotors(AsyncEndpoint):
                          ["set_motor", index, self.motor_values[index]])
                 task_list.append(t)
 
-        self.dbg("motor_control", "Generated {} serial task(s)", [len(task_list)])
+        self.dbg("motor_control",
+                 "Generated {} serial task(s)",
+                 [len(task_list)])
         self.dbg("motor_control_verbose", "{}", [task_list])
         return task_list
 
