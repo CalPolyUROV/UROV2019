@@ -15,6 +15,8 @@ from snr.utils.utils import no_op
 
 SLEEP_TIME = 0.001
 
+JOIN_TIMEOUT = 0.5
+
 # Whether created threads are daemons.
 DAEMON_THREADS = False
 
@@ -120,5 +122,5 @@ class DDS:
         self.set_terminate_flag("join")
 
         # Join child threads
-        self.rx_consumer.join(1)
-        self.tx_consumer.join(1)
+        self.rx_consumer.join(JOIN_TIMEOUT)
+        self.tx_consumer.join(JOIN_TIMEOUT)
