@@ -65,7 +65,7 @@ def attempt(action: Callable[[], bool],
             failure: Callable[[int], None]) -> None:
     """Wrapper for trying to complete and action with a number of tries
     Should follow this prototype:
-    def attmpt_action():
+    def attempt_action():
         def try_action() -> bool:
             try:
                 return True
