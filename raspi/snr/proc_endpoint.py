@@ -14,9 +14,11 @@ from snr.node import Node
 from snr.utils.utils import sleep
 from snr.profiler import Timer
 
+JOIN_TIMEOUT = 0.5
+
 
 class ProcEndpoint(Endpoint):
-    """An Asynchronous endpoint of data for a node
+    """An Asynchronous (Thread) endpoint for a node
 
     An AsyncEndpoint is part of a node, and runs in its own thread. An
     endpoint may produce data to be stored in the Node or retreive data from
@@ -52,8 +54,8 @@ class ProcEndpoint(Endpoint):
         return Process(target=self.threaded_method, daemon=True)
 
     def join(self):
-        self.set_terminate_flag()
-        self.proc.join()
+        self.set_terminate_flag("join")
+        self.proc.join(JOIN_TIMEOUT)
 
     def threaded_method(self):
         # signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -72,7 +74,7 @@ class ProcEndpoint(Endpoint):
                 self.tick()
         except (Exception, KeyboardInterrupt) as e:
             self.dbg("proc_endpoint_error", "{}, e: {}", [self.name, str(e)])
-            self.set_terminate_flag("KeyboardInterrupt")
+            # self.parent.set_terminate_flag(str(e))
 
         self.dbg("proc_endpoint_event",
                  "Proc endpoint {} exited loop",
