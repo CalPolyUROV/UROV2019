@@ -24,7 +24,7 @@ DEBUG_CHANNELS = {
     "controller_event": False,
     "controller_verbose": False,
     "controls_reader": True,
-    "controls_reader_verbose": True,
+    "controls_reader_verbose": False,
     "control_mappings": False,
     "control_mappings_verbose": False,
 
@@ -142,11 +142,11 @@ GUI_channels = {
 # XBox Controller
 USE_CONTROLLER = True
 REQUIRE_CONTROLLER = False
-SIMULATE_INPUT = True
+SIMULATE_INPUT = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
-CONTROLLER_ZERO_TRIGGERS = True
+CONTROLLER_ZERO_TRIGGERS = False
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
 "pygame_name": ["name_we_use"],

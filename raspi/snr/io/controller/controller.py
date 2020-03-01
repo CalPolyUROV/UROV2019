@@ -6,7 +6,7 @@ https://www.pygame.org/docs/ref/joystick.html
 import random
 from typing import Tuple, Union
 
-# import pygame
+import pygame
 
 import settings
 from snr.async_endpoint import AsyncEndpoint
@@ -270,7 +270,6 @@ class Controller(AsyncEndpoint):
         else:
             self.dbg("controls_reader_verbose",
                      "Closing simulated controller")
-        self.set_terminate_flag()
 
     def simulate_input(self) -> dict:
         """Provide fake input values for testing purposes
