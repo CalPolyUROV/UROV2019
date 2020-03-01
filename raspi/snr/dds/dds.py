@@ -1,4 +1,3 @@
-from multiprocessing import JoinableQueue
 from queue import Empty
 from threading import Thread
 from time import sleep
@@ -8,28 +7,23 @@ from typing import Callable, List
 from multiprocessing import Queue as Queue
 
 import settings
+from snr.dds.dds_connection import DDSConnection
 from snr.dds.page import Page
 from snr.debug import Debugger
+from snr.task import Task, TaskPriority
 from snr.utils.utils import no_op
 
 SLEEP_TIME = 0.001
 
-
-def if_joinable(q: Queue, action: Callable):
-    if isinstance(q, type(JoinableQueue)):
-        action()
-
-
-class DDSConnection:
-    def send(self):
-        raise NotImplementedError
+# Whether created threads are daemons.
+DAEMON_THREADS = False
 
 
 class DDS:
     def __init__(self,
                  dbg: Debugger = None,
                  connections: List[DDSConnection] = [],
-                 task_scheduler: Callable = no_op
+                 task_scheduler: Callable[[Task], None] = no_op
                  ):
         self.dbg = dbg
 
@@ -37,16 +31,20 @@ class DDS:
         self.inbound_que = Queue()
         self.outbound_que = Queue()
         self.connections = connections
-        self.task_scheduler = task_scheduler
+        self.schedule_task = task_scheduler
 
         self.terminate_flag = False
 
         self.rx_consumer = Thread(target=lambda:
-                                  self.__consumer(self.inbound_que,
-                                                  self.__write))
+                                  self.__consumer(q=self.inbound_que,
+                                                  action=self.__write,
+                                                  sleep_time=SLEEP_TIME),
+                                  daemon=DAEMON_THREADS)
         self.tx_consumer = Thread(target=lambda:
-                                  self.__consumer(self.outbound_que,
-                                                  self.__send))
+                                  self.__consumer(q=self.outbound_que,
+                                                  action=self.__send,
+                                                  sleep_time=SLEEP_TIME),
+                                  daemon=DAEMON_THREADS)
 
         self.rx_consumer.start()
         self.tx_consumer.start()
@@ -76,7 +74,7 @@ class DDS:
 
     def __write(self, page: Page):
         self.data_dict[page.key] = page
-        print(f"Wrote: {page}")
+        self.schedule_task(Task(f"proc_{page.key}", TaskPriority.normal, []))
 
     def __send(self, page: Page):
         for connection in self.connections:
@@ -84,10 +82,10 @@ class DDS:
                 connection.send(page)
             except Exception as _e:
                 pass
-        print(f"Sent: {page}")
 
-    def __consumer(self, q: Queue, action: Callable):
-        """
+    def __consumer(self, q: Queue, action: Callable, sleep_time: int):
+        """A method to be run by a thread for consuming the contents of a
+        queue asynchronously
         """
         # Loop
         while not self.terminate_flag:
@@ -95,18 +93,16 @@ class DDS:
                 page = q.get_nowait()
                 if page is not None:
                     action(page)
-                    if_joinable(q, lambda: q.task_done())
                     page = q.get_nowait()
             except Empty:
                 pass
-            sleep(SLEEP_TIME)
+            sleep(sleep_time)
 
         # Remaining lines
         try:
             page = q.get_nowait()
             while page is not None:
                 action(page)
-                if_joinable(q, q.task_done)
                 page = q.get()
         except Exception as e:
             print(f"{e}")
@@ -114,19 +110,15 @@ class DDS:
 
     def set_terminate_flag(self, reason: str):
         self.terminate_flag = True
-
-    def terminate(self):
-        self.dump()
-        self.join()
+        self.dbg("DDS",
+                 "Preparing to terminate DDS for {}",
+                 [reason])
 
     def join(self):
         """Shutdown DDS threads
         """
-        self.terminate_flag = True
+        self.set_terminate_flag("join")
 
-        # Join only joinable queues
-        if_joinable(self.inbound_que, lambda: self.inbound_que.join())
-        if_joinable(self.inbound_que, lambda: self.outbound_que.join())
-
-        self.rx_consumer.join()
-        self.tx_consumer.join()
+        # Join child threads
+        self.rx_consumer.join(1)
+        self.tx_consumer.join(1)

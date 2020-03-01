@@ -172,7 +172,10 @@ class Node:
 
         self.dbg("framework", "Terminated all endpoints")
 
-        self.datastore.terminate()
+        # Display everything that was stored in the datastore
+        self.datastore.dump()
+        # Shutdown the datastore
+        self.datastore.join()
 
         if self.profiler is not None:
             self.profiler.terminate()
