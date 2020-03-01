@@ -215,16 +215,19 @@ class Node:
 
         # Handle normal tasks
         self.dbg("schedule_verbose", "Scheduling task {}", [t])
-        if t.priority == TaskPriority.high:
-            self.task_queue.append(t)  # High priotity at front (right)
-        elif t.priority == TaskPriority.normal:
-            self.task_queue.appendleft(t)  # Normal priotity at end (left)
-            # TODO:  insert normal priority in between high and low
-        elif t.priority == TaskPriority.low:
-            self.task_queue.appendleft(t)  # Normal priotity at end (left)
-        else:
-            self.dbg("schedule", "Cannot schedule task with priority: {}",
-                     [t.priority])
+        # Ignore Priority
+        self.task_queue.put(t)
+        # TODO: Use priority with multiprocessing queue
+        # if t.priority == TaskPriority.high:
+        #     self.task_queue.put(t)  # High priotity at front (right)
+        # elif t.priority == TaskPriority.normal:
+        #     self.task_queue.put(t)  # Normal priotity at end (left)
+        #     # TODO:  insert normal priority in between high and low
+        # elif t.priority == TaskPriority.low:
+        #     self.task_queue.put(t)  # Normal priotity at end (left)
+        # else:
+        #     self.dbg("schedule", "Cannot schedule task with priority: {}",
+        #              [t.priority])
 
     def get_next_task(self) -> Union[Task, None]:
         """Take the next task off the queue
