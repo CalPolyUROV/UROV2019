@@ -40,6 +40,8 @@ class VideoSource(ProcEndpoint):
 
         self.window_name = f"Video Source: {name}"
 
+        self.frame_count = 0
+
         self.start_loop()
 
     def init_camera(self):
@@ -91,15 +93,21 @@ class VideoSource(ProcEndpoint):
                          "{}: Sending frame data of size: {}",
                          [self.name, size])
                 self.client_socket.sendall(message_size + data)
-
         except KeyboardInterrupt:
             self.set_terminate_flag()
+            self.frame_count += 1
 
     def terminate(self):
         self.camera.release()
 
         if DISPLAY_LOCALLY:
             cv2.destroyAllWindows()
+
+        self.dbg(f"{self.name}_source",
+                 "Dump sent frames: {}",
+                 [self.frame_count])
+        self.parent.datastore.store(f"{self.name}_sent_frames",
+                                    self.frame_count)
 
         self.dbg("camera_event",
                  "Closed video source (camera {})",
