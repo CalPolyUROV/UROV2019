@@ -27,6 +27,9 @@ class Node:
 
         self.endpoints = []
         self.task_producers = []
+        self.task_handlers = {
+            "terminate": self.terminate_task_handler
+        }
 
         self.profiler = None
         if settings.ENABLE_PROFILING:
@@ -114,6 +117,14 @@ class Node:
 
         task_result = []
 
+        handler = self.task_handlers.get(t.task_type)
+        if handler is not None:
+            result = handler(t)
+            if result:
+                task_result.append()
+            # TODO: Time Node task handlers
+            # TODO: Store all task handlers in Node
+
         for e in self.endpoints:
             handler = e.task_handlers.get(t.task_type)
             result = None
@@ -132,6 +143,11 @@ class Node:
         if task_result:
             # Only procede if not empty
             self.schedule_task(task_result)
+
+    def terminate_task_handler(self, t: Task) -> SomeTasks:
+        if "node" in t.val_list:
+            self.set_terminate_flag("terminate task")
+        return None
 
     def set_terminate_flag(self, reason: str):
         self.dbg("node_exit", "reason: {}", [reason])

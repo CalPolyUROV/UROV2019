@@ -27,10 +27,11 @@ class SimpleGUI(AsyncEndpoint):
 
     def close_btn_action(self):
         self.dbg("gui_event", "GUI close button pressed")
-        # self.parent.set_terminate_flag("GUI close button")
-        self.parent.schedule_task(Task("terminate",
-                                       TaskPriority.high,
-                                       ["GUI close btn pressed"]))
+        # self.parent.schedule_task(Task("terminate",
+        #                                TaskPriority.high,
+        #                                ["GUI close btn pressed",
+        #                                 "node"]))
+        self.parent.set_terminate_flag("GUI close button")
 
     def terminate(self):
         self.dbg("gui_event", "GUI endpoint terminating")
