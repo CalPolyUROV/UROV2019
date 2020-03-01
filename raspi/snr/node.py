@@ -171,9 +171,12 @@ class Node:
         # Shutdown the datastore
         self.datastore.join()
 
+        # Display all information gathered by the profiler
         if self.profiler is not None:
             self.profiler.terminate()
-        self.dbg("framework", "Node terminated")
+        self.dbg("framework",
+                 "Node {} finished terminating",
+                 [self.role])
 
     def step_task(self):
         # Get the next task to execute
@@ -188,13 +191,15 @@ class Node:
     def schedule_task(self, t: SomeTasks):
         """ Adds a Task or a list of Tasks to the node's queue
         """
-        if not t:  # t is False if None or empty
+        # t is None or empty list
+        if not t:
             if t is None:
                 self.dbg("schedule_warning", "Cannot schedule None")
             elif isinstance(t, list):
                 self.dbg("schedule_warning", "Cannot schedule empty list")
             return
 
+        # t is list
         if isinstance(t, list):
             # Recursively handle lists
             self.dbg("schedule_verbose",
@@ -207,8 +212,8 @@ class Node:
                 self.schedule_task(item)
             return
 
+        # t is anything other than a task
         if not isinstance(t, Task):
-            # Handle non task objects
             self.dbg("schedule_warning",
                      "Cannot schedule {} object {}", [type(t), t])
             return
