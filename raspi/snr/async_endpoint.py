@@ -14,6 +14,8 @@ from snr.node import Node
 from snr.utils.utils import sleep
 from snr.profiler import Timer
 
+DAEMON_THREADS = False
+
 
 class AsyncEndpoint(Endpoint):
     """An Asynchronous endpoint of data for a node
@@ -41,7 +43,7 @@ class AsyncEndpoint(Endpoint):
         self.thread = Thread(target=self.threaded_method,
                              args=[],
                              name=f"thread_{self.name}",
-                             daemon=True)
+                             daemon=DAEMON_THREADS)
 
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
@@ -64,17 +66,19 @@ class AsyncEndpoint(Endpoint):
     def threaded_method(self):
         self.setup()
 
-        while not self.terminate_flag:
-            if self.profiler is None:
-                self.loop_handler()
-            else:
-                self.profiler.time(self.name, self.loop_handler)
+        try:
+            while not self.terminate_flag:
+                if self.profiler is None:
+                    self.loop_handler()
+                else:
+                    self.profiler.time(self.name, self.loop_handler)
 
-                # self.dbg("profiling_endpoint",
-                #       "Ran {} task in {:6.3f} us",
-                #       [self.name, runtime * 1000000])
-
+                    # self.dbg("profiling_endpoint",
+                    #       "Ran {} task in {:6.3f} us",
+                    #       [self.name, runtime * 1000000])
             self.tick()
+        except KeyboardInterrupt as e:
+            pass
 
         self.dbg("framework", "Async endpoint {} exited loop", [self.name])
         self.terminate()
