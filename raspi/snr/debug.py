@@ -1,62 +1,96 @@
 from queue import Empty
 from threading import Thread
 from time import sleep
-from typing import Union
+from typing import Union, Callable
 
 # Injection
-from multiprocessing import JoinableQueue as Queue
+from multiprocessing import Queue as Queue
 
 import settings
 
 SLEEP_TIME = 0.005
 # ~5 ms => 90 fps cap on debug messages being printed
 
+# Whether created thread is a daemon.
+DAEMON_THREAD = False
+
 
 class Debugger:
+    """Print debugging framework allowing any thread or process to send lines
+    to be printed on stdout. Channels can be used to filter which messages are
+    printed. Messages can be formatted.
+    """
+
     def __init__(self):
         self.q = Queue()
 
         self.terminate_flag = False
-        self.printing_thread = Thread(target=self.threaded_method,
-                                      #   args=self.q
-                                      daemon=True,
+        self.printing_thread = Thread(target=lambda:
+                                      self.consumer(q=self.q,
+                                                    action=print,
+                                                    sleep_time=SLEEP_TIME),
+                                      daemon=DAEMON_THREAD,
                                       )
         self.printing_thread.start()
 
-    def threaded_method(self):
+    def consumer(self, q: Queue, action: Callable, sleep_time: int):
+        """A method to be run by a thread for consuming the contents of a
+        queue asynchronously
+        """
         # Loop
         while not self.terminate_flag:
             try:
-                line = self.q.get_nowait()
+                # Consume line from queue
+                line = None
+                line = q.get_nowait()
                 if line is not None:
-                    print(line)
-                    self.q.task_done()
+                    # Perform action on item
+                    action(line)
             except Empty:
+                # Queue is empty
                 pass
-            sleep(SLEEP_TIME)
+            except EOFError as e:
+                # Handle pipes breaking inside libraries
+                print(f"EOFError: {e}")
+                self.terminate_flag = True
+            # Wait a bit
+            sleep(sleep_time)
 
-        # Remaining lines
+        # Loop exited
+        # Flush remaining lines
         try:
-            line = self.q.get_nowait()
+            # Consume line from queue
+            line = None
+            line = q.get_nowait()
             while line is not None:
-                print(line)
-                self.q.task_done()
-                line = self.q.get()
+                # Perform action on item
+                action(line)
+                line = None
+                line = q.get_nowait()
+        except Empty:
+            # Queue is empty
+            pass
         except Exception as e:
-            print(f"{e}")
+            print(f"Error flushing debug message queue: {e}")
         return
 
     def join(self):
-        self.terminate_flag = True
-        self.q.join()
+        # Enable thread loop exit condition
+        self.set_terminate_flag("join")
+        # Wait for queue to be emptied
+        # if_joinable(self.q, self.q.join)
+        # Join thread
         self.printing_thread.join(timeout=0.5)
 
+    def set_terminate_flag(self, reason: str):
+        self.terminate_flag = True
+
     def debug(self, channel: str, *args: Union[list,  str]):
-        """Debugging print and logging functions
+        """Debugging print and logging function
 
         Records information for debugging by printing or logging to disk.
             args is a list of arguments to be formatted. Various channels
-            can be toggled on or off from settings.DEBUG_CHANNELS: dict.
+            can be toggled on or off from settings.DEBUG_CHANNELS dict.
             Channels not found in the dict while be printed by default.
 
         Usage:
@@ -71,21 +105,15 @@ class Debugger:
                  ["list", thing_to_format]) // Respect line limit
 
         respective outputs:
-        [channel] message
-        [channel] object.__repr__()
-        [channel] message with brackets: list, thing_to_format.__repr__()
+        [channel]   message
+        [channel]   object.__repr__()
+        [channel]   message with brackets: list, thing_to_format.__repr__()
 
         By formatting once inside debug(), format() is only called if
         printing is turned on. Remember to include [ ] around the items
         to be formatted.
 
-        Note that one iteration of this code spawned a separte thread for every
-        debug() call. The printing system call could not keep up and threads
-        piled up and eventually crashed the program. Either threads must be
-        managed with pools or print statements can be allowed to slow down the
-        program (They can be turn off in settings)
-
-        Currently, a single thread handles all calls by consuming a Queue.
+        A single thread handles all calls by consuming a Queue.
         """
 
         # TODO: Use settings.ROLE for per client and server debugging?
