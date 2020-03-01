@@ -93,9 +93,11 @@ class VideoSource(ProcEndpoint):
                          "{}: Sending frame data of size: {}",
                          [self.name, size])
                 self.client_socket.sendall(message_size + data)
-        except KeyboardInterrupt:
-            self.set_terminate_flag()
             self.frame_count += 1
+        except Exception as e:
+            if isinstance(e, KeyboardInterrupt):
+                raise e
+            self.set_terminate_flag(f"Exception: {e}")
 
     def terminate(self):
         self.camera.release()
