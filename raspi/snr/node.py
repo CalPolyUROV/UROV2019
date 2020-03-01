@@ -160,11 +160,7 @@ class Node:
         """
         reason = self.datastore.get("node_exit_reason")
 
-        #  Prepare to shutdown endpoints
-        for e in self.endpoints:
-            e.set_terminate_flag(reason)
-
-        # Wait for endpoint
+        # Shutdown all endpoints
         for e in self.endpoints:
             e.join()
 
