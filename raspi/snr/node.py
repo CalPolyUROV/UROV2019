@@ -86,8 +86,6 @@ class Node:
     def loop(self):
         while not self.terminate_flag:
             self.step_task()
-            self.dbg("schedule_verbose", "Task queue: \n{}",
-                     [self.repr_task_queue()])
             sleep(SLEEP_TIME)
         self.terminate()
 
@@ -248,9 +246,3 @@ class Node:
 
     def use_data(self, key: str):
         return self.datastore.use(key)
-
-    def repr_task_queue(self) -> str:
-        s = ""
-        for t in self.task_queue:
-            s = s + "\n\t" + str(t)
-        return s
