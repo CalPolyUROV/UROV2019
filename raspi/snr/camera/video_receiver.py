@@ -58,7 +58,7 @@ class VideoReceiver(ProcEndpoint):
             if isinstance(e, KeyboardInterrupt):
                 raise(e)
             else:
-                self.set_terminate_flag()
+                self.set_terminate_flag(f"Exception: {e}")
                 return
 
         self.data = b''
@@ -104,7 +104,7 @@ class VideoReceiver(ProcEndpoint):
             self.dbg("camera_error",
                      "receiver monitor error: {}",
                      [e])
-            self.set_terminate_flag()
+            self.set_terminate_flag(f"Exception: {e}")
 
     def terminate(self):
         cv2.destroyAllWindows()
