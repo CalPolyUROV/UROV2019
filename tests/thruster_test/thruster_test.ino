@@ -1,7 +1,9 @@
 
 #include "Servo.h"
 
-#define MOTOR_PIN 3
+//Teensy pins: 3, 4, 5, 6, 9, 10/
+#define MOTOR_1_PIN (3)
+#define MOTOR_2_PIN (4)
 
 #define ESC_CENTER_US (1500)
 #define ESC_MAX_US (1900)
@@ -35,7 +37,8 @@
     5 and 10 are much safer
 */
 
-Servo thruster;  // create servo object to control a servo
+Servo thruster_1;  // create servo object to control a servo
+Servo thruster_2;
 // twelve servo objects can be created on most boards
 
 int input = INPUT_CENTER;    // variable to store the servo position
@@ -43,10 +46,12 @@ int input = INPUT_CENTER;    // variable to store the servo position
 void setup()
 {
   Serial.begin(9600);
-  thruster.attach(MOTOR_PIN);  // attaches the servo on pin 9 to the servo object
+  thruster_1.attach(MOTOR_1_PIN);  // attaches the servo on pin 9 to the servo object
+  thruster_2.attach(MOTOR_2_PIN);  
   Serial.println("Attached");
   delay(WAIT_MS);
-  thruster.writeMicroseconds(ESC_CENTER_US);
+  thruster_1.writeMicroseconds(ESC_CENTER_US);
+  thruster_2.writeMicroseconds(ESC_CENTER_US);
   Serial.println("Wrote initial signal");
   delay(WAIT_MS); // ensure that the signal was recieved
 }
@@ -102,5 +107,6 @@ void write_servo(int input) {
   Serial.print(" -> ");
   Serial.println(speed);
   Serial.flush();
-  thruster.writeMicroseconds(speed);
+  thruster_1.writeMicroseconds(speed);
+  thruster_2.writeMicroseconds(speed);
 }
