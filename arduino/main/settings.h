@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define COMS_BAUD 115200
+#define COMS_BAUD (115200)
 
 
 // Motor directions
