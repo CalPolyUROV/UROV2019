@@ -1,5 +1,6 @@
 
 #include "Servo.h"
+#define SERIAL_BAUDRATE (9600)
 
 //Teensy pins: 3, 4, 5, 6, 9, 10/
 #define MOTOR_1_PIN (3)
@@ -18,9 +19,9 @@
 #define GOV_MAX (INPUT_CENTER + GOV_DELTA)
 #define GOV_MIN (INPUT_CENTER - GOV_DELTA)
 
-#define DELTA (2)
+#define DELTA (1)
 
-#define WAIT_MS (50)
+#define WAIT_MS (300)
 
 /* The maximum throttle value
    Originally, we would use 400 for this be it seemed to be having issues now
@@ -45,7 +46,7 @@ int input = INPUT_CENTER;    // variable to store the servo position
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUDRATE);
   thruster_1.attach(MOTOR_1_PIN);  // attaches the servo on pin 9 to the servo object
   thruster_2.attach(MOTOR_2_PIN);  
   Serial.println("Attached");
