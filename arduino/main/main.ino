@@ -18,9 +18,11 @@ void loop() {
   if (get_packet(&p)) {
     //error
   }
+  led_on();
   if (handle_packet(p)) {
     // error
   }
+  led_off();
 }
 
 // Executes the actions for a given packet and sends response packet
