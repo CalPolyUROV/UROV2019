@@ -75,7 +75,6 @@ int translate_motor_val(int val2) {
 }
 
 void motor_setup() {
-  Serial.println("Setting up motors");
   // attach motors to pins
   for (int i = 0; i < NUM_MOTORS; i++) {
     motors[i].attach(motor_pins[i]);
