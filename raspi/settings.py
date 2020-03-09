@@ -37,7 +37,7 @@ DEBUG_CHANNELS = {
     "datastore_event": False,
     "datastore_verbose": False,
 
-    "dma_sim": False,
+    "dma_sim": True,
 
     "execute_task": True,
     "execute_task_verbose": True,
@@ -241,7 +241,7 @@ SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
 
 # Zynq Zybo FPGA DMA
-SIMULATE_PWM = False
+SIMULATE_PWM = True
 SIMULATE_DMA = True
 
 # Temperature Monitor
