@@ -62,10 +62,14 @@ class Node:
                 return settings.TOPSIDE_IP
             if self.role == "topside":
                 return settings.ROBOT_IP
+            if self.role == "zybo":
+                return settings.TOPSIDE_IP
             # Panic
-            debug("node",
-                  "Node role {} not recognized. Counld not get remote IP",
+            debug("node_error",
+                  "Node role {} not recognized. Could not get remote IP",
                   [self.role])
+            debug("node_warning",
+                  "Defaulting to localhost")
         return "localhost"
 
     def loop(self):

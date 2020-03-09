@@ -21,6 +21,7 @@ topside:
 	$(LAUNCH_CMD) topside
 
 zybo: build_zybo
+	ROBOT_IP=129.65.138.237
 	$(LAUNCH_CMD) zybo
 
 # Debug launchers
