@@ -37,6 +37,8 @@ DEBUG_CHANNELS = {
     "datastore_event": False,
     "datastore_verbose": False,
 
+    "dma_sim": False,
+
     "execute_task": True,
     "execute_task_verbose": True,
 
@@ -63,7 +65,7 @@ DEBUG_CHANNELS = {
     "profiling_endpoint": False,
     "profiling_dump": True,
 
-    "pwm_verbose": False,
+    "pwm_verbose": True,
 
     "robot": True,
     "robot_verbose": False,
@@ -239,7 +241,8 @@ SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
 
 # Zynq Zybo FPGA DMA
-SIMULATE_DMA = False
+SIMULATE_PWM = False
+SIMULATE_DMA = True
 
 # Temperature Monitor
 USE_ROBOT_PI_TEMP_MON = False

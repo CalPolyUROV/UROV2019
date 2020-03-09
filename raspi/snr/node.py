@@ -46,13 +46,13 @@ class Node:
                 ip = settings.ROBOT_IP
             elif self.role == "topside":
                 ip = settings.TOPSIDE_IP
+            elif self.role == "zybo":
+                ip = settings.ZYBO_IP
             else:
                 # Panic
-                debug(
-                    "node",
-                    "Node role {} not recognized. Counld not select IP",
-                    [self.role],
-                )
+                debug("node",
+                      "Node role {} not recognized. Counld not select IP",
+                      [self.role])
         debug("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
 
