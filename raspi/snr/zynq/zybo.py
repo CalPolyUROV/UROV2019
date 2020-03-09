@@ -1,4 +1,4 @@
-from ctypes import cdll, CDLL, c_ubyte
+from ctypes import cdll, CDLL, c_ubyte, c_uint
 
 import settings
 from snr.endpoint import Endpoint
@@ -14,13 +14,14 @@ class Zybo(Endpoint):
         self.task_handlers = {
             "serial_com": self.handle_serial_com
         }
-        if not settings.SIMULATE_DMA:
+        if not settings.SIMULATE_PWM:
             # https://docs.python.org/3/library/ctypes.html
             pwm_lib_name = "/home/ubuntu/urov/raspi/snr/zynq/pwm/so/libpwmuio.so"
             # cdll.LoadLibrary(pwm_lib_name)
             self.pwm_lib = CDLL(pwm_lib_name)
             self.pwm_lib.initDemo()
 
+        if not settings.SIMULATE_DMA:
             dma_lib_name = "/home/ubuntu/urov/raspi/snr/zynq/dma-proxy/dma-proxy-test.so"
             # cdll.LoadLibrary(dma_lib_name)
             self.dma_lib = CDLL(dma_lib_name)
@@ -66,13 +67,18 @@ class Zybo(Endpoint):
 
     def dma_transact(self):
         s = "Hello, Sukhman!__"
-        self.dma_lib.test(bytes(s, "ASCII"), len(s))
+        if not settings.SIMULATE_DMA:   
+            self.dma_lib.test(bytes(s, "ASCII"), len(s))
+        else:
+            debug("dma_sim", 
+                  "Simulating DMA transaction with msg: \"{}\"",
+                  [s])
 
     def pwm_write(self, cmd: str, reg: int, val: int):
         speed = self.map_thrust_value(val)
 
-        if not settings.SIMULATE_DMA:
-            self.pwm_lib.writePWM(c_ubyte(reg), speed)
+        if not settings.SIMULATE_PWM:
+            self.pwm_lib.writePWM(c_ubyte(reg), c_uint(speed))
             debug("pwm_verbose", "Writing PWM: cmd: {}, reg: {}, val: {}->{}",
                   [cmd, reg, val, speed])
         else:
@@ -95,9 +101,11 @@ class Zybo(Endpoint):
 
     def terminate(self):
         if not settings.SIMULATE_DMA:
+            pass
+        if not settings.SIMULATE_PWM:
             # Deallocate C objects
-            debug("dma_verbose", "Freeing C objects...")
+            debug("pwm_verbose", "Freeing C objects...")
             self.pwm_lib.exitHandler()
-            debug("dma_verbose", "Freed C objects")
+            debug("pwm_verbose", "Freed C objects")
         else:
-            debug("dma_verbose", "Simulated c objects freed")
+            debug("pwm_verbose", "Simulated c objects freed")

@@ -37,6 +37,8 @@ DEBUG_CHANNELS = {
     "datastore_event": False,
     "datastore_verbose": False,
 
+    "dma_sim": False,
+
     "execute_task": True,
     "execute_task_verbose": True,
 
@@ -63,7 +65,7 @@ DEBUG_CHANNELS = {
     "profiling_endpoint": False,
     "profiling_dump": True,
 
-    "pwm_verbose": False,
+    "pwm_verbose": True,
 
     "robot": True,
     "robot_verbose": False,
@@ -137,7 +139,7 @@ USE_GUI = True
 # XBox Controller
 USE_CONTROLLER = True
 REQUIRE_CONTROLLER = True
-SIMULATE_INPUT = True
+SIMULATE_INPUT = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
@@ -189,8 +191,9 @@ NUM_MOTORS = 6
 MOTOR_MAX_DELTA = 5
 
 # Sockets Connection
-TOPSIDE_IP = "10.0.10.10"
-ROBOT_IP = "10.0.10.11"
+TOPSIDE_IP = "10.144.191.217"
+ROBOT_IP = "129.65.138.237"
+ZYBO_IP = "129.65.138.237"
 SOCKETS_SERVER_TIMEOUT = 640
 SOCKETS_CLIENT_TIMEOUT = 4
 SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket
@@ -238,7 +241,8 @@ SERIAL_SETUP_WAIT_PRE = 1
 SERIAL_SETUP_WAIT_POST = 1
 
 # Zynq Zybo FPGA DMA
-SIMULATE_DMA = False
+SIMULATE_PWM = False
+SIMULATE_DMA = True
 
 # Temperature Monitor
 USE_ROBOT_PI_TEMP_MON = False

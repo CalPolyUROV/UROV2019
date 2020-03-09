@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
         test_size = TEST_SIZE;
     }
 
-    char* input_message = "HELLO, SUKHAMN!!!!\0";
+    char* input_message = "HELLO, SUKHAMN!!!!\0\0";
     test_size = strlen(input_message);
 
     return test(input_message, test_size);
@@ -93,7 +93,7 @@ int test(char* input_message, int message_size){
 
     test_size = message_size;
     
-    printf("DMA proxy test\n");
+    // printf("DMA proxy test\n");
 
     /* Open the DMA proxy device for the transmit and receive channels
  	 */
@@ -131,7 +131,7 @@ int test(char* input_message, int message_size){
     for (i = 0; i < test_size; i++) {
         tx_proxy_interface_p->buffer[i] = input_message[i];
     }
-    printf("Input buffer: %s\n", tx_proxy_interface_p->buffer);
+    // printf("Input buffer: %s\n", tx_proxy_interface_p->buffer);
     
     // for (i = 0; i < test_size; i++)
     //     tx_proxy_interface_p->buffer[i] = i;
@@ -180,7 +180,7 @@ int test(char* input_message, int message_size){
     close(tx_proxy_fd);
     close(rx_proxy_fd);
 
-    printf("DMA proxy test complete\n");
+    // printf("DMA proxy test complete\n");
 
     return 0;
 }
