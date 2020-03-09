@@ -12,7 +12,8 @@
 #define FIFTY 0x8000
 
 // #define DEFAULT_PWM_PERIOD (59999)
-#define DEFAULT_PWM_PERIOD (49999)
+// #define DEFAULT_PWM_PERIOD (49999)
+#define DEFAULT_PWM_PERIOD (1999999)
 
 void run_demo(void);
 void getDeviceInfo(uint8_t* uioNum, uint8_t* mapNum);
