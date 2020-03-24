@@ -36,7 +36,7 @@ import settings
 from snr.async_endpoint import AsyncEndpoint
 from snr.endpoint import Endpoint
 from snr.factory import Factory
-from snr.node import Node
+# import snr.node.Node
 from snr.profiler import Profiler
 from snr.task import SomeTasks, Task, TaskPriority
 
@@ -53,12 +53,12 @@ from snr.task import SomeTasks, Task, TaskPriority
 
 
 class RobotMotors(AsyncEndpoint):
-    def __init__(self, parent: Node, name: str,
+    def __init__(self, parent_node, name: str,
                  input_name: str, output_name: str):
 
         self.input_data_name = input_name
 
-        super().__init__(parent, name,
+        super().__init__(parent_node, name,
                          self.init_endpoint,
                          self.update_motor_values,
                          settings.MOTOR_CONTROL_TICK_RATE)

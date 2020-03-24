@@ -1,12 +1,14 @@
 
-#include <Servo.h>
+#include "Servo.h"
 
-
-#define MOTOR_PIN 8
+//Teensy pins: 3, 4, 5, 6, 9, 10/
+#define MOTOR_PIN 3
+#define MOTOR_PIN_2 4
 
 #define ESC_CENTER_US (1500)
-#define ESC_MAX_US (1900)
-#define ESC_MIN_US (1100)
+#define ESC_RANGE (150)
+#define ESC_MAX_US (ESC_CENTER_US + ESC_RANGE)
+#define ESC_MIN_US (ESC_CENTER_US - ESC_RANGE)
 #define ESC_DEADZONE (25)
 
 #define INPUT_CENTER (127)
@@ -17,9 +19,9 @@
 #define GOV_MAX (INPUT_CENTER + GOV_DELTA)
 #define GOV_MIN (INPUT_CENTER - GOV_DELTA)
 
-#define DELTA (1)
+#define DELTA (2)
 
-#define WAIT_MS (200)
+#define WAIT_MS (250)
 
 /* The maximum throttle value
    Originally, we would use 400 for this be it seemed to be having issues now
@@ -37,6 +39,7 @@
 */
 
 Servo thruster;  // create servo object to control a servo
+Servo thruster_2;
 // twelve servo objects can be created on most boards
 
 int input = INPUT_CENTER;    // variable to store the servo position
@@ -44,11 +47,14 @@ int input = INPUT_CENTER;    // variable to store the servo position
 void setup()
 {
   Serial.begin(9600);
+  Serial.println("Starting up");
   thruster.attach(MOTOR_PIN);  // attaches the servo on pin 9 to the servo object
+  thurster_2.attach(MOTOR_PIN_2
   Serial.println("Attached");
   delay(WAIT_MS);
   thruster.writeMicroseconds(ESC_CENTER_US);
-  Serial.println("Wrote inital signal");
+  thruster_2.writeMicroseconds(ESC_CENTER_US);
+  Serial.println("Wrote initial signal");
   delay(WAIT_MS); // ensure that the signal was recieved
 }
 
@@ -102,5 +108,7 @@ void write_servo(int input) {
   Serial.print(input);
   Serial.print(" -> ");
   Serial.println(speed);
+  Serial.flush();
   thruster.writeMicroseconds(speed);
+  thruster_2.writeMicroseconds(speed);
 }

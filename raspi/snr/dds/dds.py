@@ -11,7 +11,7 @@ from snr.dds.dds_connection import DDSConnection
 from snr.dds.page import Page
 from snr.debug import Debugger
 from snr.task import Task, TaskPriority
-from snr.utils.utils import no_op
+from snr.utils.utils import no_op, get_all
 
 SLEEP_TIME = 0.001
 
@@ -23,18 +23,18 @@ DAEMON_THREADS = False
 
 class DDS:
     def __init__(self,
-                 dbg: Debugger = None,
-                 connections: List[DDSConnection] = [],
+                 parent_node=None,
+                 debug=no_op,
+                 factories: List[DDSConnection] = [],
                  task_scheduler: Callable[[Task], None] = no_op
                  ):
-        self.dbg = dbg
+        self.dbg = debug
 
         self.data_dict = {}
         self.inbound_que = Queue()
         self.outbound_que = Queue()
-        self.connections = connections
+        self.connections = get_all(factories, parent_node)
         self.schedule_task = task_scheduler
-
         self.terminate_flag = False
 
         self.rx_consumer = Thread(target=lambda:
@@ -50,6 +50,10 @@ class DDS:
 
         self.rx_consumer.start()
         self.tx_consumer.start()
+
+        self.dbg("dds",
+                 "Initialized with {} connections",
+                 [len(self.connections)])
 
     def store(self, key: str, value):
         self.inbound_store(Page(key, value))

@@ -1,0 +1,18 @@
+SNR Architecture
+Similarly to ROS, SNR offers a pub-sub paradigm where separate components are 
+handed each other’s data. Hierarchically speaking, the highest level components
+are “nodes.” Nodes are self contained instances of SNR’s entire stack. 
+Contained within each node is a database and a task queue. Tasks represent
+events relevant to the behavior of the system, such as receipt of sensor
+data or instructions for packets to be sent. The database stores the actual
+data referenced by these events in “pages” that represent a key-value pair.
+Task and data pages are respectively scheduled and stored by “endpoints.”
+Endpoints produce and react to events and data. Endpoints provide the 
+functionality that makes decisions and controls the hardware of a robot.
+Endpoints are specified at the time of construction of a node. Endpoints
+may have their procedures run either synchronously with the node’s event loop 
+or not. If not, the endpoint will have it’s own event loop in a separate thread
+or process. Due to the requirement of these asynchronous capabilities, many 
+refactorings were needed to ensure safe multiprocess operation. These concepts 
+are well taught in CPE 453 Intro to Operating Systems and CPE 542 Advance 
+Realtime Embedded Systems.

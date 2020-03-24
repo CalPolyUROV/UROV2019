@@ -7,17 +7,14 @@ import sys
 import time
 from typing import Any, Callable, List, Union
 
+# TODO: Emlinate settings dependancy from utils
 import settings
 
 
 def print_usage() -> None:
     """Prints a Unix style uasge message on how to start the program
     """
-    print("usage: python3 main.py (robot | topside)")
-
-
-def print_mode(mode: str):
-    print("Running as {}".format(mode))
+    print(f"usage: {sys.executable} main.py [robot | topside]")
 
 
 def print_exit(reason: str) -> None:
@@ -33,10 +30,11 @@ def print_exit(reason: str) -> None:
     # This point should be unreachable, just die already
 
 
-def sleep(time_s: Union[int, float]):
+def sleep(time_s: float):
     """Pauses the execution of the thread for time_s seconds
     """
     if settings.DISABLE_SLEEP:
+        # TODO: Elimanate debug dependancy from utils (will crash)
         debug("sleep", "Sleep disabled, not sleeping")
         return
     if time_s == 0:
@@ -47,6 +45,14 @@ def sleep(time_s: Union[int, float]):
 
 def no_op(**kwargs):
     pass
+
+
+def get_all(*args):
+    factories = args[0]
+    all = []
+    for f in factories:
+        all.extend(f.get(*args[1:]))
+    return all
 
 
 def debug_delay():

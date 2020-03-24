@@ -17,18 +17,17 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
+    "camera_event": False,
     "camera_verbose": False,
 
     "controller": False,
     "controller_error": True,
     "controller_event": False,
     "controller_verbose": False,
-    "controls_reader": True,
+    "controls_reader": False,
     "controls_reader_verbose": False,
     "control_mappings": False,
     "control_mappings_verbose": False,
-
-    "clui": True,
 
     "datastore": True,
     "datastore_dump": True,
@@ -94,10 +93,10 @@ DEBUG_CHANNELS = {
     "sleep": True,
 
     "sockets": True,
-    "sockets_client": True,
-    "sockets_server": True,
-    "sockets_error": True,
-    "sockets_critical": True,
+    "sockets_client": False,
+    "sockets_server": False,
+    "sockets_error": False,
+    "sockets_critical": False,
     "sockets_warning": True,
     "sockets_event": False,
     "sockets_status": False,
@@ -117,7 +116,7 @@ DEBUG_CHANNELS = {
     "thrust_vec_verbose": False,
 
     "throttle": True,
-    "throttle_values": False,
+    "throttle_values": True,
     "throttle_verbose": False,
     "axis_update_verbose": False,
 }
@@ -125,7 +124,7 @@ DEBUG_CHANNELS = {
 THREAD_END_WAIT_S = 2
 DISABLE_SLEEP = False
 ENABLE_PROFILING = True
-PROFILING_AVG_WINDOW_LEN = 64
+PROFILING_AVG_WINDOW_LEN = 30
 
 
 # Command Line User Interface
@@ -146,7 +145,7 @@ SIMULATE_INPUT = False
 CONTROLLER_NAME = "topside_xbox_controller"
 CONTROLLER_INIT_TICK_RATE = 1
 CONTROLLER_TICK_RATE = 30  # Hz (Times per second)
-CONTROLLER_ZERO_TRIGGERS = False
+CONTROLLER_ZERO_TRIGGERS = True
 '''Mapping of pygame joystick output to values we can make sense of
 Examples:
 "pygame_name": ["name_we_use"],
@@ -196,6 +195,8 @@ MOTOR_MAX_DELTA = 5
 # Sockets Connection
 TOPSIDE_IP = "10.0.10.10"
 ROBOT_IP = "10.0.10.11"
+SOCKETS_HOSTS = [TOPSIDE_IP, ROBOT_IP]
+
 SOCKETS_SERVER_TIMEOUT = 640
 SOCKETS_CLIENT_TIMEOUT = 4
 SOCKETS_OPEN_ATTEMPTS = 10  # Maximum number of times to try creating a socket

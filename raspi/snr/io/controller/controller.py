@@ -17,19 +17,17 @@ from snr.task import SomeTasks
 class Controller(AsyncEndpoint):
     def __init__(self, parent: Node,
                  name: str):
+        super().__init__(parent, name,
+                         self.init_controller, self.monitor_controller,
+                         settings.CONTROLLER_INIT_TICK_RATE)
+
         if not settings.USE_CONTROLLER:
             self.dbg("controller", "Controller disabled by settings")
             # This early return might break things
             return
+
         self.task_producers = []
         self.task_handlers = {}
-
-        super().__init__(parent, name,
-                         self.init_controller,
-                         self.monitor_controller,
-                         settings.CONTROLLER_INIT_TICK_RATE)
-
-        self.datastore = self.parent.datastore
 
         # Require triggers to be set to zero before operation
         # Initial value is inverse of setting
@@ -41,28 +39,30 @@ class Controller(AsyncEndpoint):
         self.start_loop()
 
     def store_data(self, data):
-        # self.dbg("controller", "taking in data")
-        self.datastore.store(self.name, data)
+        self.parent.datastore.store(self.name, data)
 
     def init_controller(self):
         if settings.SIMULATE_INPUT:
-            s = "Simulating input without pygame and XBox controller"
-            self.dbg("controller_event", s)
+            self.dbg("controller_event",
+                     "Simulating input without pygame and XBox controller")
             self.triggers_zeroed = True
             return
-        import pygame
+
         pygame.init()  # Initialize pygame
         pygame.joystick.init()  # Initialize the joysticks
         pygame.event.get()
         num_controllers = pygame.joystick.get_count()
 
         if num_controllers > 0:
-            self.dbg("controller", "Controllers found: {}", [num_controllers])
+            self.dbg("controller",
+                     "Controllers found: {}",
+                     [num_controllers])
             print_controller_warning()
             # TODO: Handle pygame's segfault when the controller disconnects
         elif settings.REQUIRE_CONTROLLER:
-            s = "Controller required by settings, {} found"
-            self.dbg("controller_error", s, [num_controllers])
+            self.dbg("controller_error",
+                     "Controller required by settings, {} found",
+                     [num_controllers])
             exit("Required XBox controller absent")
         else:
             s = "Controller not found but not required, simulating input"
@@ -87,9 +87,8 @@ class Controller(AsyncEndpoint):
                 self.dbg("controller_error", "Controller error: {}",
                          [error.__repr__()])
                 if not settings.REQUIRE_CONTROLLER:
-                    self.dbg(
-                        "controller_error",
-                        "Missing controller not required, simulating input")
+                    self.dbg("controller_error",
+                             "Missing controller not required, simulating input")
                     joystick_data = simulate_input()
                 else:
                     self.dbg("controller_error",
@@ -140,6 +139,7 @@ class Controller(AsyncEndpoint):
     def map_input(self, key: str, value) -> Tuple:
         """Maps an individual KV pair to our controls
         """
+        old_value = value
         map_list = settings.control_mappings.get(key)
 
         if not isinstance(map_list, list):
@@ -171,7 +171,9 @@ class Controller(AsyncEndpoint):
                 value = 0
         value = self.cast(value, t)
 
-        self.dbg("control_mappings_verbose", "Mapped value {}", [value])
+        self.dbg("control_mappings_verbose",
+                 "Mapped value {} to {}",
+                 [old_value, value])
         try:
             key_val_tuple = (new_key, value)
         except Exception as error:

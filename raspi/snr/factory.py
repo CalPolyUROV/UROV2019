@@ -1,15 +1,18 @@
-from snr.endpoint import Endpoint
-from snr.node import Node
+from typing import List
+# from snr.node import Node
 
 
 class Factory:
     def __init__(self):
         pass
 
-    def get(self, parent: Node) -> Endpoint:
+    def get(self, parent_node=None) -> List:
         raise NotImplementedError
 
 
+
+"""Example factory that might be implemented for an endpoint
+"""
 # class TemplateFactory(Factory):
 #     def __init__(self, stuff: str):
 #         super().__init__()

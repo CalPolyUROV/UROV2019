@@ -5,6 +5,9 @@ from multiprocessing import Queue as Queue
 
 import settings
 from snr.dds.dds import DDS
+from snr.factory import Factory
+from snr.dds_factory import DDSFactory
+from snr.endpoint_factory import EndpointFactory
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import sleep
 from snr.profiler import Profiler, Timer
@@ -16,13 +19,16 @@ SLEEP_TIME = 0.015
 class Node:
     def __init__(self, debugger: Debugger,
                  role: str, mode: str,
-                 factories: list):
+                 factories: List[Factory]):
         self.dbg = debugger.debug
         self.role = role
         self.mode = mode
         self.task_queue = Queue()
-        self.datastore = DDS(dbg=self.dbg,
-                             connections=[],
+
+        dds_facs, endpoint_facs = self.seperate_components(factories)
+
+        self.datastore = DDS(parent_node=self,
+                             factories=dds_facs,
                              task_scheduler=self.schedule_task)
 
         self.endpoints = []
@@ -39,7 +45,7 @@ class Node:
 
         self.assign_node_ip()
 
-        self.add_endpoints(factories)
+        self.add_endpoints(endpoint_facs)
         self.dbg("framework",
                  "Initialized with  {} endpoints",
                  [len(self.endpoints)])
@@ -173,7 +179,8 @@ class Node:
 
         # Display all information gathered by the profiler
         if self.profiler is not None:
-            self.profiler.terminate()
+            self.profiler.join()
+            self.profiler.dump()
         self.dbg("framework",
                  "Node {} finished terminating",
                  [self.role])
@@ -241,6 +248,17 @@ class Node:
             self.dbg("schedule_event", "Ran out of tasks, getting more")
             self.get_new_tasks()
         return self.task_queue.get()
+
+    def seperate_components(self, factories: List[Factory]) -> \
+            (List[DDSFactory], List[EndpointFactory]):
+        dds_facs = []
+        endpoint_facs = []
+        for f in factories:
+            if isinstance(f, DDSFactory):
+                dds_facs.add(f)
+            if isinstance(f, EndpointFactory):
+                endpoint_facs.add(f)
+        return dds_facs, endpoint_facs
 
     def store_data(self, key: str, data):
         self.datastore.store(key, data)

@@ -4,15 +4,8 @@ from snr.dds.page import Page
 
 
 class DDSConnection:
-    def __init__(self):
-        self.inbound_store = no_op
-
-    def set_inbound_store(self,
-                          inbound_store: Callable[[Page], None]):
+    def __init__(self, inbound_store=no_op):
         self.inbound_store = inbound_store
 
-    def send(self):
+    def send(self, data: Page):
         raise NotImplementedError
-
-    def recieve(self, page: Page):
-        self.inbound_store(page)

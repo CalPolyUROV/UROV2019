@@ -1,11 +1,11 @@
 from snr.task import SomeTasks, Task
-from snr.node import Node
+# from snr.node import Node
 
 
 class Endpoint:
-    def __init__(self, parent: Node, name: str):
-        self.parent = parent
-        self.dbg = parent.dbg
+    def __init__(self, parent_node, name: str):
+        self.parent = parent_node
+        self.dbg = parent_node.dbg
         self.name = name
 
     def get_new_tasks(self) -> SomeTasks:

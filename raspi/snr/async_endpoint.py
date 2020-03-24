@@ -10,7 +10,7 @@ from typing import Callable
 
 from threading import Thread
 from snr.endpoint import Endpoint
-from snr.node import Node
+# from snr.node import Node
 from snr.utils.utils import sleep
 from snr.profiler import Timer
 
@@ -26,17 +26,17 @@ class AsyncEndpoint(Endpoint):
     tick_rate (Hz).
     """
 
-    def __init__(self, parent: Node, name: str,
+    def __init__(self, parent_node, name: str,
                  setup_handler: Callable, loop_handler: Callable,
                  tick_rate_hz: float):
-        super().__init__(parent, name)
+        super().__init__(parent_node, name)
         self.setup = setup_handler
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate_hz)
 
-        if parent:
-            self.profiler = parent.profiler
+        if parent_node:
+            self.profiler = parent_node.profiler
         else:
             self.profiler = None
 
@@ -47,9 +47,9 @@ class AsyncEndpoint(Endpoint):
 
     def set_delay(self, tick_rate_hz: float):
         if tick_rate_hz == 0:
-            self.delay = 0.0
+            self.delay_s = 0.0
         else:
-            self.delay = 1.0 / tick_rate_hz
+            self.delay_s = 1.0 / tick_rate_hz
 
     def start_loop(self):
         self.dbg("framework",
@@ -76,7 +76,7 @@ class AsyncEndpoint(Endpoint):
                     # self.dbg("profiling_endpoint",
                     #       "Ran {} task in {:6.3f} us",
                     #       [self.name, runtime * 1000000])
-            self.tick()
+                self.tick()
         except KeyboardInterrupt as e:
             pass
 
@@ -89,12 +89,12 @@ class AsyncEndpoint(Endpoint):
 
     def tick(self):
         # TODO: Ensure that this does not block other threads: thread.sleep()?
-        if (self.delay == 0.0):
+        if (self.delay_s == 0.0):
             self.dbg("framework_warning",
                      "async_endpoint {} does not sleep (max tick rate)",
                      [self.name])
         else:
-            sleep(self.delay)
+            sleep(self.delay_s)
 
     def set_terminate_flag(self, reason: str):
         self.terminate_flag = True

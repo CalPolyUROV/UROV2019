@@ -1,47 +1,28 @@
-from snr.factory import Factory
-from snr.comms.sockets.server import SocketsServer
-from snr.comms.sockets.client import SocketsClient
-from snr.comms.sockets.config import SocketsConfig
+from typing import List
+
+from snr.dds.dds import DDS
+from snr.dds.dds_connection import DDSConnection
+from snr.dds.sockets.sockets_dds import SocketsConfig, SocketsDDS
+from snr.dds_factory import DDSFactory
 from snr.endpoint import Endpoint
-from snr.node import Node
+from snr.factory import Factory
 
 
-class EthernetLink:
-    def __init__(self, server_port: int, data_name: str):
+class EthernetLink(DDSFactory):
+    def __init__(self, hosts: List[str], server_port: int):
+        self.hosts = hosts
         self.server_port = server_port
-        self.data_name = data_name
 
-        self.server = EthServerFactory(self)
-        self.client = EthClientFactory(self)
+    def get(self, parent_node) -> List[DDSConnection]:
+        remote_hosts = self.select_remote_host(parent_node.get_node_ip())
+        return [SocketsDDS(SocketsConfig(remote_host, self.server_port))
+                for remote_host in remote_hosts]
 
-
-class EthServerFactory(Factory):
-    def __init__(self, link: EthernetLink):
-        super().__init__()
-        self.link = link
-
-    def get(self, parent: Node) -> Endpoint:
-
-        # TODO: Get proper socket requirement value
-        config = SocketsConfig(parent.datastore.get("node_ip_address"),
-                               self.link.server_port, False)
-
-        return SocketsServer(parent, config, self.link.data_name)
-
-    def __repr__(self):
-        return f"Sockets Server Factory:{self.link.server_port} for {self.link.data_name}"
-
-
-class EthClientFactory(Factory):
-    def __init__(self, link: EthernetLink):
-        super().__init__()
-        self.link = link
-
-    def get(self, parent: Node) -> Endpoint:
-        config = SocketsConfig(parent.get_remote_ip(),
-                               self.link.server_port, False)
-        return SocketsClient(parent, f"sockets_client_{self.link.data_name}",
-                             config, self.link.data_name)
-
-    def __repr__(self):
-        return f"Sockets Client Factory:{self.link.server_port} for {self.link.data_name}"
+    def select_remote_host(self, local_host) -> str:
+        """Removes the local host from the hosts in the group
+        """
+        remote_hosts = []
+        for h in self.hosts:
+            if h is not local_host:
+                remote_hosts.add(h)
+        return h

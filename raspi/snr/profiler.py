@@ -1,8 +1,15 @@
 from collections import deque
-from typing import Callable
-from time import time
+from multiprocessing import Queue as MPQueue
+from typing import Callable, Tuple
+from time import time, sleep
+from threading import Thread
+from queue import Empty, Queue
 
 import settings
+
+DAEMON_THREAD = False
+SLEEP_TIME = 0.01
+JOIN_TIMEOUT = 1
 
 
 class Timer:
@@ -18,6 +25,14 @@ class Profiler:
         self.dbg = dbg
         self.time_dict = {}
         self.moving_avg_len = settings.PROFILING_AVG_WINDOW_LEN
+        self.q = MPQueue()
+        self.terminate_flag = False
+        self.consumer_thread = Thread(target=lambda:
+                                      self.__consumer(q=self.q,
+                                                      action=self.store_task,
+                                                      sleep_time=SLEEP_TIME),
+                                      daemon=DAEMON_THREAD)
+        self.consumer_thread.start()
 
     def time(self, name: str, handler: Callable):
         time = Timer()
@@ -26,6 +41,10 @@ class Profiler:
         return result
 
     def log_task(self, task_type: str, runtime: float):
+        self.q.put((task_type, runtime))
+
+    def store_task(self, type_and_runtime: Tuple[str, float]):
+        (task_type,  runtime) = type_and_runtime
         self.dbg("profiling_task",
                  "Ran {} task in {:6.3f} us",
                  [task_type, runtime * 1000000])
@@ -60,5 +79,31 @@ class Profiler:
             return "{:6.3f} ns".format(time_s * 1000000000)
         return "Could not format time"
 
-    def terminate(self):
-        self.dump()
+    def join(self):
+        self.terminate_flag = True
+        self.consumer_thread.join(JOIN_TIMEOUT)
+
+    def __consumer(self, q: Queue, action: Callable, sleep_time: int):
+        """A method to be run by a thread for consuming the contents of a
+        queue asynchronously
+        """
+        # Loop
+        while not self.terminate_flag:
+            try:
+                run = q.get_nowait()
+                if run is not None:
+                    action(run)
+                    run = q.get_nowait()
+            except Empty:
+                pass
+            sleep(sleep_time)
+
+        # Remaining lines
+        try:
+            run = q.get_nowait()
+            while run is not None:
+                action(run)
+                run = q.get()
+        except Exception as e:
+            print(f"{e}")
+        return

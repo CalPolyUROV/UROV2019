@@ -8,7 +8,7 @@ import settings
 from robot_motors import RobotMotors
 from snr.endpoint import Endpoint
 from snr.factory import Factory
-from snr.node import Node
+# from snr.node import Node
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import init_dict
 
@@ -20,8 +20,8 @@ class RobotControlsFactory(Factory):
         self.input_data_name = input_data_name
         self.output_data_name = output_data_name
 
-    def get(self, parent: Node) -> Endpoint:
-        return ControlsProcessor(parent, "Robot Controls Processor",
+    def get(self, parent_node) -> Endpoint:
+        return ControlsProcessor(parent_node, "Robot Controls Processor",
                                  self.input_data_name,
                                  self.output_data_name)
 
@@ -44,16 +44,16 @@ class ControlsProcessor(Endpoint):
         -Mission tools
     """
 
-    def __init__(self, parent: Node, name: str,
+    def __init__(self, parent_node, name: str,
                  input_name: str, output_name: str):
         self.task_producers = [self.get_new_tasks]
         self.task_handlers = {
             f"process_{settings.CONTROLS_DATA_NAME}": self.task_handler
         }
-        super().__init__(parent, name)
-        self.datastore = parent.datastore
+        super().__init__(parent_node, name)
+        self.datastore = parent_node.datastore
 
-        self.motor_control = RobotMotors(parent, "Robot Motor Controller",
+        self.motor_control = RobotMotors(parent_node, "Robot Motor Controller",
                                          input_name, output_name)
 
         # Input data
@@ -86,7 +86,7 @@ class ControlsProcessor(Endpoint):
         # Process controls input
 
         self.dbg("robot_control_event", "Processing control input")
-        controls_data = self.datastore.use(settings.CONTROLS_DATA_NAME)
+        controls_data = self.datastore.get(settings.CONTROLS_DATA_NAME)
         self.dbg("robot_control_verbose", "Control input {}", [controls_data])
         return self.receive_controls(controls_data)
 
@@ -101,14 +101,14 @@ class ControlsProcessor(Endpoint):
         self.control_input = incoming_controls
         task_list = self.process_controls()
         self.dbg("robot_control_event",
-              "Processed {} tasks from received controls", [len(task_list)])
+                 "Processed {} tasks from received controls", [len(task_list)])
         return task_list
 
     def process_controls(self) -> SomeTasks:
         task_list = []
         # Collect only new control values
         self.dbg("robot_control_verbose",
-              "Processing controls data: {}", [self.control_input])
+                 "Processing controls data: {}", [self.control_input])
         for key in self.control_input.keys():
             # For each key that is incoming
             # if self.previous_cntl_input is not None:
@@ -124,17 +124,19 @@ class ControlsProcessor(Endpoint):
                     task_list.append(t)
             else:
                 self.dbg("robot_control_verbose",
-                      "Skipping unchanged value: {}", [data])
+                         "Skipping unchanged value: {}", [data])
 
         # Batch thrust controls into a tasks afterwards
         throttle_tasks = self.get_throttle_tasks()
-        # self.dbg("thrust_vec", "Got {} throttle tasks", [len(throttle_tasks)])
+        self.dbg("thrust_vec",
+                 "Got {} throttle tasks",
+                 [len(throttle_tasks)])
         self.dbg("thrust_vec_verbose", "Throttle tasks: {}",
-              [throttle_tasks])
+                 [throttle_tasks])
         if throttle_tasks is not None:
             task_list.append(throttle_tasks)
         self.dbg("robot_control_event", "Created {} tasks from controls",
-              [len(task_list)])
+                 [len(task_list)])
         return task_list
 
     def handle_control(self, key: str, value) -> SomeTasks:
@@ -187,14 +189,14 @@ class ControlsProcessor(Endpoint):
             self.previous_throttle['yaw'] = self.throttle['yaw']
             self.throttle["yaw"] = val
             self.dbg("throttle_verbose", "yaw set to {}",
-                  [self.throttle["yaw"]])
+                     [self.throttle["yaw"]])
         elif "stick_right_y" in key:
             # Right sick y axis to robot roll
             self.previous_throttle['roll'] = self.throttle['roll']
             self.throttle["roll"] = val
             # Invert stick Y axis
             self.dbg("throttle_verbose", "roll set to {}",
-                  [self.throttle["roll"]])
+                     [self.throttle["roll"]])
 
     def get_throttle_tasks(self) -> SomeTasks:
         """Takes each throttle value and creates a task to send it to the MCU
@@ -260,10 +262,10 @@ class ControlsProcessor(Endpoint):
     def axis_changed(self, axis: str) -> bool:
         if self.throttle[axis] == self.previous_throttle[axis]:
             self.dbg("axis_update_verbose", "{} axis unchanged: {}",
-                  [axis, self.throttle[axis]])
+                     [axis, self.throttle[axis]])
             return False
         self.dbg("axis_update_verbose", "{} axis updated from {} to {}",
-              [axis, self.previous_throttle[axis], self.throttle[axis]])
+                 [axis, self.previous_throttle[axis], self.throttle[axis]])
         return True
 
     def terminate(self):
