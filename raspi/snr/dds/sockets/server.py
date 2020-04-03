@@ -2,7 +2,7 @@
 """
 import json
 import socket
-from typing import Union
+from typing import Union, Callable
 
 from snr.async_endpoint import AsyncEndpoint
 from snr.dds.sockets.config import SocketsConfig
@@ -18,11 +18,14 @@ class SocketsServer(AsyncEndpoint):
     """
 
     def __init__(self,
-                 config: SocketsConfig):
-        super().__init__(None, context,
-                         no_op, self.receive_data,
-                         0)
+                 parent_node,
+                 config: SocketsConfig,
+                 callback: Callable):
+        super().__init__(parent_node=parent_node, name=context,
+                         setup_handler=no_op, loop_handler=self.receive_data,
+                         tick_rate_hz=0)
         self.config = config
+        self.callback = callback
 
         self.s = None
         self.ready = False
@@ -38,10 +41,11 @@ class SocketsServer(AsyncEndpoint):
             data = self.s.recv(settings.MAX_SOCKET_SIZE)
             self.dbg("sockets_receive", "{} received data", [self.data_name])
             self.dbg("sockets_receive_verbose", "Received data: {}", [data])
-            return data
+            callback(data)
+            # return data
         except (ConnectionResetError, Exception) as error:
             self.dbg("sockets_error", "Lost {} sockets connection: {}",
-                     [self.data_name, error.__repr__()])
+                     [self.name, error.__repr__()])
             return None
 
     def diagnose(self):

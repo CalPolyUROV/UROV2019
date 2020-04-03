@@ -43,7 +43,7 @@ def sleep(time_s: float):
     time.sleep(time_s)
 
 
-def no_op(**kwargs):
+def no_op(*args):
     pass
 
 

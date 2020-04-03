@@ -6,9 +6,8 @@ class Factory:
     def __init__(self):
         pass
 
-    def get(self, parent_node=None) -> List:
+    def get(self, *args) -> List:
         raise NotImplementedError
-
 
 
 """Example factory that might be implemented for an endpoint

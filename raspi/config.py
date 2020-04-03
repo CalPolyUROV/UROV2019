@@ -22,7 +22,7 @@ def enumerate_components():
     #                               settings.TELEMETRY_DATA_NAME)
     # DDS Sockets Connection test
     sockets_link = EthernetLink(settings.SOCKETS_HOSTS,
-                                settings.CONTROLS_SOCKETS_CONFIG.port)
+                                settings.SOCKETS_PORT)
 
     # Controls and motor processing
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,
@@ -58,6 +58,7 @@ def enumerate_components():
         "topside": [
             # controls_link.server,
             #   telemetry_link.client,
+            sockets_link,
             controller,
             #   GUI,
             cameras.receiver

@@ -11,11 +11,14 @@ from snr.dds.sockets.config import SocketsConfig
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import attempt, print_exit, sleep
 
+context = "dds_sockets_client"
+
 
 class SocketsClient:
-    def __init__(self,
+    def __init__(self, parent_node,
                  config: SocketsConfig):
-
+        self.parent_node = parent_node
+        self.dbg = parent_node.dbg
         self.config = config
 
         self.create_connection()
@@ -45,9 +48,9 @@ class SocketsClient:
                 self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 return True
             except (ConnectionRefusedError, Exception) as error:
-                self.dbg("sockets_client",
-                         "{} failed to connect to server: {}",
-                         [self.name, error.__repr__()])
+                self.dbg(context,
+                         "Failed to connect to server: {}",
+                         [error.__repr__()])
                 return False
 
         def fail_once() -> None:

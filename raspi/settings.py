@@ -56,6 +56,9 @@ DEBUG_CHANNELS = {
     "motor_control": False,
     "motor_control_verbose": False,
 
+    "node": True,
+    "node_verbose": False,
+
     "proc_endpoint_error": True,
     "proc_endpoint_event": False,
 
@@ -193,9 +196,13 @@ NUM_MOTORS = 6
 MOTOR_MAX_DELTA = 5
 
 # Sockets Connection
+DEBUG_IP = "localhost"
 TOPSIDE_IP = "10.0.10.10"
 ROBOT_IP = "10.0.10.11"
-SOCKETS_HOSTS = [TOPSIDE_IP, ROBOT_IP]
+SOCKETS_HOSTS = [TOPSIDE_IP, ROBOT_IP, "localhost"]
+SOCKETS_PORT = 9120
+
+DISCOVERY_SERVER_PORT = 9127
 
 SOCKETS_SERVER_TIMEOUT = 640
 SOCKETS_CLIENT_TIMEOUT = 4
@@ -213,24 +220,25 @@ MAX_SOCKET_SIZE = 8192  # Maximum size for single receiving call
 '''
 
 # Controls Sockets Connection
-USE_CONTROLS_SOCKETS = True
-REQUIRE_CONTROLS_SOCKETS = True
+# USE_CONTROLS_SOCKETS = True
+# REQUIRE_CONTROLS_SOCKETS = True
 controls_server_ip = TOPSIDE_IP
-controls_server_port = 9120
-CONTROLS_SOCKETS_CONFIG = SocketsConfig(controls_server_ip,
-                                        controls_server_port,
-                                        REQUIRE_CONTROLS_SOCKETS)
+# controls_server_port = 9120
+# CONTROLS_SOCKETS_CONFIG = SocketsConfig(controls_server_ip,
+#                                         controls_server_port,
+#                                         # REQUIRE_CONTROLS_SOCKETS
+#                                         )
 
 CONTROLS_DATA_NAME = "controls_data"
 
 # Telemetry Sockets Connection
-USE_TELEMETRY_SOCKETS = True
-REQUIRE_TELEMETRY_SOCKETS = True
+# USE_TELEMETRY_SOCKETS = True
+# REQUIRE_TELEMETRY_SOCKETS = True
 telemetry_server_ip = ROBOT_IP
-telemetry_server_port = 9121
-TELEMETRY_SOCKETS_CONFIG = SocketsConfig(telemetry_server_ip,
-                                         telemetry_server_port,
-                                         REQUIRE_TELEMETRY_SOCKETS)
+# telemetry_server_port = 9121
+# TELEMETRY_SOCKETS_CONFIG = SocketsConfig(telemetry_server_ip,
+#                                          telemetry_server_port,
+#                                          REQUIRE_TELEMETRY_SOCKETS)
 TELEMETRY_DATA_NAME = "telemetry_data"
 
 

@@ -13,6 +13,8 @@ from snr.debug import Debugger
 from snr.task import Task, TaskPriority
 from snr.utils.utils import no_op, get_all
 
+context = "dds"
+
 SLEEP_TIME = 0.001
 
 JOIN_TIMEOUT = 0.5
@@ -26,14 +28,16 @@ class DDS:
                  parent_node=None,
                  debug=no_op,
                  factories: List[DDSConnection] = [],
-                 task_scheduler: Callable[[Task], None] = no_op
-                 ):
+                 task_scheduler: Callable[[Task], None] = no_op):
         self.dbg = debug
 
         self.data_dict = {}
         self.inbound_que = Queue()
         self.outbound_que = Queue()
-        self.connections = get_all(factories, parent_node)
+        self.dbg(context,
+                 "Creating connections from {} factories: {}",
+                 [len(factories), factories])
+        self.connections = get_all(factories, parent_node, self)
         self.schedule_task = task_scheduler
         self.terminate_flag = False
 

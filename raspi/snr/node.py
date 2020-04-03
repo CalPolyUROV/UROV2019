@@ -1,17 +1,18 @@
-from typing import List, Union
-
 # Injection
 from multiprocessing import Queue as Queue
+from typing import List, Union
 
 import settings
 from snr.dds.dds import DDS
-from snr.factory import Factory
 from snr.dds_factory import DDSFactory
+from snr.debug import Debugger
+from snr.discovery_server import DiscoveryServer
+from snr.discovery_client import DiscoveryClient
 from snr.endpoint_factory import EndpointFactory
+from snr.factory import Factory
+from snr.profiler import Profiler, Timer
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import sleep
-from snr.profiler import Profiler, Timer
-from snr.debug import Debugger
 
 SLEEP_TIME = 0.015
 
@@ -22,28 +23,32 @@ class Node:
                  factories: List[Factory]):
         self.dbg = debugger.debug
         self.role = role
+        self.name = f"{self.role}_node"
         self.mode = mode
         self.task_queue = Queue()
+        self.terminate_flag = False  # Whether to exit main loop
+
+        self.profiler = None
+        if settings.ENABLE_PROFILING:
+            self.profiler = Profiler(self.dbg)
+
+        self.local_ip = None
+        self.discovery_server = DiscoveryServer(self,
+                                                settings.DISCOVERY_SERVER_PORT)
 
         dds_facs, endpoint_facs = self.seperate_components(factories)
 
         self.datastore = DDS(parent_node=self,
+                             debug=self.dbg,
                              factories=dds_facs,
                              task_scheduler=self.schedule_task)
+        self.store_node_ip()
 
         self.endpoints = []
         self.task_producers = []
         self.task_handlers = {
             "terminate": self.terminate_task_handler
         }
-
-        self.profiler = None
-        if settings.ENABLE_PROFILING:
-            self.profiler = Profiler(self.dbg)
-
-        self.terminate_flag = False  # Whether to exit main loop
-
-        self.assign_node_ip()
 
         self.add_endpoints(endpoint_facs)
         self.dbg("framework",
@@ -62,32 +67,51 @@ class Node:
 
             self.dbg("framework_verbose", "{} added {}", [f, endpoint])
 
-    def assign_node_ip(self):
-        ip = "localhost"
-        if not self.mode == "debug":
-            if self.role == "robot":
-                ip = settings.ROBOT_IP
-            elif self.role == "topside":
-                ip = settings.TOPSIDE_IP
-            else:
-                # Panic
-                self.dbg("node_fatal",
-                         "Node role {} not recognized. Counld not select IP",
-                         [self.role])
+    def store_node_ip(self):
+        ip = self.get_local_ip()
         self.dbg("node", "Assigned {} node ip: {}", [self.role, ip])
         self.datastore.store("node_ip_address", ip)
 
-    def get_remote_ip(self):
-        if not self.mode == "debug":
+    # TODO: Remove Sockets IP settings from Node
+    def get_local_ip(self) -> str:
+        if not self.local_ip:
+            dc = DiscoveryClient(self.dbg)
+            self.local_ip = dc.find_me(self.name, settings.SOCKETS_HOSTS)
+        return self.local_ip
+        # Panic
+        self.dbg("node_error",
+                 "Counld not ping to select IP, defaulting to {}",
+                 [settings.DEBUG_IP])
+        return settings.DEBUG_IP
+
+        # # Old method for selecting IP
+        # if self.mode == "debug":
+        #     return "localhost"
+        # else:
+        #     if self.role == "robot":
+        #         return settings.ROBOT_IP
+        #     elif self.role == "topside":
+        #         return settings.TOPSIDE_IP
+        #     else:
+        #         # Panic
+        #         self.dbg("node_error",
+        #                  "Node role {} not recognized. Counld not select IP",
+        #                  [self.role])
+        #         return settings.DEBUG_IP
+
+    def get_remote_ip(self) -> str:
+        if self.mode == "debug":
+            return settings.DEBUG_IP
+        else:
             if self.role == "robot":
                 return settings.TOPSIDE_IP
             if self.role == "topside":
                 return settings.ROBOT_IP
             # Panic
-            self.dbg("node",
+            self.dbg("node_error",
                      "Node role {} not recognized. Counld not get remote IP",
                      [self.role])
-        return "localhost"
+            return "localhost"
 
     def loop(self):
         while not self.terminate_flag:
@@ -253,11 +277,15 @@ class Node:
             (List[DDSFactory], List[EndpointFactory]):
         dds_facs = []
         endpoint_facs = []
+        self.dbg("node_verbose", "Seperating facs: {}", [factories])
         for f in factories:
             if isinstance(f, DDSFactory):
-                dds_facs.add(f)
+                dds_facs.append(f)
             if isinstance(f, EndpointFactory):
-                endpoint_facs.add(f)
+                endpoint_facs.append(f)
+        self.dbg("node_verbose",
+                 "DDS facs: {}\n\tEndpoint facs: {}",
+                 [dds_facs, endpoint_facs])
         return dds_facs, endpoint_facs
 
     def store_data(self, key: str, data):

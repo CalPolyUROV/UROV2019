@@ -1,13 +1,13 @@
 from typing import List
 
-from snr.factory import Factory
+from snr.endpoint_factory import EndpointFactory
 from snr.async_endpoint import AsyncEndpoint
 from snr.node import Node
 from snr.camera.manager import CameraManager, ManagerRole
 from snr.camera.config import CameraConfig
 
 
-class VideoSourceFactory(Factory):
+class VideoSourceFactory(EndpointFactory):
     def __init__(self, config: CameraConfig):
         super().__init__()
         self.config = config
@@ -24,7 +24,7 @@ class VideoSourceFactory(Factory):
         return f"Video(Cam: {self.config.camera_num}) Source Factory:{self.config.server_port}"
 
 
-class VideoReceiverFactory(Factory):
+class VideoReceiverFactory(EndpointFactory):
     def __init__(self, config: CameraConfig):
         super().__init__()
         self.config = config
@@ -47,7 +47,7 @@ class CameraPair:
         self.receiver = VideoReceiverFactory(self.config)
 
 
-class CameraManagerFactory(Factory):
+class CameraManagerFactory(EndpointFactory):
     def __init__(self, role, camera_names):
         super().__init__()
         self.role = role
@@ -64,8 +64,7 @@ class CameraManagerFactory(Factory):
 class CameraManagerPair():
     def __init__(self, camera_names: List[str]):
         self.names = camera_names
-        # self.cam_num = 0
-        # self.port = INITIAL_PORT
-        self.receiver = CameraManagerFactory(
-            ManagerRole.Receiver, camera_names)
-        self.source = CameraManagerFactory(ManagerRole.Source, camera_names)
+        self.receiver = CameraManagerFactory(ManagerRole.Receiver,
+                                             camera_names)
+        self.source = CameraManagerFactory(ManagerRole.Source,
+                                           camera_names)

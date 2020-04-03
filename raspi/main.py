@@ -14,6 +14,8 @@ from snr.utils.utils import print_exit, print_usage
 from snr.debug import Debugger
 import config
 
+context = "framework_main"
+
 
 def main():
     argc = len(sys.argv)
@@ -26,20 +28,27 @@ def main():
     if "-d" in sys.argv:
         mode = "debug"
 
-    print("Starting {} node  in {} mode using Python {}".format(
+    print("Starting {} node in {} mode using Python {}".format(
         role, mode, sys.version[0:5]))
 
     debugger = Debugger()
+    dbg = debugger.debug
 
+    node = None
     try:
         components = config.get_components(role, mode)
         node = Node(debugger, role, mode, components)
         node.loop()  # Blocking loop
     except KeyboardInterrupt:
-        debugger.debug("framework", "Interrupted by user, exiting")
-        node.set_terminate_flag("Interrupted by user")
+        dbg("framework", "Interrupted by user, exiting")
+        if node:
+            node.set_terminate_flag("Interrupted by user")
+        else:
+            dbg(context, "Exiting before node was done being constructed")
 
-    node.terminate()
+    if node:
+        node.terminate()
+        node = None
     debugger.join()
     print_exit("Ya done now")
 

@@ -34,14 +34,16 @@ class SocketsDDSFactory(DDSFactory):
 
 
 class SocketsDDS(DDSConnection):
-    def __init__(self, config: SocketsConfig,
+    def __init__(self, parent_node,
+                 config: SocketsConfig,
                  inbound_store: Callable):
         super().__init__(inbound_store)
 
-        self.server = SocketsServer(config,
+        self.server = SocketsServer(parent_node,
+                                    config,
                                     callback=self.inbound_store)
         # start receive thread
-        self.client = SocketsClient(config)
+        self.client = SocketsClient(parent_node, config)
         # setup sending thread
 
     def send(self, data: Page):
