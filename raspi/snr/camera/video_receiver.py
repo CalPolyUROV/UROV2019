@@ -51,7 +51,7 @@ class VideoReceiver(ProcEndpoint):
             self.s.bind((HOST, self.receiver_port))
             self.s.listen(10)
             self.dbg("camera_event",
-                     "{}: Socket now listening on {}",
+                     "{}: Socket now listening/blocking on {}",
                      [self.name, self.receiver_port])
             self.conn, self.addr = self.s.accept()
         except Exception as e:
