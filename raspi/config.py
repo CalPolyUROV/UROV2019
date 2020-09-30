@@ -10,9 +10,10 @@ from snr.io.controller.factory import ControllerFactory
 from snr.utils.utils import get_all
 from snr.zynq.factory import ZyboFactory
 from ui.gui.factory import GUIFactory
+from snr.utils.recorder import RecorderFactory
 
 
-def enumerate_components():
+def enumerate_components(mode: str):
     # Connections between devices
     # Ethernet tether link for control data
     # controls_link = EthernetLink(settings.CONTROLS_SOCKETS_CONFIG.port,
@@ -34,9 +35,9 @@ def enumerate_components():
     # GUI
     GUI = GUIFactory([settings.CONTROLS_DATA_NAME,
                       settings.TELEMETRY_DATA_NAME])
-    # XBox Controller
     # Zynq Zybo Z7-20: replaces serial link
     zynq_link = ZyboFactory("motor_data", "sensor_data")
+    # XBox Controller
     controller = ControllerFactory(settings.CONTROLS_DATA_NAME)
     # UART/USB link to Arduino for motor control and sensor reading
     serial_link = SerialFactory("motor_data", "sensor_data",
@@ -58,6 +59,9 @@ def enumerate_components():
         # "usb_camera10": 12,
     })
 
+    event_recorder = RecorderFactory("Recorder", [settings.CONTROLS_DATA_NAME])
+
+    # Assign components to roles
     roles = {
         "topside": [
             # controls_link.server,
@@ -65,7 +69,8 @@ def enumerate_components():
             sockets_link,
             controller,
             #   GUI,
-            cameras.receiver
+            cameras.receiver,
+            event_recorder
         ],
         "robot": [
             # controls_link.client,
@@ -85,6 +90,4 @@ def enumerate_components():
 
 
 def get_components(role: str, mode: str) -> List:
-    component_libraries = enumerate_components()
-    components = component_libraries.get(role)
-    return components
+    return enumerate_components(mode).get(role)

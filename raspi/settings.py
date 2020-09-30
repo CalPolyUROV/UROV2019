@@ -17,7 +17,7 @@ DEBUGGING_DELAY_S = 0
 DEBUG_PRINTING = True
 DEBUG_LOGGING = False  # Not yet implemented
 DEBUG_CHANNELS = {
-    "camera_event": False,
+    "camera_event": True,
     "camera_verbose": False,
 
     "controller": False,
