@@ -21,8 +21,12 @@ def enumerate_components():
     # telemetry_link = EthernetLink(settings.TELEMETRY_SOCKETS_CONFIG.port,
     #                               settings.TELEMETRY_DATA_NAME)
     # DDS Sockets Connection test
-    sockets_link = EthernetLink(settings.SOCKETS_HOSTS,
-                                settings.SOCKETS_PORT)
+    if mode == "debug":
+        sockets_link = EthernetLink(settings.DEBUG_SOCKETS_HOSTS,
+                                    settings.SOCKETS_PORT)
+    else:
+        sockets_link = EthernetLink(settings.SOCKETS_HOSTS,
+                                    settings.SOCKETS_PORT)
 
     # Controls and motor processing
     robot_controls = RobotControlsFactory(settings.CONTROLS_DATA_NAME,

@@ -15,29 +15,23 @@ class EthernetLink(DDSFactory):
         self.hosts = hosts
         self.server_port = server_port
 
-    def get(self, parent_node, parent_dds) -> List[DDSConnection]:
+    def get_connections(self, parent_node=None, parent_dds=None):
         self.dbg = parent_node.dbg
 
         local_host = parent_node.get_local_ip()
         self.dbg(context,
-                 "Selecting remote hosts from {} (local: {})",
+                 "Selecting remote hosts from {} (skipping local: {})",
                  [self.hosts, local_host])
-        remote_hosts = self.select_remote_host(local_host)
         connections = []
-        for remote_host in remote_hosts:
-            connections.append(SocketsDDS(parent_node,
-                                          SocketsConfig(remote_host,
-                                                        self.server_port),
-                                          parent_dds.inbound_store))
+        for host in self.hosts:
+            if host is not local_host:
+                connections.append(SocketsDDS(parent_node,
+                                              SocketsConfig(host,
+                                                            self.server_port),
+                                              parent_dds.inbound_store))
 
-        self.dbg(context, "Prepared DDS Connections:\n{}", connections)
+        self.dbg(context, "Prepared DDS Connections:\n{}", [connections])
         return connections
 
-    def select_remote_host(self, local_host) -> str:
-        """Removes the local host from the hosts in the group
-        """
-        remote_hosts = []
-        for h in self.hosts:
-            if h is not local_host:
-                remote_hosts.append(h)
-        return h
+    def __repr__(self):
+        return f"Ethernet Link Factory: {self.hosts}:{self.server_port}"

@@ -33,6 +33,7 @@ class Node:
             self.profiler = Profiler(self.dbg)
 
         self.local_ip = None
+        self.hosts = self.select_hosts(mode)
         self.discovery_server = DiscoveryServer(self,
                                                 settings.DISCOVERY_SERVER_PORT)
 
@@ -76,7 +77,7 @@ class Node:
     def get_local_ip(self) -> str:
         if not self.local_ip:
             dc = DiscoveryClient(self.dbg)
-            self.local_ip = dc.find_me(self.name, settings.SOCKETS_HOSTS)
+            self.local_ip = dc.find_me(self.name, self.hosts)
         return self.local_ip
         # Panic
         self.dbg("node_error",
@@ -84,6 +85,11 @@ class Node:
                  [settings.DEBUG_IP])
         return settings.DEBUG_IP
 
+    def select_hosts(self, mode: str):
+        if mode == "debug":
+            return settings.DEBUG_SOCKETS_HOSTS
+        else:
+            return settings.SOCKETS_HOSTS
         # # Old method for selecting IP
         # if self.mode == "debug":
         #     return "localhost"
