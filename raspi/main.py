@@ -1,6 +1,6 @@
-"""Main Python code that runs on the Raspberry Pi on robot and surface unit.
+"""Main Python code that runs on the robot and surface unit SBCs.
 
-This is the python program is meant to run on the Raspberry Pi's located on
+This python program is meant to run on the Raspberry Pi's located on
 the robot and one the surface unit. This program acts as a intermediary
 between the Raspberry Pi on the surface unit and the Arduino/Teensy on the
 robot. The scheduling module used in this program manages the serial and
