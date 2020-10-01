@@ -39,8 +39,8 @@ def __enumerate_components(mode: str):
     controller = ControllerFactory(CONTROLS_DATA_NAME)
 
     # GUI
-    GUI = GUIFactory([CONTROLS_DATA_NAME,
-                      TELEMETRY_DATA_NAME])
+    user_interface = GUIFactory([CONTROLS_DATA_NAME,
+                                 TELEMETRY_DATA_NAME])
 
     # Controls and motor processing
     robot_controls = RobotControlsFactory(CONTROLS_DATA_NAME,
@@ -84,7 +84,7 @@ def __enumerate_components(mode: str):
             # controls_link.server,
             #   telemetry_link.client,
             controller,
-            #   GUI,
+            user_interface,
             # cameras.receiver,
             event_recorder
         ],
