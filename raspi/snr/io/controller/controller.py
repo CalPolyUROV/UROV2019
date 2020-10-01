@@ -114,7 +114,7 @@ class Controller(AsyncEndpoint):
 
         if ((left == 0) and (right == 0)) or self.settings.SIMULATE_INPUT:
             self.triggers_zeroed = True
-            self.set_delay(settings.CONTROLLER_TICK_RATE)
+            self.set_delay(self.settings.CONTROLLER_TICK_RATE)
             self.dbg("controller",
                      "Triggers successfully zeroed. Controller ready.")
             return data
