@@ -1,8 +1,11 @@
-# Makefile to raspberry pi's on robot and suraface unit
+# Makefile for raspberry pi's on robot and suraface unit
 # Should work on Unix. For windows, go to the location of your python.exe 
 # 	binary and rename a copy of it to python3.exe
 
-PYTHON_CMD = python3
+CPYTHON_CMD = python3
+PYPY_CMD = pypy3
+
+PYTHON_CMD = $(CPYTHON_CMD)
 PYTHON_DBG_FLAGS = -B
 
 MAIN_SRC = main.py
@@ -52,6 +55,10 @@ test: $(TEST_SRC)
 py_version: 
 	$(PYTHON_CMD) --version | diff python_version -
 	
+pypy_install:
+	sudo apt update
+	sudo apt install pypy3
+
 py_install:
 	# From apt repos: (based on your distro, raspbian will be different)
 	sudo apt update
