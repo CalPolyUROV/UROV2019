@@ -11,45 +11,44 @@ import sys
 
 from snr.node import Node
 from snr.utils.utils import print_exit, print_usage
-from snr.debug import Debugger
+from snr.context import root_context
 import config
 
-context = "framework_main"
+MODE_DEBUG = "debug"
+MODE_DEPLOYED = "deployed"
 
 
 def main():
+    context = root_context()
     argc = len(sys.argv)
     if argc < 2:
         print_usage()
         print_exit("Improper usage")
     role = sys.argv[1]
 
-    mode = "deployed"
+    mode = MODE_DEPLOYED
     if "-d" in sys.argv:
-        mode = "debug"
+        mode = MODE_DEBUG
 
-    print("Starting {} node in {} mode using Python {}".format(
-        role, mode, sys.version[0:5]))
-
-    debugger = Debugger()
-    dbg = debugger.debug
+    print(
+        f"Starting {role} node in {mode} mode using Python {sys.version[0:5]}")
 
     node = None
     try:
-        components = config.get_components(role, mode)
-        node = Node(debugger, role, mode, components)
+        components = config.get(mode).get(role)
+        node = Node(context, role, mode, components)
         node.loop()  # Blocking loop
     except KeyboardInterrupt:
-        dbg("framework", "Interrupted by user, exiting")
         if node:
+            context.log("framework", "Interrupted by user, exiting")
             node.set_terminate_flag("Interrupted by user")
         else:
-            dbg(context, "Exiting before node was done being constructed")
-
-    if node:
-        node.terminate()
-        node = None
-    debugger.join()
+            context.fatal("Exiting before node was done being constructed")
+    finally:
+        if node:
+            node.terminate()
+            node = None
+    context.terminate()
     print_exit("Ya done now")
 
 

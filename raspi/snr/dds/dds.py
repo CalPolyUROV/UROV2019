@@ -10,33 +10,29 @@ import settings
 from snr.dds.dds_connection import DDSConnection
 from snr.dds.page import Page
 from snr.debug import Debugger
+from snr.context import Context
 from snr.task import Task, TaskPriority
 from snr.utils.utils import no_op, get_all
 
-context = "dds"
-
 SLEEP_TIME = 0.001
-
 JOIN_TIMEOUT = 0.5
-
-# Whether created threads are daemons.
 DAEMON_THREADS = False
 
 
-class DDS:
+class DDS(Context):
     def __init__(self,
+                 parent_context: Context,
                  parent_node=None,
-                 debug=no_op,
                  factories: List[DDSConnection] = [],
                  task_scheduler: Callable[[Task], None] = no_op):
-        self.dbg = debug
+        super().__init__("dds", parent_context)
 
         self.data_dict = {}
         self.inbound_que = Queue()
         self.outbound_que = Queue()
-        self.dbg(context,
-                 "Creating connections from {} factories: {}",
-                 [len(factories), factories])
+
+        self.info("Creating connections from {} factories: {}",
+                  [len(factories), factories])
         self.connections = get_all(factories, parent_node, self)
         self.schedule_task = task_scheduler
         self.terminate_flag = False

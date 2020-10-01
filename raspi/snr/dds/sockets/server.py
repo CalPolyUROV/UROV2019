@@ -41,7 +41,7 @@ class SocketsServer(AsyncEndpoint):
             data = self.s.recv(settings.MAX_SOCKET_SIZE)
             self.dbg("sockets_receive", "{} received data", [self.data_name])
             self.dbg("sockets_receive_verbose", "Received data: {}", [data])
-            callback(data)
+            self.callback(data)
             # return data
         except (ConnectionResetError, Exception) as error:
             self.dbg("sockets_error", "Lost {} sockets connection: {}",

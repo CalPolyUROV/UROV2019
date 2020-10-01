@@ -3,8 +3,9 @@ from typing import Tuple
 
 class SocketsConfig:
     def __init__(self,
-                 ip: str, port: int,
-                #  required: bool
+                 ip: str,
+                 port: int,
+                 required: bool
                  ):
         self.ip = ip
         self.port = port

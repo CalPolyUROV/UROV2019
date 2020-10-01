@@ -5,12 +5,11 @@ AsyncEndpoint: Generate and process data for Nodes
 Relay: Server data to other nodes
 """
 
-from time import time
 from typing import Callable
 
 from threading import Thread
+from snr.context import Context
 from snr.endpoint import Endpoint
-# from snr.node import Node
 from snr.utils.utils import sleep
 from snr.profiler import Timer
 
@@ -26,19 +25,14 @@ class AsyncEndpoint(Endpoint):
     tick_rate (Hz).
     """
 
-    def __init__(self, parent_node, name: str,
+    def __init__(self, parent_context: Context, name: str,
                  setup_handler: Callable, loop_handler: Callable,
                  tick_rate_hz: float):
-        super().__init__(parent_node, name)
+        super().__init__(parent_context, name)
         self.setup = setup_handler
         self.loop_handler = loop_handler
         self.terminate_flag = False
         self.set_delay(tick_rate_hz)
-
-        if parent_node:
-            self.profiler = parent_node.profiler
-        else:
-            self.profiler = None
 
         self.thread = Thread(target=self.threaded_method,
                              args=[],

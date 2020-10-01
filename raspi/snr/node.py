@@ -1,168 +1,91 @@
-# Injection
-from multiprocessing import Queue as Queue
-from typing import List, Union
 
-import settings
+from typing import Callable, List, Tuple
+
 from snr.dds.dds import DDS
-from snr.dds_factory import DDSFactory
+from snr.dds.factory import DDSFactory
 from snr.debug import Debugger
-from snr.discovery_server import DiscoveryServer
+from snr.context import Context
 from snr.discovery_client import DiscoveryClient
 from snr.endpoint_factory import EndpointFactory
 from snr.factory import Factory
 from snr.profiler import Profiler, Timer
+from snr.endpoint import Endpoint
 from snr.task import SomeTasks, Task, TaskPriority
 from snr.utils.utils import sleep
+from snr.task_queue import TaskQueue
 
-SLEEP_TIME = 0.015
+TASK_TYPE_TERMINATE = "terminate"
 
 
-class Node:
-    def __init__(self, debugger: Debugger,
+class Node(Context):
+    def __init__(self, parent_context: Context,
                  role: str, mode: str,
                  factories: List[Factory]):
-        self.dbg = debugger.debug
+        super().__init__(role + "_node", parent_context)
         self.role = role
-        self.name = f"{self.role}_node"
         self.mode = mode
-        self.task_queue = Queue()
-        self.terminate_flag = False  # Whether to exit main loop
-
-        self.profiler = None
-        if settings.ENABLE_PROFILING:
-            self.profiler = Profiler(self.dbg)
-
-        self.local_ip = None
-        self.hosts = self.select_hosts(mode)
-        self.discovery_server = DiscoveryServer(self,
-                                                settings.DISCOVERY_SERVER_PORT)
-
-        dds_facs, endpoint_facs = self.seperate_components(factories)
-
-        self.datastore = DDS(parent_node=self,
-                             debug=self.dbg,
+        dds_facs, endpoint_facs = self.seperate(factories)
+        self.task_queue = TaskQueue(self, self.get_new_tasks)
+        self.datastore = DDS(parent_context=self,
+                             parent_node=self,
                              factories=dds_facs,
-                             task_scheduler=self.schedule_task)
-        self.store_node_ip()
-
-        self.endpoints = []
-        self.task_producers = []
+                             task_scheduler=self.task_queue.schedule)
+        (self.endpoints, self.task_producers) = self.get_all(endpoint_facs)
         self.task_handlers = {
-            "terminate": self.terminate_task_handler
+            TASK_TYPE_TERMINATE: self.terminate_task_handler
         }
-
-        self.add_endpoints(endpoint_facs)
-        self.dbg("framework",
-                 "Initialized with  {} endpoints",
-                 [len(self.endpoints)])
-
-    def add_endpoints(self, factories: List):
-        self.dbg("framework_verbose", "Adding {} components", [len(factories)])
-        for f in factories:
-            endpoint = f.get(self)
-            if endpoint is not None:
-                self.endpoints.append(endpoint)
-                if endpoint.task_producers:
-                    for fn in endpoint.task_producers:
-                        self.task_producers.append(fn)
-
-            self.dbg("framework_verbose", "{} added {}", [f, endpoint])
-
-    def store_node_ip(self):
-        ip = self.get_local_ip()
-        self.dbg("node", "Assigned {} node ip: {}", [self.role, ip])
-        self.datastore.store("node_ip_address", ip)
-
-    # TODO: Remove Sockets IP settings from Node
-    def get_local_ip(self) -> str:
-        if not self.local_ip:
-            dc = DiscoveryClient(self.dbg)
-            self.local_ip = dc.find_me(self.name, self.hosts)
-        return self.local_ip
-        # Panic
-        self.dbg("node_error",
-                 "Counld not ping to select IP, defaulting to {}",
-                 [settings.DEBUG_IP])
-        return settings.DEBUG_IP
-
-    def select_hosts(self, mode: str):
-        if mode == "debug":
-            return settings.DEBUG_SOCKETS_HOSTS
-        else:
-            return settings.SOCKETS_HOSTS
-        # # Old method for selecting IP
-        # if self.mode == "debug":
-        #     return "localhost"
-        # else:
-        #     if self.role == "robot":
-        #         return settings.ROBOT_IP
-        #     elif self.role == "topside":
-        #         return settings.TOPSIDE_IP
-        #     else:
-        #         # Panic
-        #         self.dbg("node_error",
-        #                  "Node role {} not recognized. Counld not select IP",
-        #                  [self.role])
-        #         return settings.DEBUG_IP
-
-    def get_remote_ip(self) -> str:
-        if self.mode == "debug":
-            return settings.DEBUG_IP
-        else:
-            if self.role == "robot":
-                return settings.TOPSIDE_IP
-            if self.role == "topside":
-                return settings.ROBOT_IP
-            # Panic
-            self.dbg("node_error",
-                     "Node role {} not recognized. Counld not get remote IP",
-                     [self.role])
-            return "localhost"
+        self.terminate_flag = False
+        self.info("Initialized with {} endpoints",
+                  [len(self.endpoints)])
 
     def loop(self):
         while not self.terminate_flag:
-            self.step_task()
-            sleep(SLEEP_TIME)
+            t = self.task_queue.get_next()
+            self.execute_task(t)
+            sleep(self.settings.NODE_SLEEP_TIME)
         self.terminate()
 
     def get_new_tasks(self):
         """Retrieve tasks from endpoints and queue them.
         """
-        # new_tasks = [e.get_new_tasks() for e in self.endpoints]
-        for task_producer in self.task_producers:
-            t = task_producer()
-            if t and (isinstance(t, Task) or
-                      (isinstance(t, List) and
-                       len(t) > 0)):
+        new_tasks = []
+        for task_source in self.task_producers:
+            t = task_source()
+            if t:
+                if isinstance(t, Task):
+                    new_tasks.append(t)
+                elif isinstance(t, List):
+                    new_tasks.extend(t)
                 self.dbg("schedule_new_tasks",
                          "Produced task: {} from {}",
-                         [t, task_producer.__module__])
-                self.schedule_task(t)
+                         [t, task_source.__module__])
+        return new_tasks
 
     def execute_task(self, t: Task):
         """Execute the given task
 
-        Note that the task is pass in and can be provided on the fly rather
+        Note that the task is passed in and can be provided on the fly rather
         than needing to be in the queue.
         """
         if not t:
             self.dbg("execute_task", "Tried to execute None")
             return
 
-        task_result = []
+        task_result: List[Task] = []
 
         handler = self.task_handlers.get(t.task_type)
-        if handler is not None:
-            result = handler(t)
+        if handler:
+            result = self.profiler.time(f"{t.task_type}:{self.name}",
+                                        lambda: handler(t))
             if result:
-                task_result.append()
+                task_result.append(result)
             # TODO: Time Node task handlers
             # TODO: Store all task handlers in Node
 
         for e in self.endpoints:
             handler = e.task_handlers.get(t.task_type)
             result = None
-            if handler is not None:
+            if handler:
                 if self.profiler is None:
                     result = handler(t)
                 else:
@@ -173,7 +96,7 @@ class Node:
 
         self.dbg("schedule_verbose",
                  "Task execution resulted in {} new tasks",
-                 [len(list(task_result))])
+                 [len(task_result)])
         if task_result:
             # Only procede if not empty
             self.schedule_task(task_result)
@@ -187,6 +110,8 @@ class Node:
         self.dbg("node_exit", "reason: {}", [reason])
         self.datastore.store("node_exit_reason", reason)
         self.terminate_flag = True
+        for e in self.endpoints:
+            e.set_terminate_flag()
 
     def terminate(self):
         """Execute actions needed to deconstruct a Node.
@@ -208,79 +133,16 @@ class Node:
         self.datastore.join()
 
         # Display all information gathered by the profiler
-        if self.profiler is not None:
+        if self.profiler:
             self.profiler.join()
             self.profiler.dump()
         self.dbg("framework",
                  "Node {} finished terminating",
                  [self.role])
 
-    def step_task(self):
-        # Get the next task to execute
-        t = self.get_next_task()
-        self.execute_task(t)
-
-    def has_tasks(self) -> bool:
-        """Report whether there are enough tasks left in the queue
-        """
-        return not self.task_queue.empty()
-
-    def schedule_task(self, t: SomeTasks):
-        """ Adds a Task or a list of Tasks to the node's queue
-        """
-        # t is None or empty list
-        if not t:
-            if t is None:
-                self.dbg("schedule_warning", "Cannot schedule None")
-            elif isinstance(t, list):
-                self.dbg("schedule_warning", "Cannot schedule empty list")
-            return
-
-        # t is list
-        if isinstance(t, list):
-            # Recursively handle lists
-            self.dbg("schedule_verbose",
-                     "Recursively scheduling list of {} tasks",
-                     [len(t)])
-            for item in t:
-                self.dbg("schedule_verbose",
-                         "Recursively scheduling item {}",
-                         [item])
-                self.schedule_task(item)
-            return
-
-        # t is anything other than a task
-        if not isinstance(t, Task):
-            self.dbg("schedule_warning",
-                     "Cannot schedule {} object {}", [type(t), t])
-            return
-
-        # Handle normal tasks
-        self.dbg("schedule_verbose", "Scheduling task {}", [t])
-        # Ignore Priority
-        self.task_queue.put(t)
-        # TODO: Use priority with multiprocessing queue
-        # if t.priority == TaskPriority.high:
-        #     self.task_queue.put(t)  # High priotity at front (right)
-        # elif t.priority == TaskPriority.normal:
-        #     self.task_queue.put(t)  # Normal priotity at end (left)
-        #     # TODO:  insert normal priority in between high and low
-        # elif t.priority == TaskPriority.low:
-        #     self.task_queue.put(t)  # Normal priotity at end (left)
-        # else:
-        #     self.dbg("schedule", "Cannot schedule task with priority: {}",
-        #              [t.priority])
-
-    def get_next_task(self) -> Union[Task, None]:
-        """Take the next task off the queue
-        """
-        while not self.has_tasks():
-            self.dbg("schedule_event", "Ran out of tasks, getting more")
-            self.get_new_tasks()
-        return self.task_queue.get()
-
-    def seperate_components(self, factories: List[Factory]) -> \
-            (List[DDSFactory], List[EndpointFactory]):
+    def seperate(self, factories: List[Factory]
+                 ) -> Tuple[List[DDSFactory],
+                            List[EndpointFactory]]:
         dds_facs = []
         endpoint_facs = []
         self.dbg("node_verbose", "Seperating facs: {}", [factories])
@@ -293,6 +155,21 @@ class Node:
                  "DDS facs: {}\n\tEndpoint facs: {}",
                  [dds_facs, endpoint_facs])
         return dds_facs, endpoint_facs
+
+    def get_all(self,
+                factories: List
+                ) -> Tuple[List[Endpoint], List[Callable]]:
+        self.info("Adding components from {} factories", [len(factories)])
+        endpoints = []
+        task_producers = []
+        for factory in factories:
+            endpoint = factory.get(self)
+            if endpoint:
+                endpoints.append(endpoint)
+                task_producers.extend(endpoint.task_producers)
+                self.info("framework_verbose",
+                          "{} added {}", [factory, endpoint])
+        return endpoints, task_producers
 
     def store_data(self, key: str, data):
         self.datastore.store(key, data)

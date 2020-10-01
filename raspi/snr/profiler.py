@@ -1,11 +1,11 @@
 from collections import deque
 from multiprocessing import Queue as MPQueue
+from settings import Settings
+from snr.debug import Debugger
 from typing import Callable, Tuple
 from time import time, sleep
 from threading import Thread
-from queue import Empty, Queue
-
-import settings
+from queue import Empty
 
 DAEMON_THREAD = False
 SLEEP_TIME = 0.01
@@ -21,8 +21,10 @@ class Timer:
 
 
 class Profiler:
-    def __init__(self, dbg: Callable):
-        self.dbg = dbg
+    def __init__(self, debugger: Debugger, settings: Settings):
+        if not settings.ENABLE_PROFILING:
+            return None
+        self.debugger = debugger
         self.time_dict = {}
         self.moving_avg_len = settings.PROFILING_AVG_WINDOW_LEN
         self.q = MPQueue()
@@ -45,16 +47,16 @@ class Profiler:
 
     def store_task(self, type_and_runtime: Tuple[str, float]):
         (task_type,  runtime) = type_and_runtime
-        self.dbg("profiling_task",
-                 "Ran {} task in {:6.3f} us",
-                 [task_type, runtime * 1000000])
+        self.debugger.debug("profiling_task",
+                            "Ran {} task in {:6.3f} us",
+                            [task_type, runtime * 1000000])
         # Make sure queue exists
         if self.time_dict.get(task_type) is None:
             self.init_task_type(task_type)
         # Shift elements
         self.time_dict[task_type].append(runtime)
-        self.dbg("profiling_avg", "Task {} has average runtime {}",
-                 [task_type, self.avg_time(task_type)])
+        self.debugger.debug("profiling_avg", "Task {} has average runtime {}",
+                            [task_type, self.avg_time(task_type)])
 
     def init_task_type(self, task_type: str):
         self.time_dict[task_type] = deque(maxlen=self.moving_avg_len)
@@ -64,9 +66,11 @@ class Profiler:
                                 len(self.time_dict[task_type]))
 
     def dump(self):
-        self.dbg("profiling_dump", "Task/Loop type:\t\tAvg runtime: ")
+        self.debugger.debug(
+            "profiling_dump", "Task/Loop type:\t\tAvg runtime: ")
         for k in self.time_dict:
-            self.dbg("profiling_dump", "{}:\t\t{}", [k, self.avg_time(k)])
+            self.debugger.debug("profiling_dump", "{}:\t\t{}", [
+                                k, self.avg_time(k)])
 
     def format_time(self, time_s: float) -> str:
         if time_s > 1:
@@ -83,7 +87,7 @@ class Profiler:
         self.terminate_flag = True
         self.consumer_thread.join(JOIN_TIMEOUT)
 
-    def __consumer(self, q: Queue, action: Callable, sleep_time: int):
+    def __consumer(self, q: MPQueue, action: Callable, sleep_time: int):
         """A method to be run by a thread for consuming the contents of a
         queue asynchronously
         """

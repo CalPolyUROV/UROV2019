@@ -8,21 +8,19 @@ from typing import Tuple, Union
 
 import pygame
 
-import settings
 from snr.async_endpoint import AsyncEndpoint
-from snr.node import Node
-from snr.task import SomeTasks
+from snr.context import Context
 
 
 class Controller(AsyncEndpoint):
-    def __init__(self, parent: Node,
+    def __init__(self, parent_context: Context,
                  name: str):
-        super().__init__(parent, name,
+        super().__init__(parent_context, name,
                          self.init_controller, self.monitor_controller,
-                         settings.CONTROLLER_INIT_TICK_RATE)
+                         parent_context.settings.CONTROLLER_INIT_TICK_RATE)
 
-        if not settings.USE_CONTROLLER:
-            self.dbg("controller", "Controller disabled by settings")
+        if not self.settings.USE_CONTROLLER:
+            self.dbg("controller", "Controller disabled by self.settings")
             # This early return might break things
             return
 
@@ -33,7 +31,7 @@ class Controller(AsyncEndpoint):
         # Initial value is inverse of setting
         # Triggers zerod indicated whether the triggers no longer need to be
         # zeroed
-        self.triggers_zeroed = not settings.CONTROLLER_ZERO_TRIGGERS
+        self.triggers_zeroed = not self.settings.CONTROLLER_ZERO_TRIGGERS
         self.joystick_data = {}
 
         self.start_loop()
@@ -42,7 +40,7 @@ class Controller(AsyncEndpoint):
         self.parent.datastore.store(self.name, data)
 
     def init_controller(self):
-        if settings.SIMULATE_INPUT:
+        if self.settings.SIMULATE_INPUT:
             self.dbg("controller_event",
                      "Simulating input without pygame and XBox controller")
             self.triggers_zeroed = True
@@ -59,7 +57,7 @@ class Controller(AsyncEndpoint):
                      [num_controllers])
             print_controller_warning()
             # TODO: Handle pygame's segfault when the controller disconnects
-        elif settings.REQUIRE_CONTROLLER:
+        elif self.settings.REQUIRE_CONTROLLER:
             self.dbg("controller_error",
                      "Controller required by settings, {} found",
                      [num_controllers])
@@ -67,11 +65,11 @@ class Controller(AsyncEndpoint):
         else:
             s = "Controller not found but not required, simulating input"
             self.dbg("controller", s)
-            settings.SIMULATE_INPUT = True
+            self.settings.SIMULATE_INPUT = True
             return
 
     def monitor_controller(self):
-        if settings.SIMULATE_INPUT:
+        if self.settings.SIMULATE_INPUT:
             self.dbg("controller_event", "Simulating input")
             joystick_data = self.simulate_input()
         else:
@@ -86,7 +84,7 @@ class Controller(AsyncEndpoint):
             except pygame.error as error:
                 self.dbg("controller_error", "Controller error: {}",
                          [error.__repr__()])
-                if not settings.REQUIRE_CONTROLLER:
+                if not self.settings.REQUIRE_CONTROLLER:
                     self.dbg("controller_error",
                              "Missing controller not required, simulating input")
                     joystick_data = simulate_input()
@@ -114,7 +112,7 @@ class Controller(AsyncEndpoint):
         left = data.get("trigger_left")
         right = data.get("trigger_right")
 
-        if ((left == 0) and (right == 0)) or settings.SIMULATE_INPUT:
+        if ((left == 0) and (right == 0)) or self.settings.SIMULATE_INPUT:
             self.triggers_zeroed = True
             self.set_delay(settings.CONTROLLER_TICK_RATE)
             self.dbg("controller",
@@ -127,7 +125,7 @@ class Controller(AsyncEndpoint):
         return {}
 
     def map_input_dict(self, joystick_data: dict) -> dict:
-        """Convert pygame input names to our names based off settings
+        """Convert pygame input names to our names based off self.settings
         """
         control_data = {}
         for k in joystick_data.keys():
@@ -140,7 +138,7 @@ class Controller(AsyncEndpoint):
         """Maps an individual KV pair to our controls
         """
         old_value = value
-        map_list = settings.control_mappings.get(key)
+        map_list = self.settings.control_mappings.get(key)
 
         if not isinstance(map_list, list):
             return key, value
@@ -204,7 +202,7 @@ class Controller(AsyncEndpoint):
         """Function run in separate thread to update control data
         Updates instance variable without using main thread CPU time
         """
-        if (not settings.USE_CONTROLLER) or settings.SIMULATE_INPUT:
+        if (not self.settings.USE_CONTROLLER) or self.settings.SIMULATE_INPUT:
             return {}
 
         pygame.event.get()
@@ -262,10 +260,10 @@ class Controller(AsyncEndpoint):
         # Close the window and quit.
         # If you forget this line, the program will 'hang'
         # on exit if running from IDLE.
-        if(not settings.SIMULATE_INPUT):
+        if(not self.settings.SIMULATE_INPUT):
             self.dbg("controls_reader_verbose",
                      "exiting pygame")
-            settings.USE_CONTROLLER = False
+            self.settings.USE_CONTROLLER = False
             pygame.quit()
             self.dbg("controls_reader",
                      "Exited pygame")
@@ -280,7 +278,7 @@ class Controller(AsyncEndpoint):
         self.dbg("simulation",
                  "Simulating control input")
         sim_data = {}
-        for key in settings.control_mappings:
+        for key in self.settings.control_mappings:
             self.dbg("simulation_verbose",
                      "Simulating key: {}",
                      [key])

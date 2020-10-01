@@ -1,15 +1,11 @@
+from snr.context import Context
 from snr.task import SomeTasks, Task
 from snr.utils.utils import no_op
 
 
-class Endpoint:
-    def __init__(self, parent_node, name: str):
-        self.parent = parent_node
-        if self.parent:
-            self.dbg = parent_node.dbg
-        else:
-            self.dbg = no_op
-        self.name = name
+class Endpoint(Context):
+    def __init__(self, parent_context: Context, name: str):
+        super().__init__(name, parent_context)
 
     def get_new_tasks(self) -> SomeTasks:
         return None

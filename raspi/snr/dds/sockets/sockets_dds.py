@@ -1,13 +1,15 @@
-from typing import Callable
+from typing import Callable, List
 
 from snr.dds.dds_connection import DDSConnection
 from snr.comms.sockets.config import SocketsConfig
 from snr.dds.page import Page
+from snr.dds.sockets.config import SocketsConfig
 from snr.dds.sockets.server import SocketsServer
 from snr.dds.sockets.client import SocketsClient
 from snr.dds_factory import DDSFactory
 from snr.utils.utils import no_op
-
+from snr.discovery_client import DiscoveryClient
+from snr.context import Context
 
 """
 DDS
@@ -21,16 +23,28 @@ Server - DDS tx consumer thread
 
 
 class SocketsDDSFactory(DDSFactory):
-    def __init__(self, config: SocketsConfig):
+    def __init__(self,
+                 hosts: List[str],
+                 port: int):
         super().__init__()
-        self.config = config
+        self.hosts = hosts
+        self.port = port
 
     def get(self, parent_node=None):
-        if not parent_node:
-            inbound_store = no_op
-        else:
+        if parent_node:
+            local_ip, hosts = DiscoveryClient(
+                parent_node).find_me(
+                parent_node.role,
+                self.hosts)
             inbound_store = parent_node.datastore.inbound_store
-        return SocketsDDS(self.config, inbound_store)
+            inbound_store("node_ip_address", local_ip)
+            parent_node.info("Assigned {} node ip: {}",
+                             [parent_node.name, local_ip])
+            return [SocketsDDS(config=SocketsConfig(host, self.port),
+                               inbound_store=inbound_store)
+                    for host in hosts]
+        else:
+            return []
 
 
 class SocketsDDS(DDSConnection):

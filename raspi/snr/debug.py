@@ -1,4 +1,5 @@
 from queue import Empty
+from settings import Settings
 from threading import Thread
 from time import sleep
 from typing import Union, Callable
@@ -6,9 +7,9 @@ from typing import Union, Callable
 # Injection
 from multiprocessing import Queue as Queue
 
-import settings
+from settings import Settings
 
-SLEEP_TIME = 0.005
+SLEEP_TIME = 0.010
 # ~5 ms => 90 fps cap on debug messages being printed
 
 # Whether created thread is a daemon.
@@ -21,7 +22,8 @@ class Debugger:
     printed. Messages can be formatted.
     """
 
-    def __init__(self):
+    def __init__(self, settings: Settings):
+        self.settings = settings
         self.q = Queue()
 
         self.terminate_flag = False
@@ -115,9 +117,10 @@ class Debugger:
 
         A single thread handles all calls by consuming a Queue.
         """
-
+        settings = self.settings
+        channel_active = settings.DEBUG_CHANNELS.get(channel) is not False
         # TODO: Use settings.ROLE for per client and server debugging?
-        if(settings.DEBUG_PRINTING and self.channel_active(channel)):
+        if(settings.DEBUG_PRINTING and channel_active):
             n = len(args)
             # Print message to console
             if n == 1:
@@ -137,16 +140,7 @@ class Debugger:
                                       message.format(*args[1:]))
                 self.q.put(s)
                 # print(s)
-        if(settings.DEBUG_LOGGING and channel_active(channel)):
+        if (settings.DEBUG_LOGGING
+                and ()):
             # TODO: Output stuff to a log file
             pass
-
-    def channel_active(self, channel: str) -> bool:
-        """Whether to print or log for a debug channel
-
-        Channels that are not found are debugged by default
-        """
-        if channel in settings.DEBUG_CHANNELS:
-            val = settings.DEBUG_CHANNELS[channel]
-            return val
-        return True  # default for unknown channels
