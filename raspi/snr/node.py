@@ -3,15 +3,11 @@ from typing import Callable, List, Tuple
 
 from snr.dds.dds import DDS
 from snr.dds.factory import DDSFactory
-from snr.debug import Debugger
 from snr.context import Context
-from snr.discovery_client import DiscoveryClient
 from snr.endpoint_factory import EndpointFactory
 from snr.factory import Factory
-from snr.profiler import Profiler, Timer
 from snr.endpoint import Endpoint
-from snr.task import SomeTasks, Task, TaskPriority
-from snr.utils.utils import sleep
+from snr.task import SomeTasks, Task
 from snr.task_queue import TaskQueue
 
 TASK_TYPE_TERMINATE = "terminate"
@@ -42,7 +38,7 @@ class Node(Context):
         while not self.terminate_flag:
             t = self.task_queue.get_next()
             self.execute_task(t)
-            sleep(self.settings.NODE_SLEEP_TIME)
+            self.sleep(self.settings.NODE_SLEEP_TIME)
         self.terminate()
 
     def get_new_tasks(self):
@@ -56,8 +52,7 @@ class Node(Context):
                     new_tasks.append(t)
                 elif isinstance(t, List):
                     new_tasks.extend(t)
-                self.dbg("schedule_new_tasks",
-                         "Produced task: {} from {}",
+                self.dbg("Produced task: {} from {}",
                          [t, task_source.__module__])
         return new_tasks
 
@@ -94,8 +89,7 @@ class Node(Context):
             if result:
                 task_result.append(result)
 
-        self.dbg("schedule_verbose",
-                 "Task execution resulted in {} new tasks",
+        self.dbg("Task execution resulted in {} new tasks",
                  [len(task_result)])
         if task_result:
             # Only procede if not empty
@@ -107,7 +101,7 @@ class Node(Context):
         return None
 
     def set_terminate_flag(self, reason: str):
-        self.dbg("node_exit", "reason: {}", [reason])
+        self.info("Exit reason: {}", [reason])
         self.datastore.store("node_exit_reason", reason)
         self.terminate_flag = True
         for e in self.endpoints:
@@ -125,7 +119,7 @@ class Node(Context):
         for e in self.endpoints:
             e.join()
 
-        self.dbg("framework", "Terminated all endpoints")
+        self.info("Terminated all endpoints")
 
         # Display everything that was stored in the datastore
         self.datastore.dump()
@@ -136,23 +130,20 @@ class Node(Context):
         if self.profiler:
             self.profiler.join()
             self.profiler.dump()
-        self.dbg("framework",
-                 "Node {} finished terminating",
-                 [self.role])
+        self.info("Node {} finished terminating", [self.role])
 
     def seperate(self, factories: List[Factory]
                  ) -> Tuple[List[DDSFactory],
                             List[EndpointFactory]]:
         dds_facs = []
         endpoint_facs = []
-        self.dbg("node_verbose", "Seperating facs: {}", [factories])
+        self.info("Seperating facs: {}", [factories])
         for f in factories:
             if isinstance(f, DDSFactory):
                 dds_facs.append(f)
             if isinstance(f, EndpointFactory):
                 endpoint_facs.append(f)
-        self.dbg("node_verbose",
-                 "DDS facs: {}\n\tEndpoint facs: {}",
+        self.dbg("DDS facs: {}\n\t\t\tEndpoint facs: {}",
                  [dds_facs, endpoint_facs])
         return dds_facs, endpoint_facs
 
