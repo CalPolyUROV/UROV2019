@@ -7,9 +7,6 @@ import sys
 import time
 from typing import Any, Callable, List, Union
 
-# TODO: Emlinate settings dependancy from utils
-import settings
-
 
 def print_usage() -> None:
     """Prints a Unix style uasge message on how to start the program
@@ -30,19 +27,6 @@ def print_exit(reason: str) -> None:
     # This point should be unreachable, just die already
 
 
-def sleep(time_s: float):
-    """Pauses the execution of the thread for time_s seconds
-    """
-    if settings.DISABLE_SLEEP:
-        # TODO: Elimanate debug dependancy from utils (will crash)
-        debug("sleep", "Sleep disabled, not sleeping")
-        return
-    if time_s == 0:
-        return
-
-    time.sleep(time_s)
-
-
 def no_op(*args):
     pass
 
@@ -55,10 +39,6 @@ def get_all(*args):
     return all
 
 
-def debug_delay():
-    sleep(settings.DEBUGGING_DELAY_S)
-
-
 def init_dict(keys: List[str], val: Any) -> dict:
     d = {}
     for k in keys:
@@ -67,8 +47,10 @@ def init_dict(keys: List[str], val: Any) -> dict:
 
 
 def attempt(action: Callable[[], bool],
-            tries: int, fail_once: Callable,
-            failure: Callable[[int], None]) -> None:
+            tries: int,
+            fail_once: Callable,
+            failure: Callable[[int], None]
+            ) -> None:
     """Wrapper for trying to complete and action with a number of tries
     Should follow this prototype:
     def attempt_action():

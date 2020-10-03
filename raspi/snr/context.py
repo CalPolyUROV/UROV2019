@@ -1,3 +1,4 @@
+import time
 from snr.profiler import Profiler
 from typing import Union, List
 
@@ -25,6 +26,7 @@ class Context:
         elif (not self.debugger) or (not self.settings):
             print(f"FATAL: Incorrectly constructed context: {name}")
 
+        self.dump_channel = self.name + "_dump"
         self.info_channel = self.name + "_info"
         self.dbg_channel = self.name + "_verbose"
         self.log_channel = self.name
@@ -35,6 +37,9 @@ class Context:
 
     def terminate(self):
         self.debugger.join()
+
+    def fatal(self, *args: Union[list,  str]):
+        self.debugger.debug(self.fatal_channel, *args)
 
     def err(self, *args: Union[list,  str]):
         self.debugger.debug(self.error_channel, *args)
@@ -50,6 +55,25 @@ class Context:
 
     def info(self, *args: Union[list,  str]):
         self.debugger.debug(self.info_channel, *args)
+
+    def dump(self, *args: Union[list,  str]):
+        self.debugger.debug(self.dump_channel, *args)
+
+    def sleep(self, time_s: float):
+        """Pauses the execution of the thread for time_s seconds
+        """
+        if self.settings.DISABLE_SLEEP:
+            # TODO: Elimanate debug dependancy from utils (will crash)
+            self.debugger.debug(f"{self.name}:sleep",
+                                "Sleep disabled, not sleeping")
+            return
+        if time_s == 0:
+            return
+
+        time.sleep(time_s)
+
+    def debug_delay(self):
+        self.sleep(self.settings.DEBUGGING_DELAY_S)
 
 
 def root_context() -> Context:
