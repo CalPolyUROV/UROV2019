@@ -11,7 +11,10 @@ context = "recorder"
 
 
 class Recorder(Endpoint):
-    def __init__(self, parent_context: Context, name: str, data_names: List[str]):
+    def __init__(self,
+                 parent_context: Context,
+                 name: str,
+                 data_names: List[str]):
         super().__init__(parent_context, name)
         self.data_names = data_names
 
