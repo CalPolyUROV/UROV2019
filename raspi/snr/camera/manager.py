@@ -1,4 +1,5 @@
 from enum import Enum
+from snr.utils.utils import no_op
 from typing import List
 
 from snr.endpoint import Endpoint
@@ -47,8 +48,7 @@ class CameraManager(Endpoint):
 
         #     return CameraManager(parent, name)
         # else:
-        #     self.dbg("framework_error",
-        #         "Unknown camera manager role {}",
+        #     self.err("Unknown camera manager role {}",
         #         [role])
 
         # self.start_loop()
@@ -56,6 +56,7 @@ class CameraManager(Endpoint):
 
     def setup_handler(self):
         from snr.camera.factory import VideoSourceFactory, VideoReceiverFactory
+        fac = no_op
         if self.role is ManagerRole.Source:
             fac = VideoSourceFactory
         elif self.role is ManagerRole.Receiver:
