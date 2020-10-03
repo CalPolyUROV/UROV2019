@@ -25,6 +25,10 @@ class RobotControlsFactory(Factory):
                                  self.input_data_name,
                                  self.output_data_name)
 
+    def __repr__(self) -> str:
+        return "Robot Controls Factory (in: {}, out: {})".format(
+            self.input_data_name, self.output_data_name)
+
 
 class ControlsProcessor(Endpoint):
     """Stores data for the robot
