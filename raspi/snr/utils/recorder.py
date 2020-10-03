@@ -1,3 +1,4 @@
+from snr.context import Context
 from typing import List
 
 from snr.endpoint import Endpoint
@@ -10,10 +11,9 @@ context = "recorder"
 
 
 class Recorder(Endpoint):
-    def __init__(self, parent_node, name: str, data_names: List[str]):
-        super().__init__(parent_node, name)
+    def __init__(self, parent_context: Context, name: str, data_names: List[str]):
+        super().__init__(parent_context, name)
         self.data_names = data_names
-        self.dbg = parent_node.dgb
 
     def task_handler(self, t: Task) -> SomeTasks:
         self.dbg(context, "Recording task: {}", [t])
@@ -28,3 +28,6 @@ class RecorderFactory(Factory):
 
     def get(self, parent_node: Node) -> Recorder:
         return Recorder(parent_node, self.name, self.data_names)
+
+    def __repr__(self) -> str:
+        return f"Recorder Factory (data_names: {self.data_names})"
