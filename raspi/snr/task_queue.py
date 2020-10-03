@@ -59,7 +59,7 @@ class TaskQueue(Context):
         # elif t.priority == TaskPriority.low:
         #     self.queue.put(t)  # Normal priotity at end (left)
         # else:
-        #     self.dbg("schedule", "Cannot schedule task with priority: {}",
+        #     self.err( "Cannot schedule task with priority: {}",
         #              [t.priority])
 
     def get_next(self) -> Union[Task, None]:

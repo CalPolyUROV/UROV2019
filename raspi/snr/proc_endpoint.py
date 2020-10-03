@@ -46,7 +46,7 @@ class ProcEndpoint(Endpoint):
             self.delay = 1.0 / tick_rate_hz
 
     def start_loop(self):
-        self.dbg("framework", "Starting proc endpoint {} process", [self.name])
+        self.info("Starting proc endpoint {} process", [self.name])
         self.proc = self.get_proc()
         self.proc.start()
 
@@ -73,11 +73,10 @@ class ProcEndpoint(Endpoint):
                     #       [self.name, runtime * 1000000])
                 self.tick()
         except (Exception, KeyboardInterrupt) as e:
-            self.dbg("proc_endpoint_error", "{}, e: {}", [self.name, str(e)])
+            self.err("{}, e: {}", [self.name, str(e)])
             # self.parent.set_terminate_flag(str(e))
 
-        self.dbg("proc_endpoint_event",
-                 "Proc endpoint {} exited loop",
+        self.dbg("Proc endpoint {} exited loop",
                  [self.name])
         self.terminate()
         return
@@ -87,17 +86,15 @@ class ProcEndpoint(Endpoint):
 
     def tick(self):
         if (self.delay == 0.0):
-            self.dbg("framework_warning",
-                     "proc_endpoint {} does not sleep (max tick rate)",
-                     [self.name])
+            self.warn("Proc_endpoint {} does not sleep (max tick rate)",
+                      [self.name])
         else:
             sleep(self.delay)
 
     def set_terminate_flag(self, reason: str):
         self.terminate_flag = True
-        self.dbg("framework",
-                 "Preparing to terminate proc_endpoint {} for {}",
-                 [self.name, reason])
+        self.info("Preparing to terminate proc_endpoint {} for {}",
+                  [self.name, reason])
 
     def terminate(self):
         raise NotImplementedError

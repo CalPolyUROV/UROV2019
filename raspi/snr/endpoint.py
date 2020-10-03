@@ -17,9 +17,8 @@ class Endpoint(Context):
         pass
 
     def terminate(self):
-        self.dbg("framework_warning",
-                 "{} does not implement terminate()",
-                 [self.name])
+        self.warn("{} does not implement terminate()",
+                  [self.name])
         raise NotImplementedError
 
     def join(self):

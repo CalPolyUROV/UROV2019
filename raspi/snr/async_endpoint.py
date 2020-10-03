@@ -10,8 +10,6 @@ from typing import Callable
 from threading import Thread
 from snr.context import Context
 from snr.endpoint import Endpoint
-from snr.utils.utils import sleep
-from snr.profiler import Timer
 
 DAEMON_THREADS = False
 
@@ -46,8 +44,7 @@ class AsyncEndpoint(Endpoint):
             self.delay_s = 1.0 / tick_rate_hz
 
     def start_loop(self):
-        self.dbg("framework",
-                 "Starting async endpoint {} thread",
+        self.dbg("Starting async endpoint {} thread",
                  [self.name])
         self.thread.start()
 
@@ -74,7 +71,7 @@ class AsyncEndpoint(Endpoint):
         except KeyboardInterrupt as e:
             pass
 
-        self.dbg("framework", "Async endpoint {} exited loop", [self.name])
+        self.dbg("Async endpoint {} exited loop", [self.name])
         self.terminate()
         # print_exit("Endpoint thread exited by termination")
 
@@ -84,14 +81,12 @@ class AsyncEndpoint(Endpoint):
     def tick(self):
         # TODO: Ensure that this does not block other threads: thread.sleep()?
         if (self.delay_s == 0.0):
-            self.dbg("framework_warning",
-                     "async_endpoint {} does not sleep (max tick rate)",
-                     [self.name])
+            self.warn("Async_endpoint {} does not sleep (max tick rate)",
+                      [self.name])
         else:
-            sleep(self.delay_s)
+            self.sleep(self.delay_s)
 
     def set_terminate_flag(self, reason: str):
         self.terminate_flag = True
-        self.dbg("framework",
-                 "Preparing to terminating async_endpoint {} for {}",
-                 [self.name, reason])
+        self.info("Preparing to terminating async_endpoint {} for {}",
+                  [self.name, reason])
