@@ -1,11 +1,7 @@
 from typing import List
 
-from snr.dds.dds import DDS
-from snr.dds.dds_connection import DDSConnection
 from snr.dds.sockets.sockets_dds import SocketsConfig, SocketsDDS
-from snr.dds_factory import DDSFactory
-from snr.endpoint import Endpoint
-from snr.factory import Factory
+from snr.dds.factory import DDSFactory
 
 context = "sockets_dds_fac"
 

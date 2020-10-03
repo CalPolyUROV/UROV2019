@@ -6,7 +6,6 @@ import socket
 from json import JSONDecodeError
 from typing import Union
 
-import settings
 from snr.comms.sockets.config import SocketsConfig
 from snr.endpoint import Endpoint
 from snr.node import Node
@@ -21,7 +20,6 @@ class SocketsClient(Endpoint):
 
     def __init__(self, parent: Node, name: str,
                  config: SocketsConfig, data_name: str):
-
         self.task_producers = []
         self.task_handlers = {
             f"get_{data_name}": self.task_handler
@@ -31,7 +29,8 @@ class SocketsClient(Endpoint):
         self.config = config
         self.data_name = data_name
 
-        self.dbg("sockets_status", "Sockets {} client created", [self.data_name])
+        self.info(
+            "Sockets {} client created", [self.data_name])
 
     # Why a duplicate? is it an older version?
     # def task_handler(self, t: Task) -> SomeTasks:
@@ -62,10 +61,11 @@ class SocketsClient(Endpoint):
         data_str = data_bytes.decode()
         try:
             self.dbg("decode_verbose",
-                  "Decoded bytes as {}: {}",
-                  [data_str.__class__, data_str])
+                     "Decoded bytes as {}: {}",
+                     [data_str.__class__, data_str])
             data_dict = json.loads(data_str)
-            self.dbg("decode_verbose", "Decoded control input: {}", [data_dict])
+            self.dbg("decode_verbose",
+                     "Decoded control input: {}", [data_dict])
             self.parent.datastore.store(self.data_name, data_dict)
 
         except JSONDecodeError as error:
@@ -74,17 +74,17 @@ class SocketsClient(Endpoint):
             return
 
     def receive_data(self) -> Union[bytes, None]:
-        self.dbg("sockets_verbose",
-              "Waiting to receive data immediately upon connection")
+        self.info(
+            "Waiting to receive data immediately upon connection")
         try:
-            data = self.s.recv(settings.MAX_SOCKET_SIZE)
-            self.dbg("sockets_receive", "{} received data", [self.data_name])
-            self.dbg("sockets_receive_verbose", "Received data: {}", [data])
+            data = self.s.recv(self.settings.MAX_SOCKET_SIZE)
+            self.info("{} received data", [self.data_name])
+            self.dbg("Received data: {}", [data])
             return data
         except (ConnectionResetError, Exception) as error:
             self.socket_connected = False
-            self.dbg("sockets_error", "Lost {} sockets connection: {}",
-                  [self.data_name, error.__repr__()])
+            self.err("Lost {} sockets connection: {}",
+                     [self.data_name, error.__repr__()])
             # TODO: Correctly terminate this function here
             return None
 
@@ -99,55 +99,58 @@ class SocketsClient(Endpoint):
             try:
                 self.s = socket.create_connection(
                     self.config.tuple(),
-                    settings.SOCKETS_CLIENT_TIMEOUT)
+                    self.settings.SOCKETS_CLIENT_TIMEOUT)
                 # Reuse port prior to slow kernel release
                 self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 return True
             except (ConnectionRefusedError, Exception) as error:
-                self.dbg("sockets_client",
-                      "{} failed to connect to server: {}",
-                      [self.name, error.__repr__()])
+                self.warn("{} failed to connect to server: {}",
+                          [self.name, error.__repr__()])
                 return False
 
         def fail_once() -> None:
-            self.dbg("sockets_warning",
-                  "Failed to connect to server at {}:{}, trying again.",
-                  [self.config.ip,
-                   str(self.config.port)])
+            self.warn(
+                "Failed to connect to server at {}:{}, trying again.",
+                [self.config.ip,
+                 str(self.config.port)])
             # Wait a second before retrying
-            sleep(settings.SOCKETS_RETRY_WAIT)
+            sleep(self.settings.SOCKETS_RETRY_WAIT)
 
         def failure(tries: int) -> None:
             if(self.config.required):
-                self.dbg("sockets_critical",
-                      "Could not connect to server at {}:{} after {} tries.",
-                      [self.config.ip, str(self.config.port), tries])
+                self.dbg(
+                    "sockets_critical",
+                    "Could not connect to server at {}:{} after {} tries.",
+                    [self.config.ip, str(self.config.port), tries])
                 print_exit("Start required sockets connection")
             else:
-                self.dbg("sockets_error",
-                      "Abort sockets connection after {} tries. Not required.",
-                      [tries])
+                self.dbg(
+                    "sockets_error",
+                    "Abort sockets connection after {} tries. Not required.",
+                    [tries])
                 # settings.USE_SOCKETS = False
                 return
 
         attempt(try_create_connection,
-                settings.SOCKETS_CONNECT_ATTEMPTS, fail_once, failure)
+                self.settings.SOCKETS_CONNECT_ATTEMPTS,
+                fail_once, failure)
         self.socket_connected = True
-        self.dbg("sockets_event", 'Socket Connected to {}:{}',
-              [self.config.ip, str(self.config.port)])
+        self.info("Socket Connected to {}:{}",
+                  [self.config.ip, str(self.config.port)])
 
     def close_socket(self):
         if self.s is None:
-            self.dbg("sockets_warning", "Tried to close socket but it was None")
+            self.warn(
+                "Tried to close socket but it was None")
             return
         try:
             # Close both (RD, WR) ends of the pipe, then close the socket
             self.s.shutdown(socket.SHUT_RDWR)
             self.s.close()
-            self.dbg("sockets_status", 'Socket {} closed', [self.name])
+            self.info('Socket {} closed', [self.name])
         except (Exception) as error:
-            self.dbg("sockets_error", "Error closing socket {}: {}",
-                  [self.name, error.__repr__()])
+            self.err("Error closing socket {}: {}",
+                     [self.name, error.__repr__()])
         self.s = None
 
     def terminate(self):
