@@ -1,8 +1,7 @@
 import socket
 from typing import List, Tuple
 
-import settings
-from snr.discovery_server import DiscoveryServer
+from snr.dds.sockets.discovery_server import DiscoveryServer
 from snr.debug import Debugger
 from snr.context import Context
 
@@ -23,7 +22,7 @@ class DiscoveryClient(Context):
 
         discovery_server = DiscoveryServer(self,
                                            local_role,
-                                           settings.DISCOVERY_SERVER_PORT)
+                                           self.settings.DISCOVERY_SERVER_PORT)
 
         local_host = None
 
@@ -49,11 +48,11 @@ class DiscoveryClient(Context):
         """
         try:
             s = socket.create_connection(target_host_tuple,
-                                         settings.SOCKETS_CLIENT_TIMEOUT)
+                                         self.settings.SOCKETS_CLIENT_TIMEOUT)
             # Reuse port prior to slow kernel release
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-            data = s.recv(settings.MAX_SOCKET_SIZE).decode()
+            data = s.recv(self.settings.MAX_SOCKET_SIZE).decode()
             s.shutdown(socket.SHUT_RDWR)
             s.close()
             s = None

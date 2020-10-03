@@ -51,9 +51,8 @@ class DDS(Context):
         self.rx_consumer.start()
         self.tx_consumer.start()
 
-        self.dbg("dds",
-                 "Initialized with {} connections",
-                 [len(self.connections)])
+        self.info("Initialized with {} connections",
+                  [len(self.connections)])
 
     def store(self, key: str, value):
         self.inbound_store(Page(key, value))
@@ -75,8 +74,8 @@ class DDS(Context):
 
     def dump(self):
         for k in self.data_dict.keys():
-            self.dbg("datastore_dump", "k: {}\tv: {}",
-                     [k, self.data_dict.get(k).data])
+            super().dump("k: {}\tv: {}",
+                         [k, self.data_dict.get(k).data])
 
     def __write(self, page: Page):
         self.data_dict[page.key] = page
@@ -116,9 +115,7 @@ class DDS(Context):
 
     def set_terminate_flag(self, reason: str):
         self.terminate_flag = True
-        self.dbg("DDS",
-                 "Preparing to terminate DDS for {}",
-                 [reason])
+        self.info("Preparing to terminate DDS for {}", [reason])
 
     def join(self):
         """Shutdown DDS threads
